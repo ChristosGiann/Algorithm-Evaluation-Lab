@@ -386,3 +386,37 @@ solve(values) επιστρέφει list ή None για in-place. Δέκα fresh 
 ## Pathfinding foundation (#65)
 
 Κοινό GridInput/Search/PathfindingResult για bfs/dfs/dijkstra/astar, adapter από υπάρχον UI grid χωρίς DOM, frozen copies, cardinal unit-cost neighbours και same-grid evaluation utility. Found/no-path/invalid/runner error έχουν διακριτό contract. Timing μόνο του search call· path length σε ακμές, null όταν δεν υπάρχει path. Δεν προστίθενται ακόμη οι τέσσερις algorithms, animation ή persistence και δεν κλείνουν τα #1–#10. Αναλυτικό contract και όρια στο [Pathfinding](PATHFINDING.md). Tests καλύπτουν input validation, walls/markers, same-cell/no-path, invalid trace, timing boundary και copy isolation· το sorting regression suite παραμένει ενεργό.
+
+
+## Shared evaluation model (#95)
+
+Η κοινή ροή είναι input definition → family validator → πραγματική implementation → result/metrics → comparison → αποθήκευση snapshot → κοινό history/detail. Το educational content εξηγεί τη θεωρία και το visualization καταναλώνει traces· κανένα από τα δύο δεν παράγει benchmark timings.
+
+| Concept | Shared boundary | Sorting adapter | Pathfinding adapter |
+| --- | --- | --- | --- |
+| Family | Experiment.family και ExperimentByFamily union | sorting, default για παλιές εγγραφές | pathfinding |
+| Implementation | StoredResult identity snapshot | catalogue ID/slug/Python registry | TypeScript registry key/name/version |
+| Input | Το snapshot ανήκει στο experiment | dataset definition/type/size/seed | versioned grid/walls/costs/start/end |
+| Execution | Validator πριν από execution, metrics χωριστά από UI | bounded Python runner, repeated fresh arrays | pure TypeScript search, frozen grid |
+| Result/metrics | StoredResult<Identity, Measurement>, ExperimentHeader | BenchmarkResult: timings_ns, correctness, distribution statistics | PathfindingResult: found, timeMs, visited, length/cost, traces |
+| Comparison | Κοινό input ανά σύγκριση, ανεξάρτητα αποτελέσματα | server orchestration, errors/timeouts, baseline ratios | browser orchestration, error rows, weighted cost |
+| Save | useExperimentSave / createSaveController | signed token, 15 s request timeout | captured input/results, 30 s request timeout |
+| Storage | store_experiment transaction, Experiment/Result | signature/catalogue validation προηγείται, definitions/relations προαιρετικά | structural validation προηγείται, client-reported snapshots |
+| History | κοινά list/get, keyset pagination, family label | sorting detail renderer | readonly grid/path detail renderer |
+| Education / visualization | shared EducationalContent, rendering εκτός timing | curated backend metadata και sorting trace playback | curated domain metadata και grid trace playback |
+
+Το `src/evaluation/contracts.ts` μοιράζεται μόνο το identity/measurement envelope και το experiment header. Το `ExperimentByFamily` αντιστοιχίζει family σε συγκεκριμένο schema· το union επιτρέπει narrowing πριν την πρόσβαση σε family-specific metrics. Δεν υπάρχει generic αριθμός “score” ή mapping no-path σε incorrect sorting. Το legacy sorting family παραμένει optional στον frontend για συμβατότητα με παλιά fixtures/responses.
+
+Το `src/evaluation/saveController.ts` κρατά μία active request ανά mounted result: idle → saving → saved/error, αποτροπή διπλού submit και save μετά από επιτυχία, retry μετά από error, abort στο unmount, απόρριψη late responses με request identity. Το `useExperimentSave` το συνδέει με React μέσω useSyncExternalStore. Δύο πραγματικοί consumers είναι SaveComparison και SavePathfinding. Κάθε consumer κρατά δικά του payload, labels, validation, timeout και key που αλλάζει όταν εμφανίζεται νέο result. Η ακύρωση δεν αναιρεί εγγραφή που έχει ήδη γίνει στον server· το υπάρχον uncertain-save feedback συνεχίζει να ισχύει.
+
+Το `backend/core/experiments/persistence.py::store_experiment` αποθηκεύει ήδη validated completed/failed snapshots σε μία transaction: header, optional implementations/dataset definitions, ordered result snapshots. Δεν επαληθεύει ή εκτελεί algorithms. Καλείται από τα sorting-comparison και pathfinding adapters, τα οποία κρατούν διαφορετικά trust boundaries (server signing έναντι browser measurements). Το sorting draft → run lifecycle παραμένει στο execution.py επειδή κάνει claim και execution, όχι μόνο save έτοιμου αποτελέσματος. Δεν αλλάζουν URLs, response shapes, migrations, timings ή algorithm behavior.
+
+### Ένταξη επόμενης family
+
+1. Ορίζουμε συγκεκριμένα input/result/metric types και registry/validator/runner, με timing έξω από rendering. Δεν προσθέτουμε κενά sorting/pathfinding πεδία.
+2. Προσθέτουμε family στο model choices με migration και στο ExperimentByFamily. Έτσι τα shared experiment types επεκτείνονται με πραγματικό family-specific schema.
+3. Ένας μικρός save adapter επικυρώνει το δικό του payload/provenance και καλεί store_experiment. Το frontend save control καλεί useExperimentSave με το δικό του API operation και αλλάζει key ανά result.
+4. Επεκτείνουμε το family label και το detail dispatch με τον νέο renderer. List/get, pagination, atomic writes και save request lifecycle επαναχρησιμοποιούνται.
+5. Προσθέτουμε family regression tests και compile-time contract assertions. EducationalContent επαναχρησιμοποιείται αν το learning structure ταιριάζει· animation παραμένει ξεχωριστό από measured execution.
+
+Οι μελλοντικές searching/string-search families δεν υλοποιούνται εδώ. Δεν ενοποιείται το synchronous browser search με το asynchronous server benchmark μόνο για να μοιάζει ο κώδικας. Κάθε νέο shared abstraction πρέπει να αποκτήσει τουλάχιστον δύο πραγματικούς consumers.

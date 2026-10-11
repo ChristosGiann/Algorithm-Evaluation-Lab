@@ -314,3 +314,9 @@ Bilingual Library cards για BFS/DFS/Dijkstra/A* με intuition, βήματα,
 ## Pathfinding persistence (#94)
 
 Κοινό Experiment/Result subsystem με family και versioned input snapshot, atomic browser-result save endpoint, readonly reopen και family labels στο history. 114 backend / 68 frontend tests, lint/build/check/migration checks επιτυχή. Migration 0005 εφαρμόστηκε τοπικά. Browser smoke 2026-10-10: weighted four-algorithm comparison αποθηκεύτηκε ως #14, refresh/history reopen κράτησε ίδιες μετρήσεις και costs, el/en και disabled rerun επαληθεύτηκαν.
+
+## Shared evaluation infrastructure (#95)
+
+Κοινό atomic store_experiment για sorting/pathfinding snapshots, κοινό save controller/hook και type-safe StoredResult/ExperimentHeader/ExperimentByFamily. Οι validators, trust boundaries, runners και metrics παραμένουν family-specific. Architecture guide περιγράφει τα extension points και πώς επεκτείνεται κοινό history/save χωρίς αντιγραφή lifecycle. Δεν απαιτείται migration.
+
+Validation #95: 117 backend / 72 frontend tests, lint/build, Django check και migration drift check επιτυχή. Browser smoke 2026-10-10: sorting comparison αποθηκεύτηκε ως #15 και pathfinding ως #16 μέσω των shared save/storage flows. Μετά από refresh, και τα δύο άνοιξαν από το κοινό history με persisted results και disabled rerun. Δεν απαιτείται migration.

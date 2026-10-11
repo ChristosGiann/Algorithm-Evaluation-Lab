@@ -76,7 +76,7 @@ class PathfindingPersistenceTests(APITestCase):
                 self.assertEqual(ExperimentResult.objects.count(), 0)
 
     def test_storage_failure_rolls_back(self):
-        with patch("core.experiments.pathfinding.ExperimentResult.objects.bulk_create", side_effect=IntegrityError("storage")):
+        with patch("core.experiments.persistence.ExperimentResult.objects.bulk_create", side_effect=IntegrityError("storage")):
             with self.assertRaises(IntegrityError):
                 self.save(self.payload())
         self.assertFalse(Experiment.objects.exists())

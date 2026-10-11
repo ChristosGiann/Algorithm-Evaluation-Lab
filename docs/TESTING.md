@@ -466,3 +466,9 @@ Manual smoke προς επαλήθευση: άνοιγμα Library, expand κά�
 114 backend tests: save/list/detail, catalogue independence, no-rerun, null/zero semantics, malformed/bounded payloads, transaction rollback και sorting compatibility. 68 frontend tests: frozen independent capture, save/list/get API contract, πραγματικό result → persisted view, el/en history/rendering με searches που πετούν exception αν κληθούν κατά το reopen. Lint/build και Django check/makemigrations --check περνούν.
 
 Browser smoke 2026-10-10 στο production preview: νερό cost 5 στο (0,0), Compare BFS/DFS/Dijkstra/A*, Save ως “Smoke #94 — weighted comparison” (#14), refresh, κοινό history → reopen. Οι χρόνοι 1.4/0.6/1.9/0.8 ms και paths/costs παρέμειναν ίδια. Το αποθηκευμένο grid είχε το cost 5, ενώ το νέο live grid επέστρεψε στα defaults. El/en και disabled run στο αποθηκευμένο record επαληθεύτηκαν. Αρχικό Vite dev timeout αντιμετωπίστηκε με production preview.
+
+## Shared evaluation (#95)
+
+Νέα tests καλύπτουν duplicate-submit/saved guards, failure/timeout retry, cancellation/late-response isolation και compile-time απόρριψη ανταλλαγής sorting/pathfinding metrics. Shared backend tests καλύπτουν ανεξάρτητα snapshots, completed/failed status και rollback για τις δύο families. Τα existing signed sorting και browser pathfinding save/list/reopen regression tests παραμένουν ενεργά.
+
+Validation #95: 117 backend / 72 frontend tests, lint/build, Django check και migration drift check επιτυχή. Browser smoke 2026-10-10: sorting comparison αποθηκεύτηκε ως #15 και pathfinding ως #16 μέσω των shared save/storage flows. Μετά από refresh, και τα δύο άνοιξαν από το κοινό history με persisted results και disabled rerun. Δεν απαιτείται migration.

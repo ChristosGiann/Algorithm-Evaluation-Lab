@@ -408,3 +408,5 @@ solve(values) επιστρέφει list ή None για in-place. Δέκα fresh 
 Το #93 ολοκληρώνει curated el/en pathfinding education στη Library: theory, guarantees, weighted prerequisites και tested walkthroughs για τους τέσσερις algorithms. Επόμενο #94 pathfinding persistence.
 
 Το #94 προσθέτει persistence για ολοκληρωμένα pathfinding runs/comparisons στο κοινό Experiment history, με input/result snapshots και reopen χωρίς rerun.
+
+Το #95 εξάγει shared experiment storage, frontend save lifecycle και typed snapshot contracts με δύο πραγματικούς consumers. Το architecture guide τεκμηριώνει την προσθήκη μελλοντικών families χωρίς rewrite.

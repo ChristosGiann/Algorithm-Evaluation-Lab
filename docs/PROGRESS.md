@@ -332,3 +332,9 @@ Validation #96: 78 frontend και 117 backend tests επιτυχή, lint/build,
 Προστέθηκαν text/pattern contracts, first-match/empty/UTF-16 semantics, χωριστά preprocessing/search metrics, independent correctness και same-input comparison. Deterministic fixtures καλύπτουν overlapping/repeated patterns, edge cases και failure isolation. Naive/KMP/Rabin-Karp/Boyer-Moore είναι planned identities, χωρίς πραγματικές implementations ή UI ακόμη. Βλ. [String search](STRING_SEARCH.md).
 
 Validation #97: 85 frontend και 117 backend tests επιτυχή, lint/build, Django check και migration drift check καθαρά. Δεν απαιτείται migration.
+
+## Shared educational framework (#98)
+
+Κοινά education types, legacy adapter και section renderer για sorting/pathfinding, με localized extension sections και generic family cards. Searching/string-search fixtures επαληθεύουν την επέκταση χωρίς νέο rendering branch· το πλήρες curated περιεχόμενό τους παραμένει επόμενο scope. 87 frontend tests και lint/build επιτυχή. Browser smoke: BFS/Bubble Sort, el/en, walkthroughs και console καθαρά.
+
+Backend validation #98: 117 tests, Django check και migration drift check επιτυχή. Δεν απαιτείται migration.

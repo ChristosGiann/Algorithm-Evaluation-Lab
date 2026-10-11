@@ -574,3 +574,49 @@ test('pathfinding save, list and reopen use snapshots without invoking search', 
     assert.ok(requests.every(([url])=>!url.includes('/run/')));
   } finally {globalThis.fetch=originalFetch;Object.assign(PATHFINDING_SEARCHES,originalSearches);}
 });
+
+test('shared family renderer supports searching and string-search extensions in both locales', async () => {
+  const { FamilyEducation } = await import('../src/components/AlgorithmLibrary/FamilyEducation.tsx');
+  const { SEARCHING_DEFINITIONS } = await import('../src/searching/evaluation.ts');
+  const { STRING_SEARCH_ALGORITHMS } = await import('../src/stringSearch/evaluation.ts');
+  for (const language of ['el', 'en']) {
+    for (const [id, slug, name] of [
+      ['searching', 'binary', SEARCHING_DEFINITIONS.binary.name],
+      ['string-search', STRING_SEARCH_ALGORITHMS[1], 'KMP'],
+    ]) {
+      const title = language === 'el' ? 'Προϋποθέσεις' : 'Preconditions';
+      const education = { [language]: { what: 'WHAT', how: ['STEP'], sections: [
+        { id: 'preconditions', title, paragraphs: ['DOMAIN_RULE'], steps: ['CUSTOM_STEP'], codeSteps: ['<pattern>'] },
+      ] } };
+      const html = render(FamilyEducation, { id, title: id, language, algorithms: [{slug, name, education}] });
+      for (const value of [name, title, 'DOMAIN_RULE', 'STEP', 'CUSTOM_STEP', '&lt;pattern&gt;']) assert.ok(html.includes(value));
+      assert.ok(html.includes('aria-labelledby="' + id + '-education-title"'));
+      assert.ok(html.includes(language === 'el' ? 'ανεξάρτητα από τις μετρήσεις' : 'separate from measurements'));
+      assert.ok(!html.includes('Stable'));
+      assert.ok(!html.includes(language === 'el' ? 'Βέλτιστη διαδρομή' : 'Optimality'));
+    }
+  }
+});
+
+test('education adapter preserves legacy metadata and omits empty localized sections', async () => {
+  const { educationSections } = await import('../src/education/content.ts');
+  const { EducationalContent } = await import('../src/components/AlgorithmLibrary/EducationalContent.tsx');
+  const metadata = { el: { how: ['STEP'], example: ['EXAMPLE'], sections: [
+    {id: 'empty', title: 'EMPTY', paragraphs: ['  '], steps: []},
+  ] }, stable: false, in_place: true, walkthrough: [[2, 1], [1, 2]] };
+  const before = structuredClone(metadata);
+  const sections = educationSections(metadata, 'el');
+  assert.ok(sections.some(section => section.id === 'how'));
+  assert.ok(!sections.some(section => section.id === 'empty'));
+  const walkthrough = sections.find(section => section.id === 'walkthrough');
+  assert.deepEqual(walkthrough.steps, ['EXAMPLE']);
+  assert.deepEqual(walkthrough.codeSteps, ['[2, 1]', '[1, 2]']);
+  assert.deepEqual(metadata, before);
+  for (const language of ['el', 'en']) {
+    for (const education of [null, {}, {[language]: {}}, {[language]: {what: ' ', sections: []}}]) {
+      const html = render(EducationalContent, {algorithm: {education}, language});
+      assert.ok(html.includes(language === 'el' ? 'μη διαθέσιμο' : 'unavailable'));
+      assert.ok(!html.includes('<details'));
+    }
+  }
+});

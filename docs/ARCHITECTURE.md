@@ -428,3 +428,7 @@ solve(values) επιστρέφει list ή None για in-place. Δέκα fresh 
 ## String-search foundation (#97)
 
 Ξεχωριστό src/stringSearch/evaluation.ts με literal UTF-16 text/pattern input και first-match result. Το prepare(pattern) και search(text) έχουν ανεξάρτητα timings/counters, ενώ correctness και validation εκτελούνται εκτός timing. Same-input comparison επαναλαμβάνει preparation ανά entry και απομονώνει failures. Το alignment trace προετοιμάζει visualization· δεν ενεργοποιείται ακόμη UI/API/persistence. Βλ. [String search](STRING_SEARCH.md).
+
+## Shared education (#98)
+
+EducationMetadata → educationSections adapter → EducationalContent renderer. Τα common/extension sections είναι ανεξάρτητα από family. Sorting catalogue και pathfinding domain παραμένουν sources of truth, με legacy fields συμβατά. Το FamilyEducation αποδίδει data-driven cards για νέες families. Βλ. [Education](EDUCATION.md).

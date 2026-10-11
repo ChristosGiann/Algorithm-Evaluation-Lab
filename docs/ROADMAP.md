@@ -410,3 +410,7 @@ solve(values) επιστρέφει list ή None για in-place. Δέκα fresh 
 Το #94 προσθέτει persistence για ολοκληρωμένα pathfinding runs/comparisons στο κοινό Experiment history, με input/result snapshots και reopen χωρίς rerun.
 
 Το #95 εξάγει shared experiment storage, frontend save lifecycle και typed snapshot contracts με δύο πραγματικούς consumers. Το architecture guide τεκμηριώνει την προσθήκη μελλοντικών families χωρίς rewrite.
+
+## Searching phase (#96)
+
+Το foundation παρέχει contracts/validation/evaluation για Linear, Binary, Jump και Exponential Search. Ακολουθούν σε ξεχωριστά issues οι pure implementations με tests, education/visualization, UI comparison και persistence. Δεν έχουν υλοποιηθεί ακόμη οι τέσσερις algorithms. String search (#97) παραμένει ξεχωριστή family και το #98 αφορά το shared educational rendering. Βλ. [Searching](SEARCHING.md).

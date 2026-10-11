@@ -1,3 +1,4 @@
+from .experiments.pathfinding import save_pathfinding
 from django.urls import path
 
 from .views import AlgorithmListAPIView, health_check
@@ -8,6 +9,7 @@ from .custom_python.api import validate_custom_python
 
 
 urlpatterns = [
+    path("experiments/pathfinding/", save_pathfinding, name="save-pathfinding"),
     path("benchmarks/sorting/custom/", custom_benchmark, name="custom-sorting-benchmark"),
     path("benchmarks/sorting/compare/save/", persist_comparison, name="save-comparison"),
     path("benchmarks/sorting/compare/", sorting_comparison, name="sorting-comparison"),

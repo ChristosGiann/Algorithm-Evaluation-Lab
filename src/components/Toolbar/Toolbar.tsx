@@ -44,12 +44,12 @@ export function Toolbar({
         <select id="algorithm-select" className="toolbar-select" value={selectedAlgorithm} disabled={disabled}
           onChange={event => {
             const value = event.target.value;
-            if (value === "bfs" || value === "dfs") onAlgorithmChange(value);
+            if (value === "bfs" || value === "dfs" || value === "dijkstra" || value === "astar") onAlgorithmChange(value);
           }}>
           <option value="bfs">{algorithms.bfs}</option>
           <option value="dfs">{algorithms.dfs}</option>
-          <option value="dijkstra" disabled>{algorithms.dijkstra}</option>
-          <option value="astar" disabled>{algorithms.astar}</option>
+          <option value="dijkstra">{algorithms.dijkstra}</option>
+          <option value="astar">{algorithms.astar}</option>
         </select>
       </div>
 

@@ -448,3 +448,27 @@ Pathfinding comparison (#9): πραγματικό registry BFS/DFS σε found/no
 Browser smoke (#9, 2026-10-07): production build, default grid BFS 19 βήματα/391 visited και DFS 139/140, χωρίς animation marks. Αλλαγή el/en διατήρησε τα ίδια metrics. Grid edit έκρυψε παλιό table· τέσσερα walls γύρω από start έδωσαν no-path/1 visited και στους δύο. Το Compare κλείδωσε στο animation και μετά καθάρισε trace/single-run statistics πριν εμφανίσει νέο table. 53 frontend tests, lint και build επιτυχή.
 
 Dijkstra (#90): unit-cost agreement με BFS, weighted detour μικρότερου κόστους/περισσότερων βημάτων, zero-cost cycles, fractions, walls/no-path/start=end, repeated-run isolation και 10.000-cell path. Ανεξάρτητο Floyd–Warshall oracle σε 80 deterministic weighted 3×3 grids ελέγχει όλα τα walkable start/end pairs. Invalid costs απορρίπτονται πριν από clock/search, weighted snapshots είναι frozen/isolated, comparison συνεχίζει μετά από mutation failure και Dijkstra result γίνεται δεκτό από playback. Συνολικά 57 frontend tests. Δεν προστίθεται UI feature στο #90· terrain/controls ακολουθούν στο #92.
+
+A* (#91): 60 frontend tests συνολικά. Κοινό independent Floyd–Warshall oracle για Dijkstra/A* σε 80 deterministic weighted grids και όλα τα walkable start/end pairs, έλεγχοι admissibility και consistency της Manhattan. Dedicated scenarios: unit costs, weighted detour, fractional scaling (όπου unscaled Manhattan αποτυγχάνει), zero minimum με Dijkstra-equivalent trace, walls excluded από minimum, no-path/start=end, deterministic runs/isolation, 10.000-cell path και λιγότερα visited σε συγκεκριμένο open grid. Injected clocks/invalid costs/comparison/playback διατηρούν κοινό contract. Τα Dijkstra regression tests επαληθεύουν την εξαγωγή shared min-heap. Δεν υπάρχει νέο browser UI flow στο #91.
+
+Weighted terrain (#92): 63 frontend tests. Paint/wall/clear/reset input mapping, start exclusion/end inclusion στο cost, no-path null/start=end zero, invalid terrain rejection, preservation κατά το animation και ανεξάρτητα snapshots. Weighted detour: BFS 2 βήματα/cost 6, Dijkstra/A* 4 βήματα/cost 4. Registry εκτελεί και τους τέσσερις με ξεχωριστά timings, el/en cells εμφανίζουν terrain/cost και ο πίνακας διαχωρίζει βήματα από cost.
+
+Validation #92 (2026-10-09): 63 tests, lint και production build επιτυχή. Το interactive browser smoke δεν ολοκληρώθηκε: ο browser automation process δεν εκκινεί λόγω environment setup error, ακόμη και μετά από reset. Τα component rendering/domain/playback tests πέρασαν· η οπτική επιβεβαίωση παραμένει μη επαληθευμένη σε αυτό το session.
+
+## Pathfinding education (#93)
+
+`npm test`: 66 tests. Νέα coverage: metadata keys = executable registry, πλήρες el/en περιεχόμενο, πραγματικά paths/costs των walkthroughs, συμφωνία παραδειγμάτων με εμφανιζόμενα κείμενα, Library rendering ενώ το API φορτώνει και ασφαλές fallback για missing language/optional fields. Existing sorting education tests παραμένουν πράσινα. `npm run lint` και `npm run build` περνούν.
+
+Manual smoke προς επαλήθευση: άνοιγμα Library, expand κάθε card, αλλαγή el/en, narrow viewport και διαθέσιμα pathfinding cards με backend offline. Δεν δηλώνεται ως επιτυχές: στις 2026-10-09 η browser automation απέτυχε πριν συνδεθεί με tab (kernel startup error).
+
+## Pathfinding persistence (#94)
+
+114 backend tests: save/list/detail, catalogue independence, no-rerun, null/zero semantics, malformed/bounded payloads, transaction rollback και sorting compatibility. 68 frontend tests: frozen independent capture, save/list/get API contract, πραγματικό result → persisted view, el/en history/rendering με searches που πετούν exception αν κληθούν κατά το reopen. Lint/build και Django check/makemigrations --check περνούν.
+
+Browser smoke 2026-10-10 στο production preview: νερό cost 5 στο (0,0), Compare BFS/DFS/Dijkstra/A*, Save ως “Smoke #94 — weighted comparison” (#14), refresh, κοινό history → reopen. Οι χρόνοι 1.4/0.6/1.9/0.8 ms και paths/costs παρέμειναν ίδια. Το αποθηκευμένο grid είχε το cost 5, ενώ το νέο live grid επέστρεψε στα defaults. El/en και disabled run στο αποθηκευμένο record επαληθεύτηκαν. Αρχικό Vite dev timeout αντιμετωπίστηκε με production preview.
+
+## Shared evaluation (#95)
+
+Νέα tests καλύπτουν duplicate-submit/saved guards, failure/timeout retry, cancellation/late-response isolation και compile-time απόρριψη ανταλλαγής sorting/pathfinding metrics. Shared backend tests καλύπτουν ανεξάρτητα snapshots, completed/failed status και rollback για τις δύο families. Τα existing signed sorting και browser pathfinding save/list/reopen regression tests παραμένουν ενεργά.
+
+Validation #95: 117 backend / 72 frontend tests, lint/build, Django check και migration drift check επιτυχή. Browser smoke 2026-10-10: sorting comparison αποθηκεύτηκε ως #15 και pathfinding ως #16 μέσω των shared save/storage flows. Μετά από refresh, και τα δύο άνοιξαν από το κοινό history με persisted results και disabled rerun. Δεν απαιτείται migration.

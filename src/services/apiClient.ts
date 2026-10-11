@@ -109,3 +109,9 @@ export function saveComparison(name: string, token: string, signal: AbortSignal)
 export function runCustomBenchmark(input: {source:string; trusted:boolean; size:number; seed:number; dataset_type: import("../types/benchmark").DatasetType}, signal: AbortSignal): Promise<import("../types/comparison").ComparisonRow> {
   return apiRequest("/api/benchmarks/sorting/custom/", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(input),signal});
 }
+
+export function savePathfinding(name: string, snapshot: import("../pathfinding/persistence").PathfindingSnapshot, signal: AbortSignal): Promise<import("../types/experiment").PathfindingExperiment> {
+  return apiRequest("/api/experiments/pathfinding/", {
+    method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name, ...snapshot}), signal,
+  });
+}

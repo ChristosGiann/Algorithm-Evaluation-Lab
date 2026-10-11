@@ -265,3 +265,7 @@ solve(values) επιστρέφει list ή None για in-place. Δέκα fresh 
 ## Mixed custom/built-in comparison (#68)
 
 Το υπάρχον POST sorting/compare/ δέχεται optional custom_source και trusted:true μαζί με 1–4 distinct built-ins (χωρίς custom παραμένει 2–5). Μία generation, ανεξάρτητες copies σε parent/worker, ίδιο configuration και metrics helper. Το πρώτο selected built-in είναι το ρητό baseline· custom row έχει source_type:custom και algorithm:custom-python. Failure/timeout/disabled/invalid custom δεν ακυρώνουν τις built-in μετρήσεις και δεν δημιουργούν metrics. Το UI προσθέτει προαιρετική built-in επιλογή στη custom φόρμα και επαναχρησιμοποιεί ComparisonResults/table/common scale/relative speed. Mixed results δεν παίρνουν save_token: custom persistence είναι εκτός scope. Process startup δεν χρονομετρείται· ο worker έχει ξεχωριστό process context, επομένως οι χρόνοι δεν αποδεικνύουν γενική ανωτερότητα. Backend tests καλύπτουν same dataset/fresh copies/πραγματικό worker/errors, frontend tests mixed identities/scales/failed rows.
+
+## Pathfinding persistence (#94)
+
+POST `/api/experiments/pathfinding/` αποθηκεύει completed browser runs/comparisons. Body `{name, input: {rows, cols, start, end, walls, costs}, results: [...]}`. 201: Experiment detail, 400: invalid payload. GET `/api/experiments/` summaries προσθέτουν family· GET `/api/experiments/<id>/` προσθέτει family/input_snapshot και επιστρέφει τα stored measurements χωρίς run. Βλ. [πλήρες contract και trust limits](EXPERIMENTS.md#pathfinding-snapshots-94). Απαιτείται migration core.0005.

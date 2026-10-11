@@ -1,4 +1,5 @@
 import type { Grid } from "../types/grid";
+import { terrainCost } from "./terrain";
 
 export const PATHFINDING_ALGORITHMS = ["bfs", "dfs", "dijkstra", "astar"] as const;
 export type PathfindingAlgorithm = typeof PATHFINDING_ALGORITHMS[number];
@@ -15,7 +16,7 @@ export interface GridInput {
 export interface SearchTrace { found: boolean; visited: readonly number[]; path: readonly number[] }
 export type Search = (input: GridInput) => SearchTrace;
 export type PathfindingResult = { algorithm: PathfindingAlgorithm } & (
-  | {status:"completed"; found:boolean; executionTimeMs:number; visitedNodeCount:number; pathLength:number|null; visited:readonly number[]; path:readonly number[]}
+  | {status:"completed"; found:boolean; executionTimeMs:number; visitedNodeCount:number; pathLength:number|null; pathCost:number|null; visited:readonly number[]; path:readonly number[]}
   | {status:"error"; error:"runner_error"|"invalid_result"|"invalid_clock"}
 );
 
@@ -37,16 +38,17 @@ export function snapshotInput(input: GridInput): GridInput {
 export function gridToInput(grid: Grid): GridInput {
   const rows=grid.length, cols=grid[0]?.length ?? 0;
   if (!rows||!cols||rows*cols>10000||grid.some(row=>row.length!==cols)) throw new Error("invalid_grid");
-  const starts:number[]=[], ends:number[]=[], walls:boolean[]=[];
+  const starts:number[]=[], ends:number[]=[], walls:boolean[]=[], costs:number[]=[];
   grid.forEach((row,r)=>row.forEach((node,c)=>{
     if(node.row!==r||node.col!==c||!["empty","start","end","wall","visited","path"].includes(node.type)) throw new Error("invalid_grid");
     const id=r*cols+c;
     if(node.type==="start")starts.push(id);
     if(node.type==="end")ends.push(id);
     walls.push(node.type==="wall");
+    costs.push(terrainCost(node.terrain));
   }));
   if(starts.length!==1||ends.length!==1)throw new Error("invalid_endpoints");
-  return snapshotInput({rows,cols,start:starts[0],end:ends[0],walls});
+  return snapshotInput({rows,cols,start:starts[0],end:ends[0],walls,costs});
 }
 
 /** Stable up/right/down/left order; callers receive a new array. */
@@ -80,6 +82,7 @@ export function evaluatePathfinding(algorithm:PathfindingAlgorithm,input:GridInp
   if(!validTrace(fresh,trace))return {algorithm,status:"error",error:"invalid_result"};
   return {algorithm,status:"completed",found:trace.found,executionTimeMs:elapsed,
     visitedNodeCount:trace.visited.length,pathLength:trace.found?trace.path.length-1:null,
+    pathCost:trace.found?trace.path.slice(1).reduce((sum,id)=>sum+(fresh.costs?.[id]??1),0):null,
     visited:Object.freeze([...trace.visited]),path:Object.freeze([...trace.path])};
 }
 

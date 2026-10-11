@@ -10,6 +10,9 @@
 }
 
 .grid-node {
+  color: #111827;
+  font-size: 12px;
+  font-weight: 700;
   width: 24px;
   height: 24px;
   padding: 0;
@@ -50,3 +53,7 @@
 .grid-node--path {
   background: #facc15;
 }
+
+.grid-node--empty.terrain--mud { background: #d6a66b; }
+.grid-node--empty.terrain--water { background: #9ddbd3; }
+.grid-node:focus-visible { outline: 2px solid #f97316; outline-offset: -2px; }

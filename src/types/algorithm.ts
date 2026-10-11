@@ -13,7 +13,7 @@ export interface AlgorithmImplementation {
   executable: boolean;
 }
 
-export interface EducationalText { what?: string; intuition?: string; how?: string[]; strengths?: string; weaknesses?: string; uses?: string; pitfalls?: string }
+export interface EducationalText { what?: string; intuition?: string; how?: string[]; strengths?: string; weaknesses?: string; uses?: string; pitfalls?: string; complexity?: string; completeness?: string; optimality?: string; weights?: string; example?: string[] }
 
 export interface Algorithm {
   education?: {el?: EducationalText; en?: EducationalText; stable?: boolean; in_place?: boolean; walkthrough?: number[][]} | null;

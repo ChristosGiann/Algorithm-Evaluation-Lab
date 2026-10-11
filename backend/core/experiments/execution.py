@@ -35,7 +35,7 @@ class AlreadyExecuted(APIException):
 def execute_experiment(experiment_id):
     # Conditional write claims the draft before reading configuration. SQLite serializes
     # writers; holding the transaction prevents a second request from running it again.
-    claimed = Experiment.objects.filter(pk=experiment_id, status="draft").update(
+    claimed = Experiment.objects.filter(pk=experiment_id, status="draft", family="sorting").update(
         status="running", updated_at=timezone.now(), execution_error="",
     )
     if not claimed:

@@ -8,25 +8,26 @@ export const translations = {
     },
 
     pathfinding: {
-      title: "Pathfinding — BFS / DFS", description: "Μπλε: εξερεύνηση · Κίτρινο: διαδρομή. Η ταχύτητα αφορά μόνο το animation, όχι τη μέτρηση του αλγορίθμου.",
-      idle: "Σχεδίασε εμπόδια, επίλεξε BFS ή DFS και πάτησε Οπτικοποίηση.",
-      searchNote: "Ο BFS βρίσκει τη συντομότερη διαδρομή σε αυτό το grid. Ο DFS εξερευνά πρώτα σε βάθος και δεν εγγυάται τη συντομότερη διαδρομή.",
+      title: "Pathfinding — BFS / DFS / Dijkstra / A*", description: "Μπλε: εξερεύνηση · Κίτρινο: διαδρομή. Η ταχύτητα αφορά μόνο το animation, όχι τη μέτρηση του αλγορίθμου.",
+      idle: "Σχεδίασε terrain και εμπόδια, επίλεξε αλγόριθμο και πάτησε Οπτικοποίηση.",
+      searchNote: "Dijkstra/A* ελαχιστοποιούν το συνολικό κόστος. BFS/DFS αγνοούν τα weights στην αναζήτηση: ο BFS ελαχιστοποιεί βήματα (και κόστος μόνο σε uniform-cost grid), ενώ ο DFS δεν εγγυάται βέλτιστη διαδρομή.",
       running: "Η αναζήτηση οπτικοποιείται…", found: "Βρέθηκε διαδρομή.",
       noPath: "Δεν υπάρχει διαδρομή.", error: "Δεν ήταν δυνατή η εκτέλεση. Έλεγξε το grid και δοκίμασε ξανά.",
       comparison: {
         title: "Σύγκριση διαδρομών", ready: "Η σύγκριση ολοκληρώθηκε. Δες τα αποτελέσματα στον πίνακα.",
-        caption: "Αποτελέσματα BFS / DFS στο ίδιο grid",
-        note: "Τρέχουν όλοι οι διαθέσιμοι αλγόριθμοι στο ίδιο grid, χωρίς animation. Ο BFS βρίσκει συντομότερη διαδρομή· ο DFS δεν το εγγυάται.",
+        caption: "Αποτελέσματα αλγορίθμων στο ίδιο weighted grid",
+        note: "Τρέχουν όλοι οι διαθέσιμοι αλγόριθμοι στο ίδιο grid, χωρίς animation. Σύγκρινε βήματα και κόστος χωριστά: μόνο Dijkstra/A* εγγυώνται ελάχιστο κόστος με διαφορετικά weights.",
         errors: { runner_error: "Η εκτέλεση απέτυχε.", invalid_result: "Ο αλγόριθμος επέστρεψε μη έγκυρο αποτέλεσμα.", invalid_clock: "Δεν ήταν δυνατή η μέτρηση χρόνου." },
       },
       statistics: {
         title: "Στατιστικά διαδρομής", algorithm: "Αλγόριθμος", found: "Βρέθηκε διαδρομή",
-        yes: "Ναι", no: "Όχι", visited: "Visited nodes", length: "Μήκος διαδρομής (βήματα)", time: "Χρόνος εκτέλεσης",
-        note: "Το μήκος μετρά βήματα μεταξύ cells· — σημαίνει ότι δεν υπάρχει διαδρομή. Ο χρόνος αφορά μόνο τον αλγόριθμο, χωρίς animation ή rendering. Μία μέτρηση δεν αποτελεί γενικό συμπέρασμα απόδοσης.",
+        yes: "Ναι", no: "Όχι", visited: "Visited nodes", length: "Μήκος διαδρομής (βήματα)", time: "Χρόνος εκτέλεσης", cost: "Συνολικό κόστος",
+        note: "Το κόστος αθροίζει τα cells μετά το start, χωρίς χρέωση της αρχής. Το μήκος μετρά βήματα μεταξύ cells· — σημαίνει ότι δεν υπάρχει διαδρομή. Ο χρόνος αφορά μόνο τον αλγόριθμο, χωρίς animation ή rendering. Μία μέτρηση δεν αποτελεί γενικό συμπέρασμα απόδοσης.",
       },
     },
 
-    grid: { cell: (row: number, col: number) => `Κελί γραμμής ${row}, στήλης ${col}` },
+    terrain: { title: "Terrain και εμπόδια", tool: "Εργαλείο σχεδίασης", wall: "Εμπόδιο", plain: "Απλό έδαφος", mud: "Λάσπη", water: "Νερό", clear: "Καθαρισμός terrain", note: "Κλικ σε cell: το επιλεγμένο terrain ορίζει κόστος εισόδου 1/3/5. Τα walls είναι αδιάβατα. Clear path κρατά terrain/walls· Clear walls κρατά terrain· Clear terrain κρατά walls· Reset καθαρίζει και τα δύο. Το start δεν χρεώνεται." },
+    grid: { cell: (row: number, col: number) => `Κελί γραμμής ${row}, στήλης ${col}`, plain: "Απλό έδαφος", mud: "Λάσπη", water: "Νερό", wall: "Εμπόδιο", cost: "Κόστος" },
 
     backendStatus: {
       loading: "Έλεγχος σύνδεσης με το backend...",
@@ -59,10 +60,10 @@ export const translations = {
     },
 
     algorithmLibrary: {
-      eyebrow: "Sorting algorithms",
+      eyebrow: "Sorting & Pathfinding",
       title: "Βιβλιοθήκη Αλγορίθμων",
       description:
-        "Εξερεύνησε τους διαθέσιμους αλγορίθμους ταξινόμησης, τις πολυπλοκότητές τους και τις υλοποιήσεις που μπορούν να χρησιμοποιηθούν στα πειράματα.",
+        "Εξερεύνησε πώς λειτουργούν οι sorting και pathfinding algorithms, τις εγγυήσεις τους και μικρά παραδείγματα.",
       loading: "Φόρτωση αλγορίθμων...",
       error:
         "Δεν ήταν δυνατή η φόρτωση των αλγορίθμων.",
@@ -87,25 +88,26 @@ export const translations = {
     },
 
     pathfinding: {
-      title: "Pathfinding — BFS / DFS", description: "Blue: exploration · Yellow: path. Speed affects animation only, not algorithm measurement.",
-      idle: "Draw walls, choose BFS or DFS and press Visualize.",
-      searchNote: "BFS finds a shortest path on this grid. DFS explores depth first and does not guarantee a shortest path.",
+      title: "Pathfinding — BFS / DFS / Dijkstra / A*", description: "Blue: exploration · Yellow: path. Speed affects animation only, not algorithm measurement.",
+      idle: "Paint terrain and walls, choose an algorithm and press Visualize.",
+      searchNote: "Dijkstra/A* minimize total cost. BFS/DFS ignore weights during search: BFS minimizes steps (and cost only on uniform-cost grids), while DFS does not guarantee an optimal path.",
       running: "Animating the search…", found: "Path found.",
       noPath: "No path exists.", error: "The search could not run. Check the grid and try again.",
       comparison: {
         title: "Path comparison", ready: "Comparison completed. See the results in the table.",
-        caption: "BFS / DFS results on the same grid",
-        note: "All available algorithms run on the same grid without animation. BFS finds a shortest path; DFS does not guarantee one.",
+        caption: "Algorithm results on the same weighted grid",
+        note: "All available algorithms run on the same grid without animation. Compare steps and cost separately: only Dijkstra/A* guarantee minimum cost with varying weights.",
         errors: { runner_error: "Execution failed.", invalid_result: "The algorithm returned an invalid result.", invalid_clock: "Execution time could not be measured." },
       },
       statistics: {
         title: "Path statistics", algorithm: "Algorithm", found: "Path found",
-        yes: "Yes", no: "No", visited: "Visited nodes", length: "Path length (steps)", time: "Execution time",
-        note: "Length counts steps between cells; — means no path exists. Time measures the algorithm only, excluding animation and rendering. A single measurement is not a general performance conclusion.",
+        yes: "Yes", no: "No", visited: "Visited nodes", length: "Path length (steps)", time: "Execution time", cost: "Total cost",
+        note: "Cost sums cells after the start, excluding the starting cell. Length counts steps between cells; — means no path exists. Time measures the algorithm only, excluding animation and rendering. A single measurement is not a general performance conclusion.",
       },
     },
 
-    grid: { cell: (row: number, col: number) => `Cell row ${row}, column ${col}` },
+    terrain: { title: "Terrain and walls", tool: "Paint tool", wall: "Wall", plain: "Plain", mud: "Mud", water: "Water", clear: "Clear terrain", note: "Click a cell: selected terrain sets entering cost 1/3/5. Walls are blocked. Clear path preserves terrain/walls; Clear walls preserves terrain; Clear terrain preserves walls; Reset clears both. The start is not charged." },
+    grid: { cell: (row: number, col: number) => `Cell row ${row}, column ${col}`, plain: "Plain", mud: "Mud", water: "Water", wall: "Wall", cost: "Cost" },
 
     backendStatus: {
       loading: "Checking backend connection...",
@@ -138,10 +140,10 @@ export const translations = {
     },
 
     algorithmLibrary: {
-      eyebrow: "Sorting algorithms",
+      eyebrow: "Sorting & Pathfinding",
       title: "Algorithm Library",
       description:
-        "Explore the available sorting algorithms, their complexity characteristics and the implementations that can be used in experiments.",
+        "Explore how sorting and pathfinding algorithms work, their guarantees and small examples.",
       loading: "Loading algorithms...",
       error: "Unable to load the algorithms.",
       retry: "Try again",

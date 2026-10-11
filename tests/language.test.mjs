@@ -70,7 +70,7 @@ test('header labels the selector and reflects each selected language', () => {
 test('grid accessible labels and titles follow language while cell identity stays unchanged', () => {
   for (const language of ['el', 'en']) {
     const html = render(GridNode, { node: { row: 2, col: 3, type: 'wall' }, texts: translations[language].grid, onNodeClick() {} });
-    assert.ok(html.includes(`aria-label="${translations[language].grid.cell(2, 3)}"`));
+    assert.ok(html.includes(`aria-label="${translations[language].grid.cell(2, 3)} · ${translations[language].grid.wall}"`));
     assert.match(html, /grid-node--wall/);
   }
 });
@@ -344,15 +344,15 @@ test('same-grid comparison isolates mutation and continues after failure',async(
  assert.throws(()=>comparePathfinding(input,[{algorithm:'bfs',search:success},{algorithm:'bfs',search:success}]));
 });
 
-test('pathfinding renders localized BFS controls and keeps future algorithms unavailable', async () => {
+test('pathfinding renders all four algorithm options', async () => {
   const { Pathfinding } = await import('../src/components/Pathfinding/Pathfinding.tsx');
   for (const language of ['el', 'en']) {
     const html = render(Pathfinding, { language });
     assert.ok(html.includes(translations[language].pathfinding.idle));
     assert.ok(html.includes(translations[language].pathfinding.description));
     assert.match(html, /value="dfs">DFS/);
-    assert.match(html, /value="dijkstra" disabled/);
-    assert.match(html, /value="astar" disabled/);
+    assert.match(html, /value="dijkstra">Dijkstra/);
+    assert.match(html, /value="astar">A\*/);
     assert.match(html, /role="status"/);
     assert.equal((html.match(/class="grid-node /g) || []).length, 600);
   }
@@ -396,12 +396,12 @@ test('path statistics distinguish no-path from zero-length and zero-time results
   const { PathfindingStatistics } = await import('../src/components/Pathfinding/PathfindingStatistics.tsx');
   for (const language of ['el', 'en']) {
     const result = { algorithm: 'bfs', status: 'completed', found: false, visitedNodeCount: 1,
-      pathLength: null, executionTimeMs: 0, visited: [0], path: [] };
+      pathLength: null, pathCost: null, executionTimeMs: 0, visited: [0], path: [] };
     const html = render(PathfindingStatistics, { status: 'completed', result, language });
     assert.ok(html.includes(translations[language].pathfinding.statistics.no));
     assert.match(html, /<dd>—<\/dd>/);
     assert.match(html, /0 ms/);
-    const sameCell = render(PathfindingStatistics, { status: 'completed', result: { ...result, found: true, pathLength: 0, path: [0] }, language });
+    const sameCell = render(PathfindingStatistics, { status: 'completed', result: { ...result, found: true, pathLength: 0, pathCost: 0, path: [0] }, language });
     assert.match(sameCell, /<dd>0<\/dd>/);
     assert.doesNotMatch(sameCell, /<dd>—<\/dd>/);
   }
@@ -435,7 +435,7 @@ test('DFS selection and statistics retain their identity in both languages', asy
   }
 });
 
-test('path comparison renders both algorithms, no-path, zero metrics and failures in el/en', async () => {
+test('path comparison renders all four algorithms, no-path, zero metrics and failures in el/en', async () => {
   const { PathfindingComparison } = await import('../src/components/Pathfinding/PathfindingComparison.tsx');
   const { compareAvailablePathfinding } = await import('../src/pathfinding/registry.ts');
   const input = { rows: 3, cols: 3, start: 0, end: 3, walls: Array(9).fill(false) };
@@ -448,9 +448,11 @@ test('path comparison renders both algorithms, no-path, zero metrics and failure
     assert.ok(html.includes(texts.statistics.note));
     assert.match(html, /<th scope="row">BFS<\/th>/);
     assert.match(html, /<th scope="row">DFS<\/th>/);
+    assert.match(html, /<th scope="row">Dijkstra<\/th>/);
+    assert.match(html, /<th scope="row">A\*<\/th>/);
     assert.match(html, /<td>1<\/td>/);
     assert.match(html, /<td>7<\/td>/);
-    assert.equal((html.match(/0 ms/g) || []).length, 2);
+    assert.equal((html.match(/0 ms/g) || []).length, 4);
     assert.equal(render(PathfindingComparison, { results: null, language }), '');
     const noPath = render(PathfindingComparison, { language, results: [{ ...results[0], found: false, pathLength: null }] });
     assert.ok(noPath.includes(texts.statistics.no));
@@ -460,8 +462,115 @@ test('path comparison renders both algorithms, no-path, zero metrics and failure
     for (const error of ['runner_error', 'invalid_result', 'invalid_clock']) {
       const failed = render(PathfindingComparison, { language, results: [{ algorithm: 'bfs', status: 'error', error }, results[1]] });
       assert.ok(failed.includes(texts.comparison.errors[error]));
-      assert.match(failed, /colSpan="4"/i);
+      assert.match(failed, /colSpan="5"/i);
       assert.equal((failed.match(/0 ms/g) || []).length, 1);
     }
   }
+});
+
+
+test('terrain controls, visible costs and weighted results render in both languages', async () => {
+  const { TerrainControls } = await import('../src/components/Pathfinding/TerrainControls.tsx');
+  const { GridNode } = await import('../src/components/Grid/GridNode.tsx');
+  const { PathfindingComparison } = await import('../src/components/Pathfinding/PathfindingComparison.tsx');
+  const { compareAvailablePathfinding } = await import('../src/pathfinding/registry.ts');
+  const results = compareAvailablePathfinding({rows:2,cols:3,start:0,end:2,walls:Array(6).fill(false),costs:[1,5,1,1,1,1]},()=>0);
+  for(const language of ['el','en']) {
+    const texts=translations[language];
+    const controls=render(TerrainControls,{texts:texts.terrain,tool:'water',disabled:true,onChange(){},onClear(){}});
+    assert.match(controls,/<fieldset disabled=""/);
+    assert.ok(controls.includes(texts.terrain.note));
+    assert.match(controls,/value="water" selected=""/);
+    const cell=render(GridNode,{node:{row:0,col:1,type:'path',terrain:'water'},texts:texts.grid,onNodeClick(){}});
+    assert.ok(cell.includes(texts.grid.water));
+    assert.ok(cell.includes(texts.grid.cost+': 5'));
+    assert.match(cell,/>5<\/button>/);
+    const wall=render(GridNode,{node:{row:0,col:1,type:'wall',terrain:'water'},texts:texts.grid,onNodeClick(){}});
+    assert.ok(wall.includes(texts.grid.wall));
+    assert.doesNotMatch(wall,/>5<\/button>/);
+    const table=render(PathfindingComparison,{language,results});
+    assert.ok(table.includes(texts.pathfinding.statistics.cost));
+    assert.match(table,/<td>6<\/td>/);
+    assert.match(table,/<td>4<\/td>/);
+  }
+});
+
+
+test('Library includes localized pathfinding education while API catalogue is loading', async () => {
+  const { AlgorithmLibrary } = await import('../src/components/AlgorithmLibrary/AlgorithmLibrary.tsx');
+  for (const language of ['el', 'en']) {
+    const html = render(AlgorithmLibrary, {language, texts: translations[language].algorithmLibrary});
+    for (const name of ['BFS', 'DFS', 'Dijkstra', 'A*']) assert.ok(html.includes(name));
+    assert.ok(html.includes(language === 'el' ? 'Πληρότητα' : 'Completeness'));
+    assert.ok(html.includes(language === 'el' ? 'Βέλτιστη διαδρομή' : 'Optimality'));
+    assert.ok(html.includes('0 → 3 → 4 → 5 → 2'));
+    assert.ok(html.includes(translations[language].algorithmLibrary.loading));
+    assert.ok(!html.includes('In-place'));
+    assert.ok(!html.includes('Stable'));
+  }
+});
+
+test('education omits unavailable optional pathfinding fields without inventing guarantees', async () => {
+  const { EducationalContent } = await import('../src/components/AlgorithmLibrary/EducationalContent.tsx');
+  for (const language of ['el', 'en']) {
+    const html = render(EducationalContent, {language, algorithm: {education: {[language]: {what: 'Partial content'}}}});
+    assert.ok(html.includes('Partial content'));
+    assert.ok(!html.includes('undefined'));
+    assert.ok(!html.includes('O('));
+    assert.ok(!html.includes(language === 'el' ? 'Βέλτιστη διαδρομή' : 'Optimality'));
+    const missing = render(EducationalContent, {language, algorithm: {education: {[language === 'el' ? 'en' : 'el']: {what: 'OTHER_LANGUAGE'}}}});
+    assert.ok(!missing.includes('OTHER_LANGUAGE'));
+    assert.ok(missing.includes(language === 'el' ? 'μη διαθέσιμο' : 'unavailable'));
+  }
+});
+
+
+test('pathfinding save, list and reopen use snapshots without invoking search', async () => {
+  const { savePathfinding, listExperiments, getExperiment } = await import('../src/services/apiClient.ts');
+  const { PATHFINDING_SEARCHES } = await import('../src/pathfinding/registry.ts');
+  const { capturePathfinding } = await import('../src/pathfinding/persistence.ts');
+  const { evaluatePathfinding } = await import('../src/pathfinding/evaluation.ts');
+  const { SavePathfinding } = await import('../src/components/Pathfinding/SavePathfinding.tsx');
+  const input = {rows:1,cols:2,start:0,end:1,walls:[false,false],costs:[1,3]};
+  const snapshot = capturePathfinding(input, [evaluatePathfinding('bfs', input, PATHFINDING_SEARCHES.bfs, () => 0)]);
+  const originalFetch = globalThis.fetch;
+  const originalSearches = {...PATHFINDING_SEARCHES};
+  const requests = [];
+  let stored;
+  globalThis.fetch = async (url, options) => {
+    requests.push([url, options?.method ?? 'GET']);
+    if (options?.method === 'POST') {
+      const body = JSON.parse(options.body);
+      assert.equal(body.name, 'Saved route');
+      assert.deepEqual(body.input, snapshot.input);
+      assert.deepEqual(body.results, snapshot.results);
+      stored = {id:94,name:body.name,family:'pathfinding',status:'completed',execution_error:'',implementations:[],datasets:[],
+        input_snapshot:{version:1,source:'browser',grid:body.input,algorithms:['bfs'],movement:'cardinal',costRule:'enter-cell-exclude-start'},
+        results:body.results.map((measurement,index)=>({id:index+1,measurement,implementation_snapshot:{algorithm:measurement.algorithm,name:'BFS',language:'typescript',version:1}}))};
+      return Response.json(stored, {status:201});
+    }
+    if (url.endsWith('/94/')) return Response.json(stored);
+    return Response.json({results:[{id:94,name:'Saved route',family:'pathfinding',status:'completed',created_at:'2026-10-10T00:00:00Z',updated_at:'2026-10-10T00:00:00Z'}],next_before:null});
+  };
+  try {
+    for (const key of Object.keys(PATHFINDING_SEARCHES)) PATHFINDING_SEARCHES[key] = () => {throw new Error('Unexpected rerun');};
+    const signal = new AbortController().signal;
+    await savePathfinding('Saved route', snapshot, signal);
+    const page = await listExperiments(null, signal);
+    const reopened = await getExperiment(94, signal);
+    for (const language of ['el','en']) {
+      const html = render(ExperimentDetails,{experiment:reopened,language});
+      assert.ok(html.includes('Pathfinding'));
+      assert.ok(html.includes('0 → 1'));
+      assert.ok(!html.includes(translations[language].pathfinding.comparison.note));
+      assert.ok(html.includes('0 ms'));
+      assert.ok(html.includes('E(3)'));
+      assert.ok(!html.includes('NaN'));
+      assert.ok(html.includes(language === 'el' ? 'χωρίς νέο run' : 'does not rerun'));
+      assert.ok(render(HistoryPage,{data:page,language,busy:false,onOpen:()=>{}}).includes('Pathfinding'));
+      assert.ok(render(SavePathfinding,{snapshot,language}).includes(language === 'el' ? 'Αποθήκευση αποτελέσματος' : 'Save result'));
+    }
+    assert.deepEqual(requests.map(row=>row[1]),['POST','GET','GET']);
+    assert.ok(requests.every(([url])=>!url.includes('/run/')));
+  } finally {globalThis.fetch=originalFetch;Object.assign(PATHFINDING_SEARCHES,originalSearches);}
 });

@@ -20,7 +20,7 @@ class ExperimentHistoryTests(APITestCase):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual([row["id"] for row in response.data["results"]], [row.pk for row in records[-10:]][::-1])
-        self.assertEqual(set(response.data["results"][0]), {"id", "name", "status", "created_at", "updated_at"})
+        self.assertEqual(set(response.data["results"][0]), {"id", "name", "status", "created_at", "updated_at", "family"})
         cursor = response.data["next_before"]
         new = Experiment.objects.create(name="New while browsing")
         ids = [row["id"] for row in response.data["results"]]

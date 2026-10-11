@@ -180,6 +180,8 @@ class Experiment(models.Model):
         COMPLETED = "completed", "Completed"
         FAILED = "failed", "Failed"
 
+    family = models.CharField(max_length=20, choices=[("sorting", "Sorting"), ("pathfinding", "Pathfinding")], default="sorting")
+    input_snapshot = models.JSONField(null=True, blank=True)
     name = models.CharField(max_length=200)
     execution_error = models.CharField(max_length=40, blank=True)
     implementations = models.ManyToManyField(

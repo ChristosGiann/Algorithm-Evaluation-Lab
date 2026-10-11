@@ -1,6 +1,6 @@
 # Project Progress
 
-Last verified: **2026-10-07**
+Last verified: **2026-10-09**
 
 ## Current phase
 
@@ -10,7 +10,7 @@ Library, visualization, trusted local custom execution και CI. Το #65 πρ�
 το pathfinding input/result/evaluation foundation. Τα #2/#3/#1 παρέχουν neighbours,
 reconstruction και pure BFS. Το #4 προσθέτει την UI σύνδεση και το animation του BFS. Τα #5/#6/#7 καλύπτουν
 control locking, clear path και panel στατιστικών μετά το animation. Το #8 προσθέτει
-DFS στον κοινό selector και στο ίδιο result/playback flow. Το #9 προσθέτει πίνακα σύγκρισης BFS/DFS στο ίδιο grid χωρίς animation. Το #90 προσθέτει pure Dijkstra και optional validated costs στο domain, χωρίς αλλαγή του UI.
+DFS στον κοινό selector και στο ίδιο result/playback flow. Το #9 προσθέτει πίνακα σύγκρισης BFS/DFS στο ίδιο grid χωρίς animation. Τα #90/#91 προσθέτουν pure Dijkstra/A* και optional validated costs στο domain, και το #92 συνδέει τους τέσσερις algorithms με weighted terrain στο UI.
 Η προώθηση από dev σε main γίνεται μόνο με ρητή εντολή· τα δύο branches παραμένουν μόνιμα.
 
 Οι επόμενες ενότητες διατηρούν το ιστορικό ανά issue· οι παλιότερες test counts
@@ -298,3 +298,25 @@ Panel μετά το τέλος του animation με BFS identity, found/no-path
 ## Dijkstra foundation (#90)
 
 Pure deterministic min-heap Dijkstra σε non-negative costs, κοινό result/evaluation/playback contract και immutable weighted snapshots. 57 frontend tests, με weighted detour, zero/fractional costs, independent all-pairs oracle σε 80 deterministic grids, no-path/same-cell, 10.000 cells, isolation και invalid costs. BFS/DFS και UI registry παραμένουν συμβατά. Επόμενα #91 A* και #92 terrain/UI integration.
+
+## A* foundation (#91)
+
+Pure A* με admissible/consistent scaled Manhattan, shared min-heap με Dijkstra, deterministic ordering και το ίδιο result/timing/playback contract. 60 frontend tests: independent weighted oracle, heuristic bounds/consistency, fractions/zero costs, walls/no-path/start=end, isolation και 10.000-cell path. Επόμενο #92 weighted terrain και UI integration και των τεσσάρων algorithms.
+
+## Weighted terrain (#92)
+
+Terrain plain/mud/water (1/3/5), ανεξάρτητο από wall/animation state, ασφαλές input mapping, four-algorithm UI/compare και pathCost metric. Σαφή clear/reset semantics και el/en κόστος/labels. 63 frontend tests, συμπεριλαμβανομένων weighted detours, input validation, preservation κατά το playback και comparison metrics. Επόμενο #93 educational content.
+
+## Pathfinding education (#93)
+
+Bilingual Library cards για BFS/DFS/Dijkstra/A* με intuition, βήματα, complexity, completeness, optimality, weighted suitability και deterministic walkthroughs. Domain metadata δεμένα με το registry, reusable renderer και optional fallback. 66 frontend tests, lint και production build περνούν. Browser smoke παραμένει μη επαληθευμένο: το browser automation αποτυγχάνει κατά την εκκίνηση του kernel. Επόμενο #94 persistence.
+
+## Pathfinding persistence (#94)
+
+Κοινό Experiment/Result subsystem με family και versioned input snapshot, atomic browser-result save endpoint, readonly reopen και family labels στο history. 114 backend / 68 frontend tests, lint/build/check/migration checks επιτυχή. Migration 0005 εφαρμόστηκε τοπικά. Browser smoke 2026-10-10: weighted four-algorithm comparison αποθηκεύτηκε ως #14, refresh/history reopen κράτησε ίδιες μετρήσεις και costs, el/en και disabled rerun επαληθεύτηκαν.
+
+## Shared evaluation infrastructure (#95)
+
+Κοινό atomic store_experiment για sorting/pathfinding snapshots, κοινό save controller/hook και type-safe StoredResult/ExperimentHeader/ExperimentByFamily. Οι validators, trust boundaries, runners και metrics παραμένουν family-specific. Architecture guide περιγράφει τα extension points και πώς επεκτείνεται κοινό history/save χωρίς αντιγραφή lifecycle. Δεν απαιτείται migration.
+
+Validation #95: 117 backend / 72 frontend tests, lint/build, Django check και migration drift check επιτυχή. Browser smoke 2026-10-10: sorting comparison αποθηκεύτηκε ως #15 και pathfinding ως #16 μέσω των shared save/storage flows. Μετά από refresh, και τα δύο άνοιξαν από το κοινό history με persisted results και disabled rerun. Δεν απαιτείται migration.

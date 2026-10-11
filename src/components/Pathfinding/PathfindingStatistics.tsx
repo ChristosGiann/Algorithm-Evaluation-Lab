@@ -19,6 +19,7 @@ export function PathfindingStatistics({ status, result, language }: {
       <div><dt>{stats.found}</dt><dd>{result.found ? stats.yes : stats.no}</dd></div>
       <div><dt>{stats.visited}</dt><dd>{number.format(result.visitedNodeCount)}</dd></div>
       <div><dt>{stats.length}</dt><dd>{result.pathLength === null ? "—" : number.format(result.pathLength)}</dd></div>
+      <div><dt>{stats.cost}</dt><dd>{result.pathCost == null ? "—" : number.format(result.pathCost)}</dd></div>
       <div><dt>{stats.time}</dt><dd>{number.format(result.executionTimeMs)} ms</dd></div>
     </dl>
     <p>{stats.note}</p>

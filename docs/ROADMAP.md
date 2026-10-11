@@ -400,3 +400,13 @@ solve(values) επιστρέφει list ή None για in-place. Δέκα fresh 
 Το #9 ολοκληρώνει τη σύγκριση BFS/DFS στο ίδιο grid χωρίς animation. Το αρχικό pathfinding scope #1–#10 έχει καλυφθεί· Dijkstra/A* και persistence παραμένουν εκτός αυτού του scope.
 
 Το #90 προσθέτει weighted Dijkstra στο καθαρό domain. Ακολουθούν #91 A* → #92 terrain/UI integration → #93 education → #94 persistence. Τα νέα costs είναι opt-in στο input, όχι αυτόματη αλλαγή του UI grid.
+
+Το #91 ολοκληρώνει pure A* και scaled Manhattan heuristic. Επόμενο #92: weighted terrain, cost presentation και UI integration Dijkstra/A* με BFS/DFS. Ακολουθούν education (#93) και persistence (#94).
+
+Το #92 ολοκληρώνει weighted terrain και UI integration BFS/DFS/Dijkstra/A*, μαζί με ξεχωριστό total path cost. Επόμενα #93 pathfinding education και #94 persistence.
+
+Το #93 ολοκληρώνει curated el/en pathfinding education στη Library: theory, guarantees, weighted prerequisites και tested walkthroughs για τους τέσσερις algorithms. Επόμενο #94 pathfinding persistence.
+
+Το #94 προσθέτει persistence για ολοκληρωμένα pathfinding runs/comparisons στο κοινό Experiment history, με input/result snapshots και reopen χωρίς rerun.
+
+Το #95 εξάγει shared experiment storage, frontend save lifecycle και typed snapshot contracts με δύο πραγματικούς consumers. Το architecture guide τεκμηριώνει την προσθήκη μελλοντικών families χωρίς rewrite.

@@ -114,7 +114,7 @@ export function Experiments({ language }: { language: Language }) {
     {experiment && <>
       <div className="experiments__fields">
         <button disabled={busy} onClick={() => void request("open", signal => getExperiment(experiment.id, signal))}>{t.refresh}</button>
-        <button disabled={busy || needsRefresh || experiment.status !== "draft"} onClick={() => void request("run", signal => runExperiment(experiment.id, signal))}>{t.run}</button>
+        <button disabled={busy || needsRefresh || experiment.family === "pathfinding" || experiment.status !== "draft"} onClick={() => void request("run", signal => runExperiment(experiment.id, signal))}>{t.run}</button>
       </div>
       <ExperimentDetails experiment={experiment} language={language} />
     </>}

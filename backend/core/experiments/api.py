@@ -58,8 +58,8 @@ class ExperimentSerializer(StrictInputSerializer):
 
     class Meta:
         model = Experiment
-        fields = ("id", "name", "status", "implementation_ids", "implementations", "datasets", "results", "execution_error", "created_at", "updated_at")
-        read_only_fields = ("id", "status", "results", "execution_error", "created_at", "updated_at")
+        fields = ("id", "name", "status", "implementation_ids", "implementations", "datasets", "results", "execution_error", "created_at", "updated_at", "family", "input_snapshot")
+        read_only_fields = ("id", "status", "results", "execution_error", "created_at", "updated_at", "family", "input_snapshot")
 
     def validate_implementation_ids(self, ids):
         if len(ids) != len(set(ids)):
@@ -96,7 +96,7 @@ class ExperimentSerializer(StrictInputSerializer):
 class ExperimentSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Experiment
-        fields = ("id", "name", "status", "created_at", "updated_at")
+        fields = ("id", "name", "status", "created_at", "updated_at", "family")
         read_only_fields = fields
 
 
@@ -115,7 +115,7 @@ class ExperimentCreateAPIView(generics.CreateAPIView):
                 raise serializers.ValidationError({"before": "Use a positive 64-bit integer ID."})
             queryset = queryset.filter(pk__lt=int(before))
         # One bounded query; no result blobs, relationship queries, or total-count scan.
-        rows = list(queryset.only("id", "name", "status", "created_at", "updated_at")[:11])
+        rows = list(queryset.only("id", "name", "status", "created_at", "updated_at", "family")[:11])
         page = rows[:10]
         return Response({
             "results": ExperimentSummarySerializer(page, many=True).data,

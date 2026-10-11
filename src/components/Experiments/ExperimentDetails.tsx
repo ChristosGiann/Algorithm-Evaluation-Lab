@@ -1,3 +1,4 @@
+import { SavedPathfinding } from "../Pathfinding/SavedPathfinding";
 import { ComparisonResults } from "../Comparison/ComparisonResults";
 import { comparisonFromExperiment } from "../Comparison/fromExperiment";
 import type { Experiment } from "../../types/experiment";
@@ -6,6 +7,7 @@ import { experimentTexts } from "../../i18n/experiment";
 import { benchmarkTexts } from "../../i18n/benchmark";
 
 export function ExperimentDetails({ experiment, language }: { experiment: Experiment; language: Language }) {
+  if (experiment.family === "pathfinding") return <SavedPathfinding experiment={experiment} language={language} />;
   const comparison = comparisonFromExperiment(experiment);
   const t = experimentTexts[language];
   const b = benchmarkTexts[language];

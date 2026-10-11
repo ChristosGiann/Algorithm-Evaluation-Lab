@@ -1,3 +1,4 @@
+import { PathfindingEducation } from "./PathfindingEducation";
 import {
   useEffect,
   useState,
@@ -95,6 +96,9 @@ export function AlgorithmLibrary({
           {texts.description}
         </p>
       </header>
+
+      <PathfindingEducation language={language} />
+      <h3>Sorting</h3>
 
       {status === "loading" && (
         <div

@@ -414,3 +414,7 @@ solve(values) επιστρέφει list ή None για in-place. Δέκα fresh 
 ## Searching phase (#96)
 
 Το foundation παρέχει contracts/validation/evaluation για Linear, Binary, Jump και Exponential Search. Ακολουθούν σε ξεχωριστά issues οι pure implementations με tests, education/visualization, UI comparison και persistence. Δεν έχουν υλοποιηθεί ακόμη οι τέσσερις algorithms. String search (#97) παραμένει ξεχωριστή family και το #98 αφορά το shared educational rendering. Βλ. [Searching](SEARCHING.md).
+
+## String-search phase (#97)
+
+Foundation με explicit first-match contract και σχεδιασμό επέκτασης all occurrences, preprocessing/search boundary και alignment trace. Επόμενα ξεχωριστά issues: Naive → KMP → Rabin-Karp → Boyer-Moore, έπειτα education/visualization/comparison UI/persistence. Το #98 γενικεύει το educational rendering για τις families. Βλ. [String search](STRING_SEARCH.md).

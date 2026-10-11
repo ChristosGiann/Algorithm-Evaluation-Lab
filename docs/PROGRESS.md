@@ -326,3 +326,9 @@ Validation #95: 117 backend / 72 frontend tests, lint/build, Django check και
 Υλοποιήθηκαν input/result contracts, numeric validation, immutable snapshots, algorithm-specific sorted preconditions, search-only timing, independent correctness και same-input comparison με isolated failures. Found/index/probes/comparisons είναι διακριτά metrics. Οι τέσσερις algorithm identities είναι planned· δεν προστίθεται ακόμη executable registry ή UI. Βλ. [Searching](SEARCHING.md).
 
 Validation #96: 78 frontend και 117 backend tests επιτυχή, lint/build, Django check και migration drift check καθαρά. Δεν αλλάζει UI/API/schema και δεν απαιτείται migration.
+
+## String-search foundation (#97)
+
+Προστέθηκαν text/pattern contracts, first-match/empty/UTF-16 semantics, χωριστά preprocessing/search metrics, independent correctness και same-input comparison. Deterministic fixtures καλύπτουν overlapping/repeated patterns, edge cases και failure isolation. Naive/KMP/Rabin-Karp/Boyer-Moore είναι planned identities, χωρίς πραγματικές implementations ή UI ακόμη. Βλ. [String search](STRING_SEARCH.md).
+
+Validation #97: 85 frontend και 117 backend tests επιτυχή, lint/build, Django check και migration drift check καθαρά. Δεν απαιτείται migration.

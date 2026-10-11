@@ -478,3 +478,9 @@ Validation #95: 117 backend / 72 frontend tests, lint/build, Django check και
 Το tests/searching.test.mjs ελέγχει numeric inputs/limits, frozen snapshots, sorted preconditions πριν από timing, found/correct/index semantics, duplicates/empty/absent targets, malformed traces, probe/comparison counters, runner/clock errors και same-input failure isolation. Οι injected test runners είναι contract fixtures, όχι υλοποιήσεις των planned algorithms. Δεν υπάρχει νέα UI ροή για browser smoke σε αυτό το foundation.
 
 Validation #96: 78 frontend και 117 backend tests επιτυχή, lint/build, Django check και migration drift check καθαρά. Δεν αλλάζει UI/API/schema και δεν απαιτείται migration.
+
+## String-search contracts (#97)
+
+tests/string-search.test.mjs: bounded immutable inputs, first-match/empty/repeated/overlapping semantics, literal UTF-16 offsets, malformed results/counters, διακριτά phase timings/errors και same-input comparison. Τα fixtures δεν είναι πραγματικοί algorithms. Δεν αλλάζει UI/API/schema και δεν απαιτείται migration ή νέα browser smoke ροή.
+
+Validation #97: 85 frontend και 117 backend tests επιτυχή, lint/build, Django check και migration drift check καθαρά. Δεν απαιτείται migration.

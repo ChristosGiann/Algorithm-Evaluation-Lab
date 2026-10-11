@@ -2,12 +2,11 @@
 import copy
 import math
 
-from django.db import transaction
 from rest_framework import serializers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from core.models import Experiment, ExperimentResult
+from .persistence import store_experiment
 from .api import ExperimentSerializer
 
 ALGORITHMS = {"bfs": "BFS", "dfs": "DFS", "dijkstra": "Dijkstra", "astar": "A*"}
@@ -73,14 +72,13 @@ def validate_snapshot(data):
 @api_view(["POST"])
 def save_pathfinding(request):
     name, grid, results, algorithms = validate_snapshot(request.data)
-    with transaction.atomic():
-        experiment = Experiment.objects.create(name=name, family="pathfinding", status="completed", input_snapshot={
+    experiment = store_experiment(
+        name=name, family="pathfinding", input_snapshot={
             "version": 1, "source": "browser", "movement": "cardinal", "costRule": "enter-cell-exclude-start",
             "grid": grid, "algorithms": algorithms,
-        })
-        ExperimentResult.objects.bulk_create([ExperimentResult(
-            experiment=experiment,
-            implementation_snapshot={"algorithm": row["algorithm"], "name": ALGORITHMS[row["algorithm"]], "language": "typescript", "version": 1},
-            measurement=row,
-        ) for row in results])
+        }, results=[{
+            "implementation_snapshot": {"algorithm": row["algorithm"], "name": ALGORITHMS[row["algorithm"]], "language": "typescript", "version": 1},
+            "measurement": row,
+        } for row in results],
+    )
     return Response(ExperimentSerializer(experiment).data, status=201)

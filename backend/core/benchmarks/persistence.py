@@ -2,8 +2,9 @@
 from django.core import signing
 from django.db import transaction
 from rest_framework import serializers
-from core.models import AlgorithmImplementation, DatasetDefinition, Experiment, ExperimentResult
+from core.models import AlgorithmImplementation
 from core.experiments.execution import executable_algorithm
+from core.experiments.persistence import store_experiment
 
 SALT = "sorting-comparison-v1"
 MAX_AGE = 3600
@@ -30,15 +31,18 @@ def save_comparison(name, token):
     if any(slug not in implementations for slug in slugs):
         raise serializers.ValidationError({"algorithms": "Catalogue implementation unavailable."})
     correct = all(row["measurement"]["correct"] for row in result["results"])
-    experiment = Experiment.objects.create(name=name, status="completed" if correct else "failed",
-                                            execution_error="" if correct else "incorrect_result")
-    experiment.implementations.set([implementations[slug] for slug in slugs])
-    DatasetDefinition.objects.create(experiment=experiment, **{
-        key: result[key] for key in ("dataset_type", "size", "seed")})
+    snapshots = []
     for row in result["results"]:
         item = implementations[row["algorithm"]]
-        ExperimentResult.objects.create(experiment=experiment, measurement=row["measurement"],
-            implementation_snapshot={"id": item.pk, "name": item.name, "slug": item.slug,
-                "algorithm": row["algorithm"], "language": item.language,
-                "source_type": "built_in", "comparison": True})
-    return experiment
+        snapshots.append({"measurement": row["measurement"], "implementation_snapshot": {
+            "id": item.pk, "name": item.name, "slug": item.slug,
+            "algorithm": row["algorithm"], "language": item.language,
+            "source_type": "built_in", "comparison": True,
+        }})
+    return store_experiment(
+        name=name, family="sorting", results=snapshots,
+        status="completed" if correct else "failed",
+        execution_error="" if correct else "incorrect_result",
+        implementations=[implementations[slug] for slug in slugs],
+        datasets=[{key: result[key] for key in ("dataset_type", "size", "seed")}],
+    )

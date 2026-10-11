@@ -484,3 +484,9 @@ Validation #96: 78 frontend και 117 backend tests επιτυχή, lint/build,
 tests/string-search.test.mjs: bounded immutable inputs, first-match/empty/repeated/overlapping semantics, literal UTF-16 offsets, malformed results/counters, διακριτά phase timings/errors και same-input comparison. Τα fixtures δεν είναι πραγματικοί algorithms. Δεν αλλάζει UI/API/schema και δεν απαιτείται migration ή νέα browser smoke ροή.
 
 Validation #97: 85 frontend και 117 backend tests επιτυχή, lint/build, Django check και migration drift check καθαρά. Δεν απαιτείται migration.
+
+## Shared education (#98)
+
+Το language.test.mjs καλύπτει legacy sorting/pathfinding και searching/string-search extension fixtures σε el/en, ασφαλές empty/missing fallback, escaped code, walkthrough preservation και input immutability. Browser smoke επιβεβαίωσε BFS/Bubble Sort και αλλαγή γλώσσας χωρίς console errors. 87 frontend tests και lint/build επιτυχή.
+
+Backend validation #98: 117 tests, Django check και migration drift check επιτυχή. Δεν απαιτείται migration.

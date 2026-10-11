@@ -418,3 +418,7 @@ solve(values) επιστρέφει list ή None για in-place. Δέκα fresh 
 ## String-search phase (#97)
 
 Foundation με explicit first-match contract και σχεδιασμό επέκτασης all occurrences, preprocessing/search boundary και alignment trace. Επόμενα ξεχωριστά issues: Naive → KMP → Rabin-Karp → Boyer-Moore, έπειτα education/visualization/comparison UI/persistence. Το #98 γενικεύει το educational rendering για τις families. Βλ. [String search](STRING_SEARCH.md).
+
+## Multi-family education (#98)
+
+Το κοινό educational framework υποστηρίζει localized common και family-specific sections, με backward-compatible sorting/pathfinding content. Επόμενο scope είναι οι πραγματικές searching/string-search implementations και το curated περιεχόμενό τους μέσω ξεχωριστών issues. Βλ. [Education](EDUCATION.md).

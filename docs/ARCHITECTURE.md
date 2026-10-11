@@ -420,3 +420,7 @@ solve(values) επιστρέφει list ή None για in-place. Δέκα fresh 
 5. Προσθέτουμε family regression tests και compile-time contract assertions. EducationalContent επαναχρησιμοποιείται αν το learning structure ταιριάζει· animation παραμένει ξεχωριστό από measured execution.
 
 Οι μελλοντικές searching/string-search families δεν υλοποιούνται εδώ. Δεν ενοποιείται το synchronous browser search με το asynchronous server benchmark μόνο για να μοιάζει ο κώδικας. Κάθε νέο shared abstraction πρέπει να αποκτήσει τουλάχιστον δύο πραγματικούς consumers.
+
+## Searching foundation (#96)
+
+Το ανεξάρτητο src/searching/evaluation.ts ορίζει numeric collection/target, immutable snapshots, explicit sorted preconditions και typed completed/error results. Evaluation ελέγχει correctness εκτός timing, ενώ comparison δίνει ίδιο input σε ανεξάρτητες injected implementations. Το probe trace προετοιμάζει visualization· δεν υπάρχει ακόμη searching UI/API/persistence. Τα shared save/storage boundaries του #95 θα χρησιμοποιηθούν όταν προστεθεί πραγματική persistence integration. Βλ. [Searching](SEARCHING.md).

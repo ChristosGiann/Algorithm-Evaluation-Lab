@@ -472,3 +472,9 @@ Browser smoke 2026-10-10 στο production preview: νερό cost 5 στο (0,0)
 Νέα tests καλύπτουν duplicate-submit/saved guards, failure/timeout retry, cancellation/late-response isolation και compile-time απόρριψη ανταλλαγής sorting/pathfinding metrics. Shared backend tests καλύπτουν ανεξάρτητα snapshots, completed/failed status και rollback για τις δύο families. Τα existing signed sorting και browser pathfinding save/list/reopen regression tests παραμένουν ενεργά.
 
 Validation #95: 117 backend / 72 frontend tests, lint/build, Django check και migration drift check επιτυχή. Browser smoke 2026-10-10: sorting comparison αποθηκεύτηκε ως #15 και pathfinding ως #16 μέσω των shared save/storage flows. Μετά από refresh, και τα δύο άνοιξαν από το κοινό history με persisted results και disabled rerun. Δεν απαιτείται migration.
+
+## Searching contracts (#96)
+
+Το tests/searching.test.mjs ελέγχει numeric inputs/limits, frozen snapshots, sorted preconditions πριν από timing, found/correct/index semantics, duplicates/empty/absent targets, malformed traces, probe/comparison counters, runner/clock errors και same-input failure isolation. Οι injected test runners είναι contract fixtures, όχι υλοποιήσεις των planned algorithms. Δεν υπάρχει νέα UI ροή για browser smoke σε αυτό το foundation.
+
+Validation #96: 78 frontend και 117 backend tests επιτυχή, lint/build, Django check και migration drift check καθαρά. Δεν αλλάζει UI/API/schema και δεν απαιτείται migration.

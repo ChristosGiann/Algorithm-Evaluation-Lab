@@ -13,10 +13,11 @@ export interface AlgorithmImplementation {
   executable: boolean;
 }
 
-export interface EducationalText { what?: string; intuition?: string; how?: string[]; strengths?: string; weaknesses?: string; uses?: string; pitfalls?: string; complexity?: string; completeness?: string; optimality?: string; weights?: string; example?: string[] }
+export type { EducationalText } from "../education/content";
+import type { EducationMetadata } from "../education/content";
 
 export interface Algorithm {
-  education?: {el?: EducationalText; en?: EducationalText; stable?: boolean; in_place?: boolean; walkthrough?: number[][]} | null;
+  education?: EducationMetadata | null;
   name: string;
   slug: string;
   description: string;

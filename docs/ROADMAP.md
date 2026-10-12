@@ -430,3 +430,7 @@ Foundation με explicit first-match contract και σχεδιασμό επέκ
 ## Binary Search (#115)
 
 Pure iterative binary implementation: inclusive low/high, lower midpoint, μία equality comparison και (μόνο αν αποτύχει) μία less-than comparison ανά probe. Duplicates επιστρέφουν deterministic οποιοδήποτε matching midpoint. Το evaluateSearching επιβάλλει ascending input πριν το timing· direct binary καλείται μόνο με validated sorted data. Δεν γίνεται implicit sort. O(log n) search χρόνος/state O(1), συν O(log n) trace· το O(n) sortedness validation παραμένει εκτός search timing. Tests καλύπτουν boundaries/duplicates/absent/fractions, exact counters, unsorted rejection, common comparison με Linear και repeated runs σε 10.000 στοιχεία. Ακολουθεί Jump Search (#116), χωρίς αλλαγή UI/API.
+
+## Jump Search (#116)
+
+Pure jump implementation με deterministic step=max(1,floor(sqrt(n))). Κάνει μία less-than comparison ανά block-end probe και equality scans μόνο στο πρώτο block του οποίου το end δεν είναι μικρότερο από target. Repeated endpoint probes μετρούν ξανά· δεν γίνεται reuse παλιού probe. O(√n) search χρόνος, O(1) state συν O(√n) trace. Το shared evaluation επιβάλλει ascending input εκτός timing. Tests καλύπτουν empty/small, exact block boundaries, truncated last block, first/last, duplicates/fractions, absent, unsorted rejection και Linear/Binary/Jump comparison σε 10.000 στοιχεία. Δεν αλλάζει UI/API/persistence. Επόμενο #117 Exponential Search.

@@ -205,3 +205,50 @@ test('Binary Search participates in comparison, rejects unsorted input and isola
     assert.ok(expected.probes.length <= 14);
   }
 });
+
+const { jump } = await import('../src/searching/jump.ts');
+test('Jump Search handles small arrays, block boundaries, duplicates and absent targets', () => {
+  for (const values of [[], [2], [1, 2], [1, 2, 3], [-1.5, 0, 0, 2],
+    Array(10).fill(2), Array.from({length: 10}, (_, i) => i * 2)]) {
+    for (const target of [-2, -1.5, 0, 1, 2, 3, 4, 6, 10, 16, 18, 19]) {
+      const data = snapshotSearchingInput(input(values, target));
+      const result = evaluateSearching('jump', data, jump, () => 0);
+      assert.equal(result.status, 'completed');
+      assert.equal(result.correct, true);
+      assert.equal(result.found, values.includes(target));
+      assert.deepEqual(data.values, values);
+      assert.deepEqual(jump(data), jump(data));
+    }
+  }
+});
+
+test('Jump Search counts block-end and linear probes including repeated endpoints', () => {
+  const values = Array.from({length: 9}, (_, i) => i);
+  assert.deepEqual(jump(input(values, 0)), {index: 0, probes: [2, 0], comparisons: 2});
+  assert.deepEqual(jump(input(values, 2)), {index: 2, probes: [2, 0, 1, 2], comparisons: 4});
+  assert.deepEqual(jump(input(values, 3)), {index: 3, probes: [2, 5, 3], comparisons: 3});
+  assert.deepEqual(jump(input(values, 8)), {index: 8, probes: [2, 5, 8, 6, 7, 8], comparisons: 6});
+  assert.deepEqual(jump(input(values, 9)), {index: null, probes: [2, 5, 8], comparisons: 3});
+  assert.deepEqual(jump(input([...values, 9], 9)), {index: 9, probes: [2, 5, 8, 9, 9], comparisons: 5});
+  assert.deepEqual(jump(input([], 0)), {index: null, probes: [], comparisons: 0});
+});
+
+test('Jump Search uses common preconditions and agrees with Linear/Binary on large inputs', () => {
+  const entries = [
+    {algorithm: 'linear', search: linear}, {algorithm: 'binary', search: binary}, {algorithm: 'jump', search: jump},
+  ];
+  const data = input([3, 1, 2], 1);
+  const rejected = compareSearching(data, entries, () => 0);
+  assert.equal(rejected[0].correct, true);
+  assert.deepEqual(rejected.slice(1).map(row => row.error), ['requires_sorted_input', 'requires_sorted_input']);
+  assert.deepEqual(data.values, [3, 1, 2]);
+  const values = Array.from({length: MAX_SEARCHING_SIZE}, (_, i) => Math.floor(i / 3));
+  for (const target of [-1, 0, 33, 34, 1666, 3333, 3334]) {
+    const fresh = snapshotSearchingInput(input(values, target));
+    const first = jump(fresh), expected = structuredClone(first);
+    first.probes.length = 0;
+    assert.deepEqual(jump(fresh), expected);
+    assert.ok(compareSearching(fresh, entries, () => 0).every(result => result.correct));
+    assert.deepEqual(fresh.values, values);
+  }
+});

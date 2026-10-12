@@ -1,6 +1,6 @@
-# Searching evaluation foundation (#96)
+# Searching evaluation
 
-Το domain στο `src/searching/evaluation.ts` αφορά αναζήτηση αριθμητικού target σε array. Είναι ξεχωριστό από pathfinding και string/pattern matching. Το issue παραδίδει executable contracts, validation και evaluation/comparison helpers με injected implementations· δεν ενεργοποιεί ακόμη algorithms, UI, API ή persistence.
+Το domain στο `src/searching/evaluation.ts` αφορά αναζήτηση αριθμητικού target σε array. Είναι ξεχωριστό από pathfinding και string/pattern matching. Το #96 παρέδωσε contracts, validation και evaluation/comparison helpers. Τα #114–#116 προσθέτουν πραγματικές pure Linear/Binary/Jump implementations (linear.ts, binary.ts, jump.ts). Η Exponential παραμένει planned. UI, API και persistence ακολουθούν σε ξεχωριστά issues.
 
 ## Input και datasets
 
@@ -12,11 +12,11 @@
 
 ## Algorithms και preconditions
 
-| Planned algorithm | Preconditions | Επόμενο βήμα |
+| Algorithm | Preconditions | Κατάσταση |
 | --- | --- | --- |
-| Linear Search | Καμία απαίτηση διάταξης | Pure implementation και correctness tests |
-| Binary Search | Ascending sorted values | Pure implementation και tests για boundaries/duplicates |
-| Jump Search | Ascending sorted values | Pure implementation και block boundary tests |
+| Linear Search | Καμία απαίτηση διάταξης | Υλοποιήθηκε στο #114 |
+| Binary Search | Ascending sorted values | Υλοποιήθηκε στο #115 |
+| Jump Search | Ascending sorted values | Υλοποιήθηκε στο #116 |
 | Exponential Search | Ascending sorted values | Pure implementation και bounded range tests |
 
 Το SEARCHING_DEFINITIONS είναι η μοναδική πηγή identity/preconditions στο domain, όχι κατάλογος διαθέσιμων implementations. Το runner απορρίπτει unsorted input για τις τρεις αντίστοιχες ταυτότητες πριν από execution/timing με requires_sorted_input. Δεν υπάρχει fallback σε Linear Search.
@@ -56,3 +56,7 @@ tests/searching.test.mjs: numeric/size validation, copy isolation, sorted precon
 ## Binary Search (#115)
 
 Pure iterative binary implementation: inclusive low/high, lower midpoint, μία equality comparison και (μόνο αν αποτύχει) μία less-than comparison ανά probe. Duplicates επιστρέφουν deterministic οποιοδήποτε matching midpoint. Το evaluateSearching επιβάλλει ascending input πριν το timing· direct binary καλείται μόνο με validated sorted data. Δεν γίνεται implicit sort. O(log n) search χρόνος/state O(1), συν O(log n) trace· το O(n) sortedness validation παραμένει εκτός search timing. Tests καλύπτουν boundaries/duplicates/absent/fractions, exact counters, unsorted rejection, common comparison με Linear και repeated runs σε 10.000 στοιχεία. Ακολουθεί Jump Search (#116), χωρίς αλλαγή UI/API.
+
+## Jump Search (#116)
+
+Pure jump implementation με deterministic step=max(1,floor(sqrt(n))). Κάνει μία less-than comparison ανά block-end probe και equality scans μόνο στο πρώτο block του οποίου το end δεν είναι μικρότερο από target. Repeated endpoint probes μετρούν ξανά· δεν γίνεται reuse παλιού probe. O(√n) search χρόνος, O(1) state συν O(√n) trace. Το shared evaluation επιβάλλει ascending input εκτός timing. Tests καλύπτουν empty/small, exact block boundaries, truncated last block, first/last, duplicates/fractions, absent, unsorted rejection και Linear/Binary/Jump comparison σε 10.000 στοιχεία. Δεν αλλάζει UI/API/persistence. Επόμενο #117 Exponential Search.

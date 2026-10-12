@@ -159,3 +159,49 @@ test('Linear Search uses common comparison and isolates traces at the maximum in
   assert.equal(result.probeCount, MAX_SEARCHING_SIZE);
   assert.deepEqual(data.values, values);
 });
+
+const { binary } = await import('../src/searching/binary.ts');
+test('Binary Search handles sorted boundaries, duplicates and absent targets without mutation', () => {
+  for (const values of [[], [2], [1, 2], [-3, -1.5, 0, 2, 2, 7], Array(12).fill(2)]) {
+    for (const target of [-5, -3, -1.5, 0, 1, 2, 7, 9]) {
+      const data = snapshotSearchingInput(input(values, target));
+      const expectedFound = values.includes(target);
+      const result = evaluateSearching('binary', data, binary, () => 0);
+      assert.equal(result.status, 'completed');
+      assert.equal(result.correct, true);
+      assert.equal(result.found, expectedFound);
+      assert.equal(result.index === null ? !expectedFound : values[result.index] === target, true);
+      assert.deepEqual(binary(data), binary(data));
+      assert.deepEqual(data.values, values);
+    }
+  }
+});
+
+test('Binary Search midpoint and comparison counts are deterministic', () => {
+  const values = [1, 2, 3, 4, 5, 6, 7];
+  assert.deepEqual(binary(input(values, 4)), {index: 3, probes: [3], comparisons: 1});
+  assert.deepEqual(binary(input(values, 1)), {index: 0, probes: [3, 1, 0], comparisons: 5});
+  assert.deepEqual(binary(input(values, 7)), {index: 6, probes: [3, 5, 6], comparisons: 5});
+  assert.deepEqual(binary(input(values, 8)), {index: null, probes: [3, 5, 6], comparisons: 6});
+  assert.deepEqual(binary(input([], 8)), {index: null, probes: [], comparisons: 0});
+});
+
+test('Binary Search participates in comparison, rejects unsorted input and isolates large traces', () => {
+  const entries = [{algorithm: 'linear', search: linear}, {algorithm: 'binary', search: binary}];
+  const unsorted = input([3, 1, 2], 1);
+  const rejected = compareSearching(unsorted, entries, () => 0);
+  assert.equal(rejected[0].correct, true);
+  assert.equal(rejected[1].error, 'requires_sorted_input');
+  assert.deepEqual(unsorted.values, [3, 1, 2]);
+  const values = Array.from({length: MAX_SEARCHING_SIZE}, (_, i) => i * 2);
+  for (const target of [0, 9998, 19998, -1, 19999]) {
+    const data = snapshotSearchingInput(input(values, target));
+    const first = binary(data);
+    const expected = structuredClone(first);
+    first.probes.length = 0;
+    assert.deepEqual(binary(data), expected);
+    const results = compareSearching(data, entries, () => 0);
+    assert.ok(results.every(result => result.correct));
+    assert.ok(expected.probes.length <= 14);
+  }
+});

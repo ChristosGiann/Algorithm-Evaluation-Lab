@@ -129,3 +129,33 @@ test('same-input comparison isolates failures, snapshots and per-algorithm preco
     assert.throws(() => compareSearching(input(), entries), /invalid_selection/);
   }
 });
+
+const { linear } = await import('../src/searching/linear.ts');
+test('Linear Search covers unsorted/sorted edges with exact deterministic counters', () => {
+  for (const [values, target] of [[[], 2], [[2], 2], [[2], 1], [[3, 2, 1], 3],
+    [[3, 2, 1], 2], [[3, 2, 1], 1], [[2, 1, 2], 2], [[-1.5, 0, 7], 0],
+    [[1, 2, 3], 9]]) {
+    const data = snapshotSearchingInput(input(values, target));
+    const expected = values.indexOf(target);
+    const probes = Array.from({length: expected < 0 ? values.length : expected + 1}, (_, i) => i);
+    assert.deepEqual(linear(data), {index: expected < 0 ? null : expected, probes, comparisons: probes.length});
+    const result = evaluateSearching('linear', data, linear, () => 0);
+    assert.equal(result.correct, true);
+    assert.equal(result.found, expected >= 0);
+    assert.deepEqual(data.values, values);
+    assert.deepEqual(linear(data), linear(data));
+  }
+});
+
+test('Linear Search uses common comparison and isolates traces at the maximum input size', () => {
+  const values = Array.from({length: MAX_SEARCHING_SIZE}, (_, i) => MAX_SEARCHING_SIZE - i);
+  const data = snapshotSearchingInput(input(values, 1));
+  const first = linear(data);
+  assert.equal(first.index, MAX_SEARCHING_SIZE - 1);
+  assert.equal(first.comparisons, MAX_SEARCHING_SIZE);
+  first.probes.length = 0;
+  const [result] = compareSearching(data, [{algorithm: 'linear', search: linear}], () => 0);
+  assert.equal(result.correct, true);
+  assert.equal(result.probeCount, MAX_SEARCHING_SIZE);
+  assert.deepEqual(data.values, values);
+});

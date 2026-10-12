@@ -422,3 +422,7 @@ Foundation με explicit first-match contract και σχεδιασμό επέκ
 ## Multi-family education (#98)
 
 Το κοινό educational framework υποστηρίζει localized common και family-specific sections, με backward-compatible sorting/pathfinding content. Επόμενο scope είναι οι πραγματικές searching/string-search implementations και το curated περιεχόμενό τους μέσω ξεχωριστών issues. Βλ. [Education](EDUCATION.md).
+
+## Linear Search (#114)
+
+Πραγματική pure linear implementation στο src/searching/linear.ts για validated sorted/unsorted input. Εξετάζει αριστερά προς δεξιά και επιστρέφει το πρώτο match (συμβατό με any-match contract), αλλιώς null. Κάθε probe μετρά μία equality comparison. O(n) search χρόνος, O(1) algorithm state συν O(n) educational trace. Validation/copy/oracle παραμένουν εκτός timing στο evaluation layer. Tests καλύπτουν empty/singleton, first/middle/last, duplicates, absent, fractions, repeated runs, trace isolation και 10.000 στοιχεία μέσω common comparison. Δεν προστίθεται UI/API/persistence. Ακολουθεί Binary Search (#115).

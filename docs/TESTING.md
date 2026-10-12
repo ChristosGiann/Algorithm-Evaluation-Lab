@@ -490,3 +490,7 @@ Validation #97: 85 frontend και 117 backend tests επιτυχή, lint/build,
 Το language.test.mjs καλύπτει legacy sorting/pathfinding και searching/string-search extension fixtures σε el/en, ασφαλές empty/missing fallback, escaped code, walkthrough preservation και input immutability. Browser smoke επιβεβαίωσε BFS/Bubble Sort και αλλαγή γλώσσας χωρίς console errors. 87 frontend tests και lint/build επιτυχή.
 
 Backend validation #98: 117 tests, Django check και migration drift check επιτυχή. Δεν απαιτείται migration.
+
+## Linear Search (#114)
+
+Πραγματική pure linear implementation στο src/searching/linear.ts για validated sorted/unsorted input. Εξετάζει αριστερά προς δεξιά και επιστρέφει το πρώτο match (συμβατό με any-match contract), αλλιώς null. Κάθε probe μετρά μία equality comparison. O(n) search χρόνος, O(1) algorithm state συν O(n) educational trace. Validation/copy/oracle παραμένουν εκτός timing στο evaluation layer. Tests καλύπτουν empty/singleton, first/middle/last, duplicates, absent, fractions, repeated runs, trace isolation και 10.000 στοιχεία μέσω common comparison. Δεν προστίθεται UI/API/persistence. Ακολουθεί Binary Search (#115).

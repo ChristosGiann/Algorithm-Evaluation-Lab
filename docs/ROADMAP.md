@@ -434,3 +434,7 @@ Pure iterative binary implementation: inclusive low/high, lower midpoint, μία
 ## Jump Search (#116)
 
 Pure jump implementation με deterministic step=max(1,floor(sqrt(n))). Κάνει μία less-than comparison ανά block-end probe και equality scans μόνο στο πρώτο block του οποίου το end δεν είναι μικρότερο από target. Repeated endpoint probes μετρούν ξανά· δεν γίνεται reuse παλιού probe. O(√n) search χρόνος, O(1) state συν O(√n) trace. Το shared evaluation επιβάλλει ascending input εκτός timing. Tests καλύπτουν empty/small, exact block boundaries, truncated last block, first/last, duplicates/fractions, absent, unsorted rejection και Linear/Binary/Jump comparison σε 10.000 στοιχεία. Δεν αλλάζει UI/API/persistence. Επόμενο #117 Exponential Search.
+
+## Exponential Search (#117)
+
+Pure exponential implementation: equality probe στο 0, doubling bounds 1/2/4/… με μία >= comparison ανά expansion probe και inclusive binary phase με equality/order comparisons. Repeated probes μετρούν ξανά. Input validation/sortedness προηγούνται του timing. Tests καλύπτουν empty/singleton/near/far/last/duplicates/absent, bounds, exact counters, isolation, 10.000 στοιχεία και σύγκριση και των τεσσάρων algorithms. Search O(log n), O(1) state συν O(log n) trace. UI/visualization ακολουθούν στο #118.

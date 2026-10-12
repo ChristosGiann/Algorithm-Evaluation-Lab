@@ -252,3 +252,33 @@ test('Jump Search uses common preconditions and agrees with Linear/Binary on lar
     assert.deepEqual(fresh.values, values);
   }
 });
+
+const { exponential } = await import('../src/searching/exponential.ts');
+test('Exponential Search covers bounds and agrees with the oracle without mutation', () => {
+  for (const values of [[], [2], [1, 2], [1, 1, 1, 3], [-2, -1.5, 0, 2, 9],
+    Array.from({length: MAX_SEARCHING_SIZE}, (_, i) => i)]) {
+    for (const target of [-3, -1.5, 0, 1, 2, 3, 9, values.length - 1, MAX_SEARCHING_SIZE]) {
+      const data = snapshotSearchingInput(input(values, target));
+      const result = evaluateSearching('exponential', data, exponential, () => 0);
+      assert.equal(result.correct, true);
+      assert.equal(result.found, values.includes(target));
+      assert.ok(result.probes.every(index => index >= 0 && index < values.length));
+      assert.deepEqual(data.values, values);
+      const first = exponential(data), expected = structuredClone(first);
+      first.probes.length = 0;
+      assert.deepEqual(exponential(data), expected);
+    }
+  }
+});
+test('Exponential Search records expansion/binary counters and uses common preconditions', () => {
+  assert.deepEqual(exponential(input([0,1,2,3,4,5,6,7,8], 7)),
+    {index: 7, probes: [0,1,2,4,8,6,7], comparisons: 8});
+  assert.deepEqual(exponential(input([2], 2)), {index: 0, probes: [0], comparisons: 1});
+  assert.deepEqual(exponential(input([], 2)), {index: null, probes: [], comparisons: 0});
+  const entries = [{algorithm:'linear',search:linear},{algorithm:'binary',search:binary},
+    {algorithm:'jump',search:jump},{algorithm:'exponential',search:exponential}];
+  assert.ok(compareSearching(input([0,1,2,3], 3),entries,()=>0).every(row=>row.correct));
+  const rows=compareSearching(input([3,1,2],1),entries,()=>0);
+  assert.equal(rows[0].correct,true);
+  assert.ok(rows.slice(1).every(row=>row.error==='requires_sorted_input'));
+});

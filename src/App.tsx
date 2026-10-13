@@ -10,6 +10,7 @@ import { BackendStatus } from "./components/BackendStatus/BackendStatus";
 import { Experiments } from "./components/Experiments/Experiments";
 import { Benchmark } from "./components/Benchmark/Benchmark";
 import { CustomPython } from "./components/CustomPython/CustomPython";
+import { SearchingVisualization } from "./components/Searching/SearchingVisualization";
 import { Pathfinding } from "./components/Pathfinding/Pathfinding";
 
 import type { Language } from "./i18n/translations";
@@ -38,6 +39,7 @@ function App() {
       <SortingVisualization language={language} />
 
       <Pathfinding language={language} />
+      <SearchingVisualization language={language} />
 
       <AlgorithmLibrary
         texts={texts.algorithmLibrary}

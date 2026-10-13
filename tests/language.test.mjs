@@ -620,3 +620,17 @@ test('education adapter preserves legacy metadata and omits empty localized sect
     }
   }
 });
+
+test('searching visualization renders localized controls and honest timing/precondition explanation', async () => {
+  const { SearchingVisualization }=await import('../src/components/Searching/SearchingVisualization.tsx');
+  const { searchingTexts }=await import('../src/i18n/searching.ts');
+  assert.deepEqual(Object.keys(searchingTexts.el).sort(),Object.keys(searchingTexts.en).sort());
+  for(const language of ['el','en']) {
+    const html=render(SearchingVisualization,{language});
+    for(const label of ['Linear Search','Binary Search','Jump Search','Exponential Search','Play','Pause','Step','Reset'])assert.ok(html.includes(label));
+    assert.ok(html.includes(searchingTexts[language].title));
+    assert.ok(html.includes(searchingTexts[language].empty));
+    assert.ok(html.includes('64'));
+    assert.ok(!html.includes('executionTimeMs'));
+  }
+});

@@ -356,3 +356,9 @@ Validation #114–#116: 95 frontend tests στο τελικό snapshot, lint/bui
 ## Exponential Search (#117)
 
 Pure exponential implementation: equality probe στο 0, doubling bounds 1/2/4/… με μία >= comparison ανά expansion probe και inclusive binary phase με equality/order comparisons. Repeated probes μετρούν ξανά. Input validation/sortedness προηγούνται του timing. Tests καλύπτουν empty/singleton/near/far/last/duplicates/absent, bounds, exact counters, isolation, 10.000 στοιχεία και σύγκριση και των τεσσάρων algorithms. Search O(log n), O(1) state συν O(log n) trace. UI/visualization ακολουθούν στο #118.
+
+## Searching visualization (#118)
+
+Οι τέσσερις πραγματικές implementations παρέχουν optional observer με probe, inclusive low/high και phase (scan/binary/jump/expand). Χωρίς observer διατηρούν τα ίδια metrics. Το searchingAnimation καταγράφει immutable frames έως 64 στοιχεία χωρίς clock/benchmark metrics. Linear δείχνει remaining suffix, Binary midpoint/range, Jump block boundaries και scan, Exponential expansion και binary phase. Το registry είναι η κοινή executable πηγή. UI: el/en, collection/target/algorithm, Play/Pause/Step/Reset/Speed, current/visited/range/match και σαφή precondition errors. Input/algorithm edits καθαρίζουν trace και timer, reset επαναφέρει frame 0. Pure reducer/trace tests και bilingual rendering tests ελέγχουν lifecycle, phase order, bounds και συμφωνία με πραγματικά probes. Το #119 προσθέτει ξεχωριστή measured comparison ροή.
+
+Validation #118: 102 frontend tests, lint/build και diff check PASS. Browser smoke (13/10/2026): Binary step/range, Play/Pause/Reset/Speed, Exponential expansion και ολοκλήρωση στο index 5, unsorted rejection, input edit clears stale trace, el/en. Κανένα browser console error.

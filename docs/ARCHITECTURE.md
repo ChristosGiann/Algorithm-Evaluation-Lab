@@ -432,3 +432,7 @@ solve(values) επιστρέφει list ή None για in-place. Δέκα fresh 
 ## Shared education (#98)
 
 EducationMetadata → educationSections adapter → EducationalContent renderer. Τα common/extension sections είναι ανεξάρτητα από family. Sorting catalogue και pathfinding domain παραμένουν sources of truth, με legacy fields συμβατά. Το FamilyEducation αποδίδει data-driven cards για νέες families. Βλ. [Education](EDUCATION.md).
+
+## Searching visualization (#118)
+
+Οι τέσσερις πραγματικές implementations παρέχουν optional observer με probe, inclusive low/high και phase (scan/binary/jump/expand). Χωρίς observer διατηρούν τα ίδια metrics. Το searchingAnimation καταγράφει immutable frames έως 64 στοιχεία χωρίς clock/benchmark metrics. Linear δείχνει remaining suffix, Binary midpoint/range, Jump block boundaries και scan, Exponential expansion και binary phase. Το registry είναι η κοινή executable πηγή. UI: el/en, collection/target/algorithm, Play/Pause/Step/Reset/Speed, current/visited/range/match και σαφή precondition errors. Input/algorithm edits καθαρίζουν trace και timer, reset επαναφέρει frame 0. Pure reducer/trace tests και bilingual rendering tests ελέγχουν lifecycle, phase order, bounds και συμφωνία με πραγματικά probes. Το #119 προσθέτει ξεχωριστή measured comparison ροή.

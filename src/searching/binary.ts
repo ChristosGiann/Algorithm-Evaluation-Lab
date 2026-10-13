@@ -1,7 +1,7 @@
 import type { SearchingSearch } from "./evaluation";
 
 /** Ascending validated input: use evaluateSearching to enforce the precondition. */
-export const binary: SearchingSearch = ({ values, target }) => {
+export const binary: SearchingSearch = ({ values, target }, observe) => {
   const probes: number[] = [];
   let comparisons = 0;
   let low = 0, high = values.length - 1;
@@ -9,6 +9,7 @@ export const binary: SearchingSearch = ({ values, target }) => {
     const middle = low + Math.floor((high - low) / 2);
     const value = values[middle];
     probes.push(middle);
+    observe?.({ probe: middle, low, high, phase: "binary" });
     comparisons++;
     if (value === target) return { index: middle, probes, comparisons };
     comparisons++;

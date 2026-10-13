@@ -282,3 +282,54 @@ test('Exponential Search records expansion/binary counters and uses common preco
   assert.equal(rows[0].correct,true);
   assert.ok(rows.slice(1).every(row=>row.error==='requires_sorted_input'));
 });
+
+const { searchingAnimation, searchingPlayback, emptySearchingPlayback, parseSearchingInput } = await import('../src/searching/visualization.ts');
+const { SEARCHING_REGISTRY } = await import('../src/searching/registry.ts');
+test('visualization observes the real implementations without changing their results', () => {
+  for(const [algorithm, search] of Object.entries(SEARCHING_REGISTRY)) {
+    for(const data of [input([],1),input([1],1),input([1,3,5,7,9,11,13,15],11),input([1,2,2,3],8)]) {
+      const animation=searchingAnimation(algorithm,data), expected=search(data);
+      assert.deepEqual(animation.frames.slice(1,-1).map(frame=>frame.probe),expected.probes);
+      assert.equal(animation.index,expected.index);
+      assert.deepEqual(search(data,()=>{}),expected);
+      assert.deepEqual(searchingAnimation(algorithm,data),animation);
+      assert.ok(Object.isFrozen(animation.input.values)&&Object.isFrozen(animation.frames));
+      for(const frame of animation.frames.slice(1,-1)) {
+        assert.ok(frame.low<=frame.probe&&frame.probe<=frame.high&&frame.high<data.values.length);
+      }
+    }
+  }
+});
+test('visualization shows midpoint narrowing, jump blocks and exponential phases', () => {
+  const data=input([0,1,2,3,4,5,6,7,8],7);
+  assert.deepEqual(searchingAnimation('linear',data).frames.slice(1,-1).map(x=>x.probe),[0,1,2,3,4,5,6,7]);
+  assert.deepEqual(searchingAnimation('binary',data).frames.slice(1,-1).map(x=>[x.low,x.high,x.probe]),[[0,8,4],[5,8,6],[7,8,7]]);
+  assert.deepEqual(searchingAnimation('jump',data).frames.slice(1,-1).map(x=>x.phase),['jump','jump','jump','scan','scan']);
+  assert.deepEqual(searchingAnimation('exponential',data).frames.slice(1,-1).map(x=>x.phase),['expand','expand','expand','expand','expand','binary','binary']);
+  assert.throws(()=>searchingAnimation('binary',input([3,1,2],1)),/requires_sorted_input/);
+  assert.throws(()=>searchingAnimation('linear',input(Array(65).fill(1),1)),/invalid_searching_input/);
+});
+test('playback stops at completion and clear/reset/new run remove old playback state', () => {
+  const animation=searchingAnimation('linear',input([1,2],2));
+  let state=searchingPlayback(emptySearchingPlayback,{type:'load',animation});
+  state=searchingPlayback(state,{type:'play'});
+  assert.equal(searchingPlayback(state,{type:'step'}),state);
+  state=searchingPlayback(state,{type:'tick'});
+  state=searchingPlayback(state,{type:'pause'});
+  assert.equal(searchingPlayback(state,{type:'tick'}),state);
+  state=searchingPlayback(state,{type:'step'});
+  assert.equal(state.index,2);
+  state=searchingPlayback(state,{type:'play'});
+  for(let i=0;i<10;i++)state=searchingPlayback(state,{type:'tick'});
+  assert.equal(state.index,animation.frames.length-1);
+  assert.equal(state.playing,false);
+  assert.deepEqual(searchingPlayback(state,{type:'reset'}),{animation,index:0,playing:false});
+  assert.deepEqual(searchingPlayback(state,{type:'clear'}),emptySearchingPlayback);
+  assert.deepEqual(searchingPlayback(state,{type:'load',animation}),{animation,index:0,playing:false});
+});
+test('searching UI parser validates numeric data, empty arrays and visualization limits', () => {
+  assert.deepEqual(parseSearchingInput('1, -2.5 3','0'),input([1,-2.5,3],0));
+  assert.deepEqual(parseSearchingInput('','2'),input([],2));
+  for(const [values,target] of [['1',''],['NaN','1'],['Infinity','2'],['1','x']])assert.throws(()=>parseSearchingInput(values,target));
+  assert.throws(()=>parseSearchingInput(Array(65).fill(1).join(','),'1',64));
+});

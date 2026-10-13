@@ -1,3 +1,4 @@
+import { SearchingComparison } from "./components/Searching/SearchingComparison";
 import { useEffect, useState } from "react";
 
 import "./App.css";
@@ -40,6 +41,7 @@ function App() {
 
       <Pathfinding language={language} />
       <SearchingVisualization language={language} />
+      <SearchingComparison language={language} />
 
       <AlgorithmLibrary
         texts={texts.algorithmLibrary}

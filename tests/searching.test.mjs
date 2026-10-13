@@ -26,7 +26,7 @@ registerHooks({
 
 
 const { snapshotSearchingInput, evaluateSearching, compareSearching, SEARCHING_DEFINITIONS,
-  MAX_SEARCHING_SIZE, MAX_SEARCHING_PROBES } = await import('../src/searching/evaluation.ts');
+  MAX_SEARCHING_SIZE, MAX_SEARCHING_PROBES, SEARCHING_ALGORITHMS } = await import('../src/searching/evaluation.ts');
 const input = (values = [1, 2, 3], target = 2) => ({ values, target });
 const trace = (index = 1, probes = [1], comparisons = probes.length) => ({ index, probes, comparisons });
 const run = (data, result) => evaluateSearching('linear', data, () => result, () => 0);
@@ -283,7 +283,7 @@ test('Exponential Search records expansion/binary counters and uses common preco
   assert.ok(rows.slice(1).every(row=>row.error==='requires_sorted_input'));
 });
 
-const { searchingAnimation, searchingPlayback, emptySearchingPlayback, parseSearchingInput } = await import('../src/searching/visualization.ts');
+const { searchingAnimation, searchingPlayback, emptySearchingPlayback } = await import('../src/searching/visualization.ts');
 const { SEARCHING_REGISTRY } = await import('../src/searching/registry.ts');
 test('visualization observes the real implementations without changing their results', () => {
   for(const [algorithm, search] of Object.entries(SEARCHING_REGISTRY)) {
@@ -332,4 +332,49 @@ test('searching UI parser validates numeric data, empty arrays and visualization
   assert.deepEqual(parseSearchingInput('','2'),input([],2));
   for(const [values,target] of [['1',''],['NaN','1'],['Infinity','2'],['1','x']])assert.throws(()=>parseSearchingInput(values,target));
   assert.throws(()=>parseSearchingInput(Array(65).fill(1).join(','),'1',64));
+});
+
+const { parseSearchingInput } = await import('../src/searching/input.ts');
+
+const { runSearchingComparison } = await import('../src/searching/comparison.ts');
+test('UI comparison runs all four algorithms on the same numeric input and target', () => {
+  const result=runSearchingComparison('1, 3, 5, 7, 9, 11','11',SEARCHING_ALGORITHMS);
+  assert.deepEqual(result.input,input([1,3,5,7,9,11],11));
+  assert.equal(result.rows.length,4);
+  for(const row of result.rows) {
+    assert.equal(row.status,'completed'); assert.equal(row.found,true);
+    assert.equal(row.correct,true); assert.equal(row.index,5);
+    assert.equal(row.probeCount,row.probes.length);
+    assert.ok(row.comparisons>=row.probeCount);
+    assert.ok(Number.isFinite(row.executionTimeMs)&&row.executionTimeMs>=0);
+  }
+  assert.ok(Object.isFrozen(result.input.values));
+});
+test('UI comparison distinguishes not-found, empty input and original zero index', () => {
+  for(const values of ['','1, 3, 5']) {
+    const result=runSearchingComparison(values,'2',SEARCHING_ALGORITHMS);
+    for(const row of result.rows) {
+      assert.equal(row.status,'completed'); assert.equal(row.found,false);
+      assert.equal(row.index,null); assert.equal(row.correct,true);
+      if(!values)assert.equal(row.probeCount,0);
+    }
+  }
+  for(const row of runSearchingComparison('4','4',SEARCHING_ALGORITHMS).rows)assert.equal(row.index,0);
+});
+test('UI comparison keeps successful Linear row alongside three unsorted errors', () => {
+  const result=runSearchingComparison('3, 1, 2','2',SEARCHING_ALGORITHMS);
+  assert.deepEqual(result.input.values,[3,1,2]);
+  assert.equal(result.rows[0].index,2); assert.equal(result.rows[0].correct,true);
+  for(const row of result.rows.slice(1)) {
+    assert.equal(row.status,'error'); assert.equal(row.error,'requires_sorted_input');
+    for(const key of ['executionTimeMs','probeCount','comparisons','index','correct'])assert.equal(key in row,false);
+  }
+});
+test('UI comparison rejects invalid numeric inputs and selections before running', () => {
+  for(const selection of [[],['linear'],['linear','linear'],['linear','missing'],[...SEARCHING_ALGORITHMS,'linear']]) {
+    assert.throws(()=>runSearchingComparison('1','1',selection),/invalid_selection/);
+  }
+  for(const [values,target] of [['1',''],['NaN','1'],['1','Infinity'],[Array(10001).fill(1).join(','),'1']]) {
+    assert.throws(()=>runSearchingComparison(values,target,['linear','binary']),/invalid_searching_input/);
+  }
 });

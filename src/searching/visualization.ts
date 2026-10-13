@@ -2,11 +2,6 @@ import { isSortedAscending, SEARCHING_DEFINITIONS, snapshotSearchingInput } from
 import type { SearchingAlgorithm, SearchingInput, SearchingProbe } from "./evaluation";
 import { SEARCHING_REGISTRY } from "./registry";
 
-export function parseSearchingInput(values: string, target: string, limit = 10000): SearchingInput {
-  const tokens = values.trim() ? values.trim().split(/[\s,]+/) : [];
-  if (!target.trim() || tokens.length > limit || tokens.some(token => !token)) throw new Error("invalid_searching_input");
-  return snapshotSearchingInput({ values: tokens.map(Number), target: Number(target) });
-}
 export interface SearchingFrame {
   readonly phase: SearchingProbe["phase"] | "initial" | "done";
   readonly probe: number | null;

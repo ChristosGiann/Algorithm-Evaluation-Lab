@@ -378,3 +378,24 @@ test('UI comparison rejects invalid numeric inputs and selections before running
     assert.throws(()=>runSearchingComparison(values,target,['linear','binary']),/invalid_searching_input/);
   }
 });
+
+test('searching education walkthroughs match actual implementations, counters and input immutability', async () => {
+  const { SEARCHING_EDUCATION }=await import('../src/searching/education.ts');
+  const { SEARCHING_REGISTRY }=await import('../src/searching/registry.ts');
+  assert.deepEqual(Object.keys(SEARCHING_EDUCATION).sort(),Object.keys(SEARCHING_REGISTRY).sort());
+  for(const [key,entry] of Object.entries(SEARCHING_EDUCATION)) {
+    const before=structuredClone(entry.walkthrough.input);
+    assert.deepEqual(SEARCHING_REGISTRY[key](entry.walkthrough.input),entry.walkthrough.expected);
+    assert.deepEqual(entry.walkthrough.input,before);
+    assert.deepEqual(SEARCHING_REGISTRY[key](entry.walkthrough.input),entry.walkthrough.expected);
+    for(const language of ['el','en']) {
+      const content=entry.education[language];
+      for(const field of ['what','intuition','complexity','strengths','weaknesses','uses','pitfalls','completeness'])assert.ok(content[field]?.trim(),key+': '+field);
+      assert.equal(content.how.length,3); assert.equal(content.example.length,3);
+      assert.ok(content.example[0].includes('[1, 3, 5, 7, 9, 11, 13, 15]'));
+      assert.ok(content.example[0].includes('target=11'));
+      assert.ok(content.example[2].includes(entry.walkthrough.expected.comparisons+' comparisons'));
+      assert.ok(content.sections.find(section=>section.id==='preconditions').paragraphs[0].trim());
+    }
+  }
+});

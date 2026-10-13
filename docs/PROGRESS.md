@@ -368,3 +368,9 @@ Validation #118: 102 frontend tests, lint/build και diff check PASS. Browser 
 Ολοκληρώθηκε η searching comparison ροή για 2–4 algorithms στο ίδιο input/target, με real metrics και ανεξάρτητα precondition/error rows. Inputs και επιλογές καθαρίζουν stale results. El/en accessible table, όριο 10.000, χωρίς implicit sorting ή αποθήκευση. Τα #117–#119 καλύπτουν πλέον Exponential, visualization και comparison.
 
 Validation #119 (13/10/2026): 109 frontend tests PASS, lint/build και diff check PASS. Browser: 4 sorted successes, unsorted Linear + 3 precondition errors, not-found/empty, invalid target/selection, collection/target/selection clear stale rows, el/en. Κανένα console error. Backend αμετάβλητο, regression checks στο CI.
+
+## Searching education (#120)
+
+Η shared Algorithm Library εμφανίζει Linear/Binary/Jump/Exponential μέσω FamilyEducation και EducationalContent, ανεξάρτητα από τη φόρτωση του backend catalogue. Versioned el/en metadata: what/intuition/steps/complexity/strengths/limitations/uses/pitfalls/completeness και explicit preconditions. Τα κοινά walkthroughs στο [1,3,5,7,9,11,13,15]/11 ελέγχονται απέναντι στις πραγματικές implementations, μαζί με probes/counters και immutability. Διαχωρίζονται algorithm state, trace memory και validation cost· δεν εξάγεται performance ranking. Rendering tests ελέγχουν completeness και missing optional fields χωρίς invented content. Δεν προστίθεται runtime AI, API ή persistence.
+
+Validation #120 (13/10/2026): 112 frontend tests, lint/build και diff check PASS. Browser smoke: και οι 4 searching cards, expand/collapse, πραγματικά walkthroughs και live el/en μετάβαση. Κανένα console error. Backend αμετάβλητο· regression CI πριν το merge.

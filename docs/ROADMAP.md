@@ -446,3 +446,7 @@ Pure exponential implementation: equality probe στο 0, doubling bounds 1/2/4/
 ## Searching comparison UI (#119)
 
 Searching implementations (#114–#117), visualization (#118) και comparison UI/metrics (#119) είναι υλοποιημένα. Παραμένουν τα ξεχωριστά education και experiment persistence scopes· δεν έχουν προστεθεί αυτόματο sorting, string searching UI ή cross-family comparisons.
+
+## Searching education (#120)
+
+Η shared Algorithm Library εμφανίζει Linear/Binary/Jump/Exponential μέσω FamilyEducation και EducationalContent, ανεξάρτητα από τη φόρτωση του backend catalogue. Versioned el/en metadata: what/intuition/steps/complexity/strengths/limitations/uses/pitfalls/completeness και explicit preconditions. Τα κοινά walkthroughs στο [1,3,5,7,9,11,13,15]/11 ελέγχονται απέναντι στις πραγματικές implementations, μαζί με probes/counters και immutability. Διαχωρίζονται algorithm state, trace memory και validation cost· δεν εξάγεται performance ranking. Rendering tests ελέγχουν completeness και missing optional fields χωρίς invented content. Δεν προστίθεται runtime AI, API ή persistence.

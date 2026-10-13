@@ -72,3 +72,7 @@ Pure exponential implementation: equality probe στο 0, doubling bounds 1/2/4/
 ## Searching comparison UI (#119)
 
 Η σύγκριση στο UI επιλέγει 2–4 πραγματικές implementations από το shared registry και καλεί compareSearching πάνω στο ίδιο validated numeric collection/target. Το input parser είναι κοινό με το visualization, με όριο 10.000 για comparison και 64 για animation. Δεν γίνεται implicit sorting. Unsorted input δίνει Linear completed και explicit precondition errors στους άλλους. Accessible table με caption/column και row headers: found/index/correctness/probes/comparisons/time (ms), errors χωρίς fabricated metrics. Single browser sample με trace instrumentation, χωρίς animation/validation/oracle στον χρόνο και χωρίς performance ranking. Input/target/selection edits καθαρίζουν προηγούμενα results. El/en, χωρίς API/persistence.
+
+## Searching education (#120)
+
+Η shared Algorithm Library εμφανίζει Linear/Binary/Jump/Exponential μέσω FamilyEducation και EducationalContent, ανεξάρτητα από τη φόρτωση του backend catalogue. Versioned el/en metadata: what/intuition/steps/complexity/strengths/limitations/uses/pitfalls/completeness και explicit preconditions. Τα κοινά walkthroughs στο [1,3,5,7,9,11,13,15]/11 ελέγχονται απέναντι στις πραγματικές implementations, μαζί με probes/counters και immutability. Διαχωρίζονται algorithm state, trace memory και validation cost· δεν εξάγεται performance ranking. Rendering tests ελέγχουν completeness και missing optional fields χωρίς invented content. Δεν προστίθεται runtime AI, API ή persistence.

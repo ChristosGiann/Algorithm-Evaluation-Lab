@@ -60,10 +60,10 @@ export const translations = {
     },
 
     algorithmLibrary: {
-      eyebrow: "Sorting & Pathfinding",
+      eyebrow: "Sorting · Pathfinding · Searching",
       title: "Βιβλιοθήκη Αλγορίθμων",
       description:
-        "Εξερεύνησε πώς λειτουργούν οι sorting και pathfinding algorithms, τις εγγυήσεις τους και μικρά παραδείγματα.",
+        "Εξερεύνησε πώς λειτουργούν οι sorting, pathfinding και searching algorithms, τις εγγυήσεις τους και μικρά παραδείγματα.",
       loading: "Φόρτωση αλγορίθμων...",
       error:
         "Δεν ήταν δυνατή η φόρτωση των αλγορίθμων.",
@@ -140,10 +140,10 @@ export const translations = {
     },
 
     algorithmLibrary: {
-      eyebrow: "Sorting & Pathfinding",
+      eyebrow: "Sorting · Pathfinding · Searching",
       title: "Algorithm Library",
       description:
-        "Explore how sorting and pathfinding algorithms work, their guarantees and small examples.",
+        "Explore how sorting, pathfinding and searching algorithms work, their guarantees and small examples.",
       loading: "Loading algorithms...",
       error: "Unable to load the algorithms.",
       retry: "Try again",

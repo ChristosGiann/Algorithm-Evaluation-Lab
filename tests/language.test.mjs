@@ -679,3 +679,45 @@ test('searching table displays mixed and error-only rows without fabricated metr
     }
   }
 });
+
+test('Library includes all four searching cards in both languages independently of catalogue loading', async () => {
+  const { AlgorithmLibrary }=await import('../src/components/AlgorithmLibrary/AlgorithmLibrary.tsx');
+  const { SearchingEducation }=await import('../src/components/AlgorithmLibrary/SearchingEducation.tsx');
+  const { SEARCHING_EDUCATION }=await import('../src/searching/education.ts');
+  const { SEARCHING_DEFINITIONS }=await import('../src/searching/evaluation.ts');
+  const { educationTexts }=await import('../src/i18n/education.ts');
+  for(const language of ['el','en']) {
+    const html=render(SearchingEducation,{language});
+    assert.equal((html.match(/<article/g)||[]).length,4);
+    assert.equal((html.match(/<details/g)||[]).length,4);
+    assert.ok(html.includes('id="searching-education-title"'));
+    for(const [key,entry] of Object.entries(SEARCHING_EDUCATION)) {
+      assert.ok(html.includes(SEARCHING_DEFINITIONS[key].name));
+      assert.deepEqual(shape(entry.education.el),shape(entry.education.en));
+      assert.ok(html.includes(entry.education[language].what));
+      assert.ok(html.includes(educationTexts[language].example));
+      assert.ok(html.includes(educationTexts[language].theory));
+      const precondition=entry.education[language].sections[0].paragraphs[0];
+      assert.ok(precondition.includes(key==='linear' ? (language==='el'?'οποιαδήποτε σειρά':'any order') : (language==='el'?'Απαιτείται αύξουσα':'Ascending (non-decreasing) order is required')));
+    }
+    const library=render(AlgorithmLibrary,{language,texts:translations[language].algorithmLibrary});
+    assert.ok(library.includes('searching-education-title'));
+    assert.ok(library.includes('Exponential Search'));
+    assert.ok(library.includes(translations[language].algorithmLibrary.loading));
+  }
+});
+test('partial searching metadata hides missing optional sections without inventing content', async () => {
+  const { EducationalContent }=await import('../src/components/AlgorithmLibrary/EducationalContent.tsx');
+  const { SEARCHING_EDUCATION }=await import('../src/searching/education.ts');
+  const { educationSections }=await import('../src/education/content.ts');
+  const metadata=structuredClone(SEARCHING_EDUCATION.binary.education);
+  for(const language of ['el','en']) {
+    delete metadata[language].complexity; delete metadata[language].example;
+    delete metadata[language].strengths; delete metadata[language].sections;
+    const sections=educationSections(metadata,language);
+    for(const missing of ['complexity','walkthrough','strengths','preconditions','stable','in_place'])assert.ok(!sections.some(section=>section.id===missing));
+    assert.ok(sections.some(section=>section.id==='how'));
+    const html=render(EducationalContent,{algorithm:{education:metadata},language});
+    assert.ok(!html.includes('O(log n)'));
+  }
+});

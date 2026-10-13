@@ -440,3 +440,7 @@ EducationMetadata → educationSections adapter → EducationalContent renderer.
 ## Searching comparison UI (#119)
 
 SearchingComparison → runSearchingComparison → κοινό input parser/registry → compareSearching/evaluateSearching. SearchingResults αποδίδει το discriminated result contract: completed metrics ή explicit error row. Η visualization και η measured comparison έχουν ανεξάρτητο state, χρησιμοποιούν όμως ίδιες implementations. Δεν απαιτείται backend request ή migration.
+
+## Searching education (#120)
+
+Η shared Algorithm Library εμφανίζει Linear/Binary/Jump/Exponential μέσω FamilyEducation και EducationalContent, ανεξάρτητα από τη φόρτωση του backend catalogue. Versioned el/en metadata: what/intuition/steps/complexity/strengths/limitations/uses/pitfalls/completeness και explicit preconditions. Τα κοινά walkthroughs στο [1,3,5,7,9,11,13,15]/11 ελέγχονται απέναντι στις πραγματικές implementations, μαζί με probes/counters και immutability. Διαχωρίζονται algorithm state, trace memory και validation cost· δεν εξάγεται performance ranking. Rendering tests ελέγχουν completeness και missing optional fields χωρίς invented content. Δεν προστίθεται runtime AI, API ή persistence.

@@ -1,0 +1,26 @@
+export const searchingComparisonTexts = {
+  el: {
+    title: "Σύγκριση searching algorithms", select: "Επίλεξε 2–4 algorithms", run: "Εκτέλεση σύγκρισης",
+    values: "Συλλογή αριθμών (κόμμα ή κενό, κενή επιτρέπεται)", target: "Target", size: "Πλήθος στοιχείων",
+    note: "Ίδια συλλογή και target για όλους. Έως 10.000 αριθμοί. Ο Linear δέχεται οποιαδήποτε σειρά· Binary/Jump/Exponential απαιτούν αύξουσα σειρά. Δεν γίνεται αυτόματο sorting, επειδή θα άλλαζε το input και τα indexes.",
+    timing: "Μία εκτέλεση JavaScript ανά algorithm στον browser. Ο χρόνος περιλαμβάνει τη δημιουργία probe trace, αλλά όχι validation, έλεγχο ορθότητας ή animation. Η ακρίβεια του browser και το φορτίο επηρεάζουν τη μέτρηση· το 0 μπορεί να σημαίνει διάρκεια κάτω από την ανάλυση του clock. Ένα sample δεν αναδεικνύει απόλυτο νικητή. Τα αποτελέσματα δεν αποθηκεύονται.",
+    counters: "Probes: εξετασμένες θέσεις, με επαναλήψεις. Comparisons: συγκρίσεις τιμών με το target. Index: θέση από το 0 στην αρχική συλλογή· στα duplicates επιτρέπεται οποιοδήποτε match.",
+    empty: "Εκτέλεσε μια σύγκριση για να εμφανιστούν αποτελέσματα.", results: "Αποτελέσματα searching",
+    invalid: "Δώσε έως 10.000 finite αριθμούς και αριθμητικό target.", selection: "Επίλεξε 2–4 διαφορετικούς algorithms.",
+    algorithm: "Αλγόριθμος", status: "Αποτέλεσμα", index: "Index", correctness: "Ορθότητα", probes: "Probes", comparisons: "Comparisons", time: "Χρόνος (ms)",
+    found: "Βρέθηκε", absent: "Δεν βρέθηκε", correct: "Σωστό", incorrect: "Λάθος", failed: "Αποτυχία",
+    errors: { requires_sorted_input: "Απαιτείται ταξινομημένο input σε αύξουσα σειρά. Δεν εκτελέστηκε.", runner_error: "Η εκτέλεση απέτυχε.", invalid_result: "Μη έγκυρο αποτέλεσμα από τον algorithm.", invalid_clock: "Μη έγκυρη μέτρηση χρόνου." },
+  },
+  en: {
+    title: "Searching algorithm comparison", select: "Select 2–4 algorithms", run: "Run comparison",
+    values: "Number collection (commas or spaces, empty allowed)", target: "Target", size: "Number of items",
+    note: "Same collection and target for everyone. Up to 10,000 numbers. Linear accepts any order; Binary/Jump/Exponential require ascending order. No automatic sorting, because it would change the input and indexes.",
+    timing: "One JavaScript execution per algorithm in the browser. Time includes probe trace creation, but excludes validation, correctness checks and animation. Browser precision and system load affect timing; 0 may mean a duration below clock resolution. One sample does not establish an absolute winner. Results are not saved.",
+    counters: "Probes: inspected positions, including repeats. Comparisons: value/target comparisons. Index: zero-based position in the original collection; any matching duplicate is valid.",
+    empty: "Run a comparison to display results.", results: "Searching results",
+    invalid: "Enter up to 10,000 finite numbers and a numeric target.", selection: "Select 2–4 distinct algorithms.",
+    algorithm: "Algorithm", status: "Result", index: "Index", correctness: "Correctness", probes: "Probes", comparisons: "Comparisons", time: "Time (ms)",
+    found: "Found", absent: "Not found", correct: "Correct", incorrect: "Incorrect", failed: "Failed",
+    errors: { requires_sorted_input: "Ascending sorted input required. Not executed.", runner_error: "Execution failed.", invalid_result: "Invalid algorithm result.", invalid_clock: "Invalid time measurement." },
+  },
+};

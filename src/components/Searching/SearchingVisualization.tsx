@@ -1,9 +1,10 @@
+import { parseSearchingInput } from "../../searching/input";
 import { useEffect, useReducer, useState } from "react";
 import type { Language } from "../../i18n/translations";
 import { searchingTexts } from "../../i18n/searching";
 import { SEARCHING_ALGORITHMS, SEARCHING_DEFINITIONS } from "../../searching/evaluation";
 import type { SearchingAlgorithm } from "../../searching/evaluation";
-import { emptySearchingPlayback, parseSearchingInput, searchingAnimation, searchingPlayback } from "../../searching/visualization";
+import { emptySearchingPlayback, searchingAnimation, searchingPlayback } from "../../searching/visualization";
 import "./Searching.css";
 
 export function SearchingVisualization({language}:{language:Language}) {

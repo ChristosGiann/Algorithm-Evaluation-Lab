@@ -634,3 +634,48 @@ test('searching visualization renders localized controls and honest timing/preco
     assert.ok(!html.includes('executionTimeMs'));
   }
 });
+
+const { SearchingComparison } = await import('../src/components/Searching/SearchingComparison.tsx');
+const { SearchingResults } = await import('../src/components/Searching/SearchingResults.tsx');
+const { searchingComparisonTexts } = await import('../src/i18n/searchingComparison.ts');
+const { runSearchingComparison } = await import('../src/searching/comparison.ts');
+test('searching comparison renders bilingual form and matching dictionary shapes', () => {
+  assert.deepEqual(shape(searchingComparisonTexts.el),shape(searchingComparisonTexts.en));
+  for(const language of ['el','en']) {
+    const html=render(SearchingComparison,{language}),t=searchingComparisonTexts[language];
+    assert.ok(html.includes(t.title)); assert.ok(html.includes(t.select));
+    assert.ok(html.includes(t.empty)); assert.ok(html.includes(t.run));
+    assert.equal((html.match(/type="checkbox"/g)||[]).length,4);
+  }
+});
+test('searching results table preserves zero index, not-found and independent correctness', () => {
+  const zero=runSearchingComparison('4','4',['linear','binary']);
+  const absent=runSearchingComparison('4','7',['linear','binary']);
+  for(const language of ['el','en']) {
+    const t=searchingComparisonTexts[language];
+    const html=render(SearchingResults,{result:zero,language});
+    assert.ok(html.includes('<caption>'+t.results+'</caption>'));
+    assert.equal((html.match(/scope="col"/g)||[]).length,7);
+    assert.equal((html.match(/scope="row"/g)||[]).length,2);
+    assert.ok(html.includes('<td>'+t.found+'</td><td>0</td>'));
+    assert.ok(render(SearchingResults,{result:absent,language}).includes('<td>'+t.absent+'</td><td>—</td><td>'+t.correct+'</td>'));
+    const incorrect={...zero,rows:[{...zero.rows[0],correct:false}]};
+    assert.ok(render(SearchingResults,{result:incorrect,language}).includes('<td>'+t.incorrect+'</td>'));
+  }
+});
+test('searching table displays mixed and error-only rows without fabricated metrics', () => {
+  const mixed=runSearchingComparison('3, 1, 2','2',['linear','binary','jump','exponential']);
+  for(const language of ['el','en']) {
+    const t=searchingComparisonTexts[language],html=render(SearchingResults,{result:mixed,language});
+    assert.ok(html.includes('<td>'+t.found+'</td><td>2</td>'));
+    assert.equal((html.match(/colSpan="6"/gi)||[]).length,3);
+    assert.ok(html.includes(t.errors.requires_sorted_input));
+    for(const error of ['runner_error','invalid_result','invalid_clock','requires_sorted_input']) {
+      const result={input:mixed.input,rows:[{algorithm:'linear',status:'error',error}]};
+      const markup=render(SearchingResults,{result,language});
+      assert.ok(markup.includes(t.errors[error]));
+      assert.equal((markup.match(/<td/g)||[]).length,1);
+      assert.ok(!markup.includes('<td>0</td>'));
+    }
+  }
+});

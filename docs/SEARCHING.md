@@ -1,6 +1,6 @@
 # Searching evaluation
 
-Το domain στο `src/searching/evaluation.ts` αφορά αναζήτηση αριθμητικού target σε array. Είναι ξεχωριστό από pathfinding και string/pattern matching. Το #96 παρέδωσε contracts, validation και evaluation/comparison helpers. Τα #114–#116 προσθέτουν πραγματικές pure Linear/Binary/Jump implementations (linear.ts, binary.ts, jump.ts). Η Exponential παραμένει planned. UI, API και persistence ακολουθούν σε ξεχωριστά issues.
+Το domain στο `src/searching/evaluation.ts` αφορά αναζήτηση αριθμητικού target σε array. Είναι ξεχωριστό από pathfinding και string/pattern matching. Το #96 παρέδωσε contracts, validation και evaluation/comparison helpers. Τα #114–#117 παρέδωσαν pure Linear/Binary/Jump/Exponential implementations. Τα #118–#119 προσθέτουν visualization και comparison UI. API και persistence παραμένουν ξεχωριστά επόμενα scopes.
 
 ## Input και datasets
 
@@ -68,3 +68,7 @@ Pure exponential implementation: equality probe στο 0, doubling bounds 1/2/4/
 ## Searching visualization (#118)
 
 Οι τέσσερις πραγματικές implementations παρέχουν optional observer με probe, inclusive low/high και phase (scan/binary/jump/expand). Χωρίς observer διατηρούν τα ίδια metrics. Το searchingAnimation καταγράφει immutable frames έως 64 στοιχεία χωρίς clock/benchmark metrics. Linear δείχνει remaining suffix, Binary midpoint/range, Jump block boundaries και scan, Exponential expansion και binary phase. Το registry είναι η κοινή executable πηγή. UI: el/en, collection/target/algorithm, Play/Pause/Step/Reset/Speed, current/visited/range/match και σαφή precondition errors. Input/algorithm edits καθαρίζουν trace και timer, reset επαναφέρει frame 0. Pure reducer/trace tests και bilingual rendering tests ελέγχουν lifecycle, phase order, bounds και συμφωνία με πραγματικά probes. Το #119 προσθέτει ξεχωριστή measured comparison ροή.
+
+## Searching comparison UI (#119)
+
+Η σύγκριση στο UI επιλέγει 2–4 πραγματικές implementations από το shared registry και καλεί compareSearching πάνω στο ίδιο validated numeric collection/target. Το input parser είναι κοινό με το visualization, με όριο 10.000 για comparison και 64 για animation. Δεν γίνεται implicit sorting. Unsorted input δίνει Linear completed και explicit precondition errors στους άλλους. Accessible table με caption/column και row headers: found/index/correctness/probes/comparisons/time (ms), errors χωρίς fabricated metrics. Single browser sample με trace instrumentation, χωρίς animation/validation/oracle στον χρόνο και χωρίς performance ranking. Input/target/selection edits καθαρίζουν προηγούμενα results. El/en, χωρίς API/persistence.

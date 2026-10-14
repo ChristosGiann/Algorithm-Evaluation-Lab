@@ -371,7 +371,7 @@ test('UI comparison keeps successful Linear row alongside three unsorted errors'
   }
 });
 test('UI comparison rejects invalid numeric inputs and selections before running', () => {
-  for(const selection of [[],['linear'],['linear','linear'],['linear','missing'],[...SEARCHING_ALGORITHMS,'linear']]) {
+  for(const selection of [[],['linear','linear'],['linear','missing'],[...SEARCHING_ALGORITHMS,'linear']]) {
     assert.throws(()=>runSearchingComparison('1','1',selection),/invalid_selection/);
   }
   for(const [values,target] of [['1',''],['NaN','1'],['1','Infinity'],[Array(10001).fill(1).join(','),'1']]) {
@@ -398,4 +398,21 @@ test('searching education walkthroughs match actual implementations, counters an
       assert.ok(content.sections.find(section=>section.id==='preconditions').paragraphs[0].trim());
     }
   }
+});
+
+const { captureSearching } = await import('../src/searching/persistence.ts');
+test('single run and mixed comparison snapshots detach editable input and every result', () => {
+  const single=runSearchingComparison('3,1,2','1',['linear']);
+  assert.equal(single.rows.length,1);
+  const source=input([3,1,2],1);
+  const rows=[{algorithm:'linear',status:'completed',found:true,correct:true,index:1,executionTimeMs:0,probeCount:2,comparisons:2,probes:[0,1]},
+    {algorithm:'binary',status:'error',error:'requires_sorted_input'}];
+  const snapshot=captureSearching(source,rows);
+  source.values[0]=100; rows[0].probes[0]=2; rows[1].error='runner_error';
+  assert.deepEqual(snapshot.input,input([3,1,2],1));
+  assert.deepEqual(snapshot.results[0].probes,[0,1]);
+  assert.equal(snapshot.results[1].error,'requires_sorted_input');
+  assert.ok(Object.isFrozen(snapshot.results[0].probes));
+  assert.ok(Object.isFrozen(snapshot.results[1]));
+  assert.deepEqual(JSON.parse(JSON.stringify(snapshot)),snapshot);
 });

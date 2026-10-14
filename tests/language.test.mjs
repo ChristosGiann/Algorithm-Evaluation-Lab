@@ -721,3 +721,28 @@ test('partial searching metadata hides missing optional sections without inventi
     assert.ok(!html.includes('O(log n)'));
   }
 });
+
+test('searching saved detail and history reopen JSON snapshots in both languages without running', async () => {
+  const { searchingPersistenceTexts } = await import('../src/i18n/searchingPersistence.ts');
+  const { searchingComparisonTexts } = await import('../src/i18n/searchingComparison.ts');
+  const { SaveSearching } = await import('../src/components/Searching/SaveSearching.tsx');
+  const experiment=JSON.parse(JSON.stringify({id:121,name:'Saved searching',family:'searching',status:'failed',execution_error:'',implementations:[],datasets:[],
+    input_snapshot:{version:1,source:'browser',input:{values:[3,1],target:3},algorithms:['linear','binary']},
+    results:[{id:1,implementation_snapshot:{name:'Linear Search v1'},measurement:{algorithm:'linear',status:'completed',found:true,correct:true,index:0,executionTimeMs:0,probeCount:1,comparisons:1,probes:[0]}},
+      {id:2,implementation_snapshot:{name:'Binary Search v1'},measurement:{algorithm:'binary',status:'error',error:'requires_sorted_input'}}]}));
+  const original=globalThis.performance;
+  Object.defineProperty(globalThis,'performance',{configurable:true,value:{now(){throw new Error('must not run')}}});
+  try {
+    for(const language of ['el','en']) {
+      const html=render(ExperimentDetails,{experiment,language});
+      assert.ok(html.includes(searchingPersistenceTexts[language].note));
+      assert.ok(html.includes(searchingComparisonTexts[language].errors.requires_sorted_input));
+      assert.ok(html.includes('Linear Search v1'));
+      assert.match(html,/<td>0<\/td>/);
+      assert.doesNotMatch(html,/<button/);
+      const form=render(SaveSearching,{snapshot:{input:experiment.input_snapshot.input,results:[]},language});
+      assert.ok(form.includes(searchingPersistenceTexts[language].name));
+      assert.match(form,/maxLength="200"/);
+    }
+  } finally {Object.defineProperty(globalThis,'performance',{configurable:true,value:original});}
+});

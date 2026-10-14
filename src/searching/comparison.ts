@@ -7,9 +7,9 @@ export interface SearchingComparisonResult {
   input: SearchingInput;
   rows: SearchingResult[];
 }
-/** UI comparisons require 2–4 distinct algorithms; core evaluation also supports single runs. */
+/** UI supports single runs and comparisons of up to four distinct algorithms. */
 export function runSearchingComparison(values: string, target: string, algorithms: readonly SearchingAlgorithm[]): SearchingComparisonResult {
-  if (algorithms.length < 2 || algorithms.length > 4 || new Set(algorithms).size !== algorithms.length
+  if (algorithms.length < 1 || algorithms.length > 4 || new Set(algorithms).size !== algorithms.length
     || algorithms.some(key => !SEARCHING_ALGORITHMS.includes(key))) throw new Error("invalid_selection");
   const input = parseSearchingInput(values, target);
   const rows = compareSearching(input, algorithms.map(algorithm => ({ algorithm, search: SEARCHING_REGISTRY[algorithm] })));

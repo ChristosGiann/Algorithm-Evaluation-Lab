@@ -1,3 +1,4 @@
+import { SavedSearching } from "../Searching/SavedSearching";
 import { SavedPathfinding } from "../Pathfinding/SavedPathfinding";
 import { ComparisonResults } from "../Comparison/ComparisonResults";
 import { comparisonFromExperiment } from "../Comparison/fromExperiment";
@@ -8,6 +9,7 @@ import { benchmarkTexts } from "../../i18n/benchmark";
 
 export function ExperimentDetails({ experiment, language }: { experiment: Experiment; language: Language }) {
   if (experiment.family === "pathfinding") return <SavedPathfinding experiment={experiment} language={language} />;
+  if (experiment.family === "searching") return <SavedSearching experiment={experiment} language={language} />;
   const comparison = comparisonFromExperiment(experiment);
   const t = experimentTexts[language];
   const b = benchmarkTexts[language];

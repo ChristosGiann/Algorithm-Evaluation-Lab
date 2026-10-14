@@ -76,3 +76,9 @@ Pure exponential implementation: equality probe στο 0, doubling bounds 1/2/4/
 ## Searching education (#120)
 
 Η shared Algorithm Library εμφανίζει Linear/Binary/Jump/Exponential μέσω FamilyEducation και EducationalContent, ανεξάρτητα από τη φόρτωση του backend catalogue. Versioned el/en metadata: what/intuition/steps/complexity/strengths/limitations/uses/pitfalls/completeness και explicit preconditions. Τα κοινά walkthroughs στο [1,3,5,7,9,11,13,15]/11 ελέγχονται απέναντι στις πραγματικές implementations, μαζί με probes/counters και immutability. Διαχωρίζονται algorithm state, trace memory και validation cost· δεν εξάγεται performance ranking. Rendering tests ελέγχουν completeness και missing optional fields χωρίς invented content. Δεν προστίθεται runtime AI, API ή persistence.
+
+## Searching persistence (#121)
+
+Υλοποιήθηκε POST `/api/experiments/searching/` με strict name/input/results validation και shared transactional store_experiment. Snapshot v1: browser provenance, αρχική numeric συλλογή/target, ordered algorithm identities και πλήρη results. Completed rows κρατούν found/index/correctness/probes/comparisons/time, error rows μόνο error code χωρίς fabricated metrics. Unsorted preconditions επαληθεύονται· correctness ελέγχεται έναντι του input, χωρίς rerun του algorithm. Timings/counters παραμένουν browser-reported, όχι server-verified benchmarks. Το experiment είναι failed αν υπάρχει error ή incorrect row.
+
+UI: 1–4 algorithms για single run ή comparison, named save με shared duplicate-request/timeout controller, απομόνωση save state ανά νέο run. Κοινό history με Searching label και read-only detail από αποθηκευμένα snapshots μετά από refresh/ID, χωρίς νέο run. Input edits ακυρώνουν το προηγούμενο save UI. Sorting/pathfinding παραμένουν συμβατά. Απαιτείται `python backend/manage.py migrate` για το migration 0006 (family choice). Δεν προστίθενται accounts/edit/delete/animation-state persistence/string search.

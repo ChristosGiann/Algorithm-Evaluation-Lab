@@ -1,3 +1,5 @@
+import { SaveSearching } from "./SaveSearching";
+import { captureSearching } from "../../searching/persistence";
 import { useState } from "react";
 import type { FormEvent } from "react";
 import type { Language } from "../../i18n/translations";
@@ -14,10 +16,11 @@ export function SearchingComparison({ language }: { language: Language }) {
   const [values, setValues] = useState("1, 3, 5, 7, 9, 11, 13, 15");
   const [target, setTarget] = useState("11");
   const [result, setResult] = useState<SearchingComparisonResult | null>(null);
+  const [revision, setRevision] = useState(0);
   const [error, setError] = useState<"invalid" | "selection" | null>(null);
   function clear() { setResult(null); setError(null); }
   function submit(event: FormEvent) {
-    event.preventDefault(); clear();
+    event.preventDefault(); clear(); setRevision(previous => previous + 1);
     try { setResult(runSearchingComparison(values, target, algorithms)); }
     catch (error) { setError(error instanceof Error && error.message === "invalid_selection" ? "selection" : "invalid"); }
   }
@@ -38,6 +41,6 @@ export function SearchingComparison({ language }: { language: Language }) {
       </div>
     </form>
     {error && <p role="alert">{t[error]}</p>}
-    {result ? <SearchingResults result={result} language={language} /> : <p>{t.empty}</p>}
+    {result ? <div key={revision}><SearchingResults result={result} language={language} /><SaveSearching snapshot={captureSearching(result.input, result.rows)} language={language} /></div> : <p>{t.empty}</p>}
   </section>;
 }

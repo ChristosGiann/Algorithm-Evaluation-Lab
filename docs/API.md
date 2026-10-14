@@ -269,3 +269,7 @@ solve(values) επιστρέφει list ή None για in-place. Δέκα fresh 
 ## Pathfinding persistence (#94)
 
 POST `/api/experiments/pathfinding/` αποθηκεύει completed browser runs/comparisons. Body `{name, input: {rows, cols, start, end, walls, costs}, results: [...]}`. 201: Experiment detail, 400: invalid payload. GET `/api/experiments/` summaries προσθέτουν family· GET `/api/experiments/<id>/` προσθέτει family/input_snapshot και επιστρέφει τα stored measurements χωρίς run. Βλ. [πλήρες contract και trust limits](EXPERIMENTS.md#pathfinding-snapshots-94). Απαιτείται migration core.0005.
+
+## Searching snapshot save (#121)
+
+POST `/api/experiments/searching/`: `{name, input:{values:number[],target:number}, results:SearchingResult[]}`. 1–4 unique algorithms, ≤10.000 finite values, ≤100.000 valid probe indexes ανά row, safe integer counters και finite nonnegative ms. Strict union completed/error· γνωστά error codes, no mixed metrics. HTTP 201 με Searching Experiment envelope, 400 για invalid payload, atomic storage. Name 1–200 trimmed characters. Input snapshot `{version:1,source:"browser",input,algorithms}`. `GET /api/experiments/` και `GET /api/experiments/{id}/` δίνουν history/detail χωρίς execution. Run endpoint επιστρέφει 409. Browser measurements δεν πιστοποιούνται με rerun.

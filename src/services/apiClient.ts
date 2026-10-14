@@ -115,3 +115,9 @@ export function savePathfinding(name: string, snapshot: import("../pathfinding/p
     method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name, ...snapshot}), signal,
   });
 }
+
+export function saveSearching(name: string, snapshot: import("../searching/persistence").SearchingSnapshot, signal: AbortSignal): Promise<import("../types/experiment").SearchingExperiment> {
+  return apiRequest("/api/experiments/searching/", {
+    method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name, ...snapshot}), signal,
+  });
+}

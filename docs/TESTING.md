@@ -530,3 +530,7 @@ Validation #120 (13/10/2026): 112 frontend tests, lint/build και diff check P
 ## Searching persistence (#121)
 
 Backend: save/list/reopen, zero/null/incorrect outcomes, mixed errors, strict invalid payloads και atomic rollback. Frontend: detached snapshots, single run, bilingual saved detail χωρίς clock execution, shared save lifecycle και sorting/pathfinding regressions.
+
+## Comprehensive searching coverage (#122)
+
+Νέο deterministic oracle matrix στο tests/searching-coverage.test.mjs για Linear/Binary/Jump/Exponential. Exhaustive arrays μήκους 0–5 πάνω σε {-1,0,1}, 48 seeded collections, fractions/extreme finite values, first/middle/last/absent/duplicates. Ανεξάρτητο matching-index oracle αποδέχεται οποιοδήποτε σωστό duplicate. Έλεγχοι observer/probe bounds, input immutability, exact counter fixtures, repeated-run isolation και 10.000 στοιχεία. Unsorted matrix απορρίπτεται πριν runner/clock για sorted algorithms, ενώ Linear συνεχίζει. Invalid traces/counters ελέγχονται για κάθε identity. Δεν υπάρχουν wall-clock performance thresholds ή νέες dependencies· εκτελείται με npm test και το υπάρχον CI.

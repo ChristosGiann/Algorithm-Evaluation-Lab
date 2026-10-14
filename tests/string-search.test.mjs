@@ -128,3 +128,92 @@ test('comparison prepares each entry with identical strings and isolates failure
     assert.throws(() => compareStringSearch(data, entries), /invalid_selection/);
   }
 });
+
+const { naive } = await import('../src/stringSearch/naive.ts');
+test('Naive String Search returns literal first match with exact alignments and comparisons',()=>{
+  for(const [text,pattern,index,alignments,comparisons] of [
+    ['', '', 0, [0], 0], ['abc', '', 0, [0], 0], ['', 'a', null, [], 0],
+    ['a', 'aa', null, [], 0], ['abc', 'abc', 0, [0], 3], ['xxabczz', 'abc', 2, [0,1,2], 5],
+    ['xxabc', 'abc', 2, [0,1,2], 5], ['abc', 'z', null, [0,1,2], 3],
+    ['banana', 'ana', 1, [0,1], 4], ['aaaaa', 'aaa', 0, [0], 3],
+    ['aaaaab', 'aaab', 2, [0,1,2], 12], ['ababab', 'abab', 0, [0], 4],
+    ['ABC', 'abc', null, [0], 1], ['aA', 'A', 1, [0,1], 2],
+    ['😀a😀', 'a', 2, [0,1,2], 3], ['😀', String.fromCharCode(0xde00), 1, [0,1], 2],
+    ['e'+String.fromCharCode(0x301), 'é', null, [0,1], 2], ['a'+String.fromCharCode(0)+'b', String.fromCharCode(0), 1, [0,1], 2],
+  ]) {
+    const prepared=naive(pattern);
+    assert.equal(prepared.comparisons,0);
+    assert.deepEqual(prepared.search(text),{index,alignments,comparisons},JSON.stringify({text,pattern}));
+    const data=Object.freeze(input(text,pattern));
+    const result=evaluateStringSearch('naive',data,naive,()=>0);
+    assert.equal(result.status,'completed'); assert.equal(result.correct,true);
+    assert.equal(result.index,index); assert.equal(result.found,index!==null);
+    assert.deepEqual(result.occurrenceIndexes,index===null?[]:[index]);
+    assert.deepEqual(data,input(text,pattern));
+  }
+});
+
+test('Naive exhaustive short strings agree with independent native first-match oracle',()=>{
+  function strings(length) {
+    return length===0?['']:strings(length-1).flatMap(prefix=>['a','b'].map(letter=>prefix+letter));
+  }
+  const texts=Array.from({length:7},(_,i)=>strings(i)).flat();
+  const patterns=Array.from({length:5},(_,i)=>strings(i)).flat();
+  for(const text of texts)for(const pattern of patterns) {
+    const result=naive(pattern).search(text);
+    const expected=text.indexOf(pattern);
+    assert.equal(result.index,expected===-1?null:expected,JSON.stringify({text,pattern}));
+    const last=expected===-1?text.length-pattern.length:expected;
+    assert.deepEqual(result.alignments,Array.from({length:Math.max(0,last+1)},(_,i)=>i));
+    assert.ok(Number.isSafeInteger(result.comparisons)&&result.comparisons>=0);
+    assert.ok(result.comparisons<=result.alignments.length*pattern.length);
+  }
+});
+
+test('Naive prepared searches and evaluation runs have independent mutable traces',()=>{
+  const prepared=naive('ana');
+  const first=prepared.search('banana');
+  const expected=structuredClone(first);
+  first.alignments.push(99);
+  assert.deepEqual(prepared.search(''),{index:null,alignments:[],comparisons:0});
+  assert.deepEqual(prepared.search('banana'),expected);
+  assert.deepEqual(naive('ana').search('banana'),expected);
+  const result=evaluateStringSearch('naive',input(),naive,()=>0);
+  assert.ok(Object.isFrozen(result.alignments));
+  assert.ok(Object.isFrozen(result.occurrenceIndexes));
+  assert.deepEqual(result.alignments,[0,1]);
+});
+
+test('Naive uses shared comparison and separate phase timing without fabricated preprocessing duration',()=>{
+  const ticks=[1,3,10,15];
+  const source=input();
+  const rows=compareStringSearch(source,[{algorithm:'naive',prepare:naive}],()=>ticks.shift());
+  assert.equal(rows.length,1);
+  assert.equal(rows[0].correct,true);
+  assert.equal(rows[0].preprocessingComparisons,0);
+  assert.equal(rows[0].preprocessingTimeMs,2);
+  assert.equal(rows[0].executionTimeMs,5);
+  assert.equal(rows[0].comparisons,4);
+  assert.deepEqual(source,input());
+  const mixed=compareStringSearch(source,[
+    {algorithm:'kmp',prepare(){throw new Error('test failure');}},
+    {algorithm:'naive',prepare:naive},
+  ],()=>0);
+  assert.equal(mixed[0].error,'preprocessing_error');
+  assert.equal(mixed[1].correct,true);
+});
+
+test('Naive maximum-size repeated-prefix regression uses counters instead of timing thresholds',()=>{
+  const pattern='a'.repeat(MAX_PATTERN_LENGTH-1)+'b';
+  for(const [text,index] of [
+    ['a'.repeat(MAX_TEXT_LENGTH),null],
+    ['a'.repeat(MAX_TEXT_LENGTH-1)+'b',MAX_TEXT_LENGTH-MAX_PATTERN_LENGTH],
+  ]) {
+    const result=evaluateStringSearch('naive',input(text,pattern),naive,()=>0);
+    assert.equal(result.status,'completed');assert.equal(result.correct,true);
+    assert.equal(result.index,index);
+    assert.equal(result.alignments.length,MAX_TEXT_LENGTH-MAX_PATTERN_LENGTH+1);
+    assert.equal(result.comparisons,(MAX_TEXT_LENGTH-MAX_PATTERN_LENGTH+1)*MAX_PATTERN_LENGTH);
+    assert.equal(result.alignments.at(-1),MAX_TEXT_LENGTH-MAX_PATTERN_LENGTH);
+  }
+});

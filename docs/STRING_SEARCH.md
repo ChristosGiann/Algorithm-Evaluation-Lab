@@ -1,6 +1,6 @@
 # String-search foundation (#97)
 
-Το src/stringSearch/evaluation.ts ορίζει ξεχωριστή family για literal pattern matching μέσα σε text. Παρέχει executable contracts και evaluation/comparison helpers με injected trusted implementations. Δεν προσθέτει ακόμη πραγματικούς Naive/KMP/Rabin-Karp/Boyer-Moore algorithms, UI, API ή persistence.
+Το src/stringSearch/evaluation.ts ορίζει ξεχωριστή family για literal pattern matching μέσα σε text. Παρέχει executable contracts και evaluation/comparison helpers με injected trusted implementations. Η πρώτη πραγματική implementation, Naive, προστέθηκε στο #128. KMP/Rabin-Karp/Boyer-Moore, UI, API και persistence παραμένουν επόμενα scopes.
 
 ## Input και semantics
 
@@ -23,7 +23,7 @@ PrepareStringSearch(pattern) επιστρέφει prepared object με preproces
 1. preprocessingTimeMs γύρω από το prepare call.
 2. executionTimeMs γύρω από το search call.
 
-Η προετοιμασία εξαρτάται μόνο από pattern. Pattern tables/hash setup ανήκουν εδώ· αρχικό text-window hash και rolling hashes ανήκουν στο search. Naive θα έχει ελάχιστο prepare που δημιουργεί το closure χωρίς tables· και αυτό μετριέται, δεν επιβάλλεται τεχνητό μηδενικό timing. Δεν γίνεται cache reuse από τον evaluator μεταξύ runs. Οι πραγματικές implementations οφείλουν να δημιουργούν ανεξάρτητη mutable κατάσταση ανά prepare.
+Η προετοιμασία εξαρτάται μόνο από pattern. Pattern tables/hash setup ανήκουν εδώ· αρχικό text-window hash και rolling hashes ανήκουν στο search. Naive έχει ελάχιστο prepare που δημιουργεί το closure χωρίς tables· και αυτό μετριέται, δεν επιβάλλεται τεχνητό μηδενικό timing. Δεν γίνεται cache reuse από τον evaluator μεταξύ runs. Οι πραγματικές implementations οφείλουν να δημιουργούν ανεξάρτητη mutable κατάσταση ανά prepare.
 
 Input validation, clock gaps, correctness oracle, result copying και rendering μένουν έξω από τα δύο timings. Trace/counter generation μέσα στους runners περιλαμβάνεται. Οι μετρήσεις είναι browser single-call samples με instrumentation, όχι αξιόπιστο αυτόματο ranking. Δεν υπάρχει timeout ή sandbox για injected synchronous functions.
 
@@ -47,7 +47,7 @@ Deterministic test fixtures καλύπτουν empty inputs, absent pattern, lon
 
 | Planned identity | Επόμενη υλοποίηση |
 | --- | --- |
-| naive | Literal left-to-right first-match baseline και exact counter tests |
+| naive | Υλοποιήθηκε στο #128: literal left-to-right first-match baseline και exact counter tests |
 | kmp | Pattern prefix table στο prepare, search και fallback tests |
 | rabinKarp | Pattern hash setup, rolling text hash, collision verification tests |
 | boyerMoore | Documented variant/shift tables, right-to-left checks και shift tests |
@@ -59,3 +59,9 @@ Persistence θα επεκτείνει το model/ExperimentByFamily με πρα�
 ## Verification
 
 npm test εκτελεί tests/string-search.test.mjs μαζί με όλα τα υπάρχοντα regression suites. Ελέγχονται input limits, first-match correctness, malformed traces/counters, UTF-16 baseline, separated phase timing, detached results και failure isolation. Δεν υπάρχει νέα UI ροή για browser smoke.
+
+## Naive String Search (#128)
+
+Πραγματική pure implementation στο src/stringSearch/naive.ts ως PrepareStringSearch. Κρατά το pattern σε closure χωρίς tables/cache, με 0 preprocessing character comparisons (ο χρόνος prepare μετριέται κανονικά). Το search δοκιμάζει offsets αριστερά προς δεξιά και code units αριστερά προς δεξιά, σταματώντας στο πρώτο mismatch ή πρώτο πλήρες match. Empty pattern: index 0, alignments [0], comparisons 0· μεγαλύτερο pattern: null/[]/0. Case-sensitive UTF-16 semantics χωρίς normalization/regex και χωρίς χρήση native indexOf μέσα στην implementation.
+
+Κάθε search δημιουργεί νέο trace/counters. Worst-case O((n-m+1)·m) για 1≤m≤n, O(1) algorithm state συν O(n-m+1) trace. Το κοινό evaluation/comparison κρατά validation και independent oracle έξω από τα χωριστά prepare/search timings. Tests: exact fixtures, empty/first/middle/last/overlap/repeated/case/Unicode, exhaustive 3.937 short text-pattern pairs, repeated-run isolation, common comparison και max 10.000/1.000 repeated-prefix input χωρίς timing thresholds. UI, visualization, persistence και KMP/Rabin-Karp/Boyer-Moore είναι επόμενα scopes.

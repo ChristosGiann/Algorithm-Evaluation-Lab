@@ -456,3 +456,7 @@ Searching implementations (#114–#117), visualization (#118) και comparison 
 Single-run/comparison save, shared history και reopen χωρίς rerun υλοποιήθηκαν. Ακολουθούν comprehensive searching coverage (#122) και Naive String Search (#128).
 
 Το #122 ολοκληρώνει το comprehensive Searching test scope. Επόμενο: Naive String Search (#128).
+
+## Naive String Search (#128)
+
+Η πρώτη πραγματική string-search implementation λειτουργεί με το κοινό evaluation/comparison contract και deterministic tests. Παραμένουν τα επόμενα string-search algorithms και UI/visualization/persistence scopes.

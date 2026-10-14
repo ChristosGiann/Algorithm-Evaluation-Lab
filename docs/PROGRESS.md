@@ -386,3 +386,9 @@ Validation #121: 114 frontend / 122 backend tests, lint/build, Django check κα
 ## Comprehensive searching coverage (#122)
 
 Νέο deterministic oracle matrix στο tests/searching-coverage.test.mjs για Linear/Binary/Jump/Exponential. Exhaustive arrays μήκους 0–5 πάνω σε {-1,0,1}, 48 seeded collections, fractions/extreme finite values, first/middle/last/absent/duplicates. Ανεξάρτητο matching-index oracle αποδέχεται οποιοδήποτε σωστό duplicate. Έλεγχοι observer/probe bounds, input immutability, exact counter fixtures, repeated-run isolation και 10.000 στοιχεία. Unsorted matrix απορρίπτεται πριν runner/clock για sorted algorithms, ενώ Linear συνεχίζει. Invalid traces/counters ελέγχονται για κάθε identity. Δεν υπάρχουν wall-clock performance thresholds ή νέες dependencies· εκτελείται με npm test και το υπάρχον CI.
+
+## Naive String Search (#128)
+
+Πραγματική pure implementation στο src/stringSearch/naive.ts ως PrepareStringSearch. Κρατά το pattern σε closure χωρίς tables/cache, με 0 preprocessing character comparisons (ο χρόνος prepare μετριέται κανονικά). Το search δοκιμάζει offsets αριστερά προς δεξιά και code units αριστερά προς δεξιά, σταματώντας στο πρώτο mismatch ή πρώτο πλήρες match. Empty pattern: index 0, alignments [0], comparisons 0· μεγαλύτερο pattern: null/[]/0. Case-sensitive UTF-16 semantics χωρίς normalization/regex και χωρίς χρήση native indexOf μέσα στην implementation.
+
+Κάθε search δημιουργεί νέο trace/counters. Worst-case O((n-m+1)·m) για 1≤m≤n, O(1) algorithm state συν O(n-m+1) trace. Το κοινό evaluation/comparison κρατά validation και independent oracle έξω από τα χωριστά prepare/search timings. Tests: exact fixtures, empty/first/middle/last/overlap/repeated/case/Unicode, exhaustive 3.937 short text-pattern pairs, repeated-run isolation, common comparison και max 10.000/1.000 repeated-prefix input χωρίς timing thresholds. UI, visualization, persistence και KMP/Rabin-Karp/Boyer-Moore είναι επόμενα scopes.

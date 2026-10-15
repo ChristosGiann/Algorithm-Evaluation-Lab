@@ -1,6 +1,6 @@
 # Roadmap
 
-Τρέχον snapshot, 2026-10-05: sorting comparison/persistence/statistics/education/visualization/custom execution και CI υλοποιήθηκαν (#58–#64/#66–#68). Το #65 προετοιμάζει το pathfinding evaluation contract. Τα #2/#3/#1 παρέχουν neighbours, reconstruction και pure BFS. Το #10 καλύπτει τα tests και το #4 το BFS animation. Ακολουθούν controls/statistics/DFS/comparison (#5–#9).
+Τρέχον snapshot, 2026-10-15: ολοκληρωμένα sorting evaluation και weighted pathfinding UI/education/persistence. Το Searching #114–#122 περιλαμβάνει τέσσερις algorithms, visualization, comparison, education, persistence και comprehensive tests. Το String Search έχει foundation και pure Naive (#128). Επόμενα #129–#134: KMP, Rabin-Karp, Boyer-Moore, visualization, comparison και education. String-search persistence/coverage και public deployment ακολουθούν σε ξεχωριστά issues.
 
 ## Main development path
 

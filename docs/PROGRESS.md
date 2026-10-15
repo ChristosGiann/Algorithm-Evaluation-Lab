@@ -1,8 +1,10 @@
 # Project Progress
 
-Last verified: **2026-10-09**
+Last verified: **2026-10-15**
 
 ## Current phase
+
+Ολοκληρωμένα: sorting evaluation, weighted BFS/DFS/Dijkstra/A* με education και persistence, Searching Linear/Binary/Jump/Exponential με visualization/comparison/education/persistence και comprehensive tests (#114–#122). String Search: shared foundation και pure Naive (#128). Επόμενα #129–#134: KMP, Rabin-Karp, Boyer-Moore, visualization, comparison και education. Τα παρακάτω επιμέρους στάδια καταγράφουν την ιστορική εξέλιξη.
 
 Το παρόν snapshot περιλαμβάνει το ολοκληρωμένο sorting evaluation scope #58–#64/#66–#68:
 comparison, αποθήκευση/ιστορικό, statistics/baseline, Big-O context, educational

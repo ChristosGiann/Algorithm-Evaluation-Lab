@@ -23,7 +23,11 @@ export interface SearchingTrace {
   /** Number of logical value/target comparisons, excluding loop/index checks. */
   readonly comparisons: number;
 }
-export type SearchingSearch = (input: SearchingInput) => SearchingTrace;
+export interface SearchingProbe {
+  readonly probe: number; readonly low: number; readonly high: number;
+  readonly phase: "scan" | "binary" | "jump" | "expand";
+}
+export type SearchingSearch = (input: SearchingInput, observe?: (probe: SearchingProbe) => void) => SearchingTrace;
 export type SearchingResult = { algorithm: SearchingAlgorithm } & (
   | { status: "completed"; found: boolean; correct: boolean; index: number | null;
       executionTimeMs: number; probeCount: number; comparisons: number; probes: readonly number[] }

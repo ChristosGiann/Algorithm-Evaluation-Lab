@@ -1,8 +1,10 @@
 # Project Progress
 
-Last verified: **2026-10-09**
+Last verified: **2026-10-15**
 
 ## Current phase
+
+Ολοκληρωμένα: sorting evaluation, weighted BFS/DFS/Dijkstra/A* με education και persistence, Searching Linear/Binary/Jump/Exponential με visualization/comparison/education/persistence και comprehensive tests (#114–#122). String Search: shared foundation και pure Naive (#128). Επόμενα #129–#134: KMP, Rabin-Karp, Boyer-Moore, visualization, comparison και education. Τα παρακάτω επιμέρους στάδια καταγράφουν την ιστορική εξέλιξη.
 
 Το παρόν snapshot περιλαμβάνει το ολοκληρωμένο sorting evaluation scope #58–#64/#66–#68:
 comparison, αποθήκευση/ιστορικό, statistics/baseline, Big-O context, educational
@@ -338,3 +340,57 @@ Validation #97: 85 frontend και 117 backend tests επιτυχή, lint/build,
 Κοινά education types, legacy adapter και section renderer για sorting/pathfinding, με localized extension sections και generic family cards. Searching/string-search fixtures επαληθεύουν την επέκταση χωρίς νέο rendering branch· το πλήρες curated περιεχόμενό τους παραμένει επόμενο scope. 87 frontend tests και lint/build επιτυχή. Browser smoke: BFS/Bubble Sort, el/en, walkthroughs και console καθαρά.
 
 Backend validation #98: 117 tests, Django check και migration drift check επιτυχή. Δεν απαιτείται migration.
+
+## Linear Search (#114)
+
+Πραγματική pure linear implementation στο src/searching/linear.ts για validated sorted/unsorted input. Εξετάζει αριστερά προς δεξιά και επιστρέφει το πρώτο match (συμβατό με any-match contract), αλλιώς null. Κάθε probe μετρά μία equality comparison. O(n) search χρόνος, O(1) algorithm state συν O(n) educational trace. Validation/copy/oracle παραμένουν εκτός timing στο evaluation layer. Tests καλύπτουν empty/singleton, first/middle/last, duplicates, absent, fractions, repeated runs, trace isolation και 10.000 στοιχεία μέσω common comparison. Δεν προστίθεται UI/API/persistence. Ακολουθεί Binary Search (#115).
+
+## Binary Search (#115)
+
+Pure iterative binary implementation: inclusive low/high, lower midpoint, μία equality comparison και (μόνο αν αποτύχει) μία less-than comparison ανά probe. Duplicates επιστρέφουν deterministic οποιοδήποτε matching midpoint. Το evaluateSearching επιβάλλει ascending input πριν το timing· direct binary καλείται μόνο με validated sorted data. Δεν γίνεται implicit sort. O(log n) search χρόνος/state O(1), συν O(log n) trace· το O(n) sortedness validation παραμένει εκτός search timing. Tests καλύπτουν boundaries/duplicates/absent/fractions, exact counters, unsorted rejection, common comparison με Linear και repeated runs σε 10.000 στοιχεία. Ακολουθεί Jump Search (#116), χωρίς αλλαγή UI/API.
+
+## Jump Search (#116)
+
+Pure jump implementation με deterministic step=max(1,floor(sqrt(n))). Κάνει μία less-than comparison ανά block-end probe και equality scans μόνο στο πρώτο block του οποίου το end δεν είναι μικρότερο από target. Repeated endpoint probes μετρούν ξανά· δεν γίνεται reuse παλιού probe. O(√n) search χρόνος, O(1) state συν O(√n) trace. Το shared evaluation επιβάλλει ascending input εκτός timing. Tests καλύπτουν empty/small, exact block boundaries, truncated last block, first/last, duplicates/fractions, absent, unsorted rejection και Linear/Binary/Jump comparison σε 10.000 στοιχεία. Δεν αλλάζει UI/API/persistence. Επόμενο #117 Exponential Search.
+
+Validation #114–#116: 95 frontend tests στο τελικό snapshot, lint/build και diff checks επιτυχή. Backend αμετάβλητο: 117 tests/check/migration consistency ελέγχθηκαν στην αρχή του κύκλου και επαναλαμβάνονται στο CI κάθε PR. Δεν υπάρχει νέα UI ροή για browser smoke.
+
+## Exponential Search (#117)
+
+Pure exponential implementation: equality probe στο 0, doubling bounds 1/2/4/… με μία >= comparison ανά expansion probe και inclusive binary phase με equality/order comparisons. Repeated probes μετρούν ξανά. Input validation/sortedness προηγούνται του timing. Tests καλύπτουν empty/singleton/near/far/last/duplicates/absent, bounds, exact counters, isolation, 10.000 στοιχεία και σύγκριση και των τεσσάρων algorithms. Search O(log n), O(1) state συν O(log n) trace. UI/visualization ακολουθούν στο #118.
+
+## Searching visualization (#118)
+
+Οι τέσσερις πραγματικές implementations παρέχουν optional observer με probe, inclusive low/high και phase (scan/binary/jump/expand). Χωρίς observer διατηρούν τα ίδια metrics. Το searchingAnimation καταγράφει immutable frames έως 64 στοιχεία χωρίς clock/benchmark metrics. Linear δείχνει remaining suffix, Binary midpoint/range, Jump block boundaries και scan, Exponential expansion και binary phase. Το registry είναι η κοινή executable πηγή. UI: el/en, collection/target/algorithm, Play/Pause/Step/Reset/Speed, current/visited/range/match και σαφή precondition errors. Input/algorithm edits καθαρίζουν trace και timer, reset επαναφέρει frame 0. Pure reducer/trace tests και bilingual rendering tests ελέγχουν lifecycle, phase order, bounds και συμφωνία με πραγματικά probes. Το #119 προσθέτει ξεχωριστή measured comparison ροή.
+
+Validation #118: 102 frontend tests, lint/build και diff check PASS. Browser smoke (13/10/2026): Binary step/range, Play/Pause/Reset/Speed, Exponential expansion και ολοκλήρωση στο index 5, unsorted rejection, input edit clears stale trace, el/en. Κανένα browser console error.
+
+## Searching comparison UI (#119)
+
+Ολοκληρώθηκε η searching comparison ροή για 2–4 algorithms στο ίδιο input/target, με real metrics και ανεξάρτητα precondition/error rows. Inputs και επιλογές καθαρίζουν stale results. El/en accessible table, όριο 10.000, χωρίς implicit sorting ή αποθήκευση. Τα #117–#119 καλύπτουν πλέον Exponential, visualization και comparison.
+
+Validation #119 (13/10/2026): 109 frontend tests PASS, lint/build και diff check PASS. Browser: 4 sorted successes, unsorted Linear + 3 precondition errors, not-found/empty, invalid target/selection, collection/target/selection clear stale rows, el/en. Κανένα console error. Backend αμετάβλητο, regression checks στο CI.
+
+## Searching education (#120)
+
+Η shared Algorithm Library εμφανίζει Linear/Binary/Jump/Exponential μέσω FamilyEducation και EducationalContent, ανεξάρτητα από τη φόρτωση του backend catalogue. Versioned el/en metadata: what/intuition/steps/complexity/strengths/limitations/uses/pitfalls/completeness και explicit preconditions. Τα κοινά walkthroughs στο [1,3,5,7,9,11,13,15]/11 ελέγχονται απέναντι στις πραγματικές implementations, μαζί με probes/counters και immutability. Διαχωρίζονται algorithm state, trace memory και validation cost· δεν εξάγεται performance ranking. Rendering tests ελέγχουν completeness και missing optional fields χωρίς invented content. Δεν προστίθεται runtime AI, API ή persistence.
+
+Validation #120 (13/10/2026): 112 frontend tests, lint/build και diff check PASS. Browser smoke: και οι 4 searching cards, expand/collapse, πραγματικά walkthroughs και live el/en μετάβαση. Κανένα console error. Backend αμετάβλητο· regression CI πριν το merge.
+
+## Searching persistence (#121)
+
+Υλοποιήθηκε POST `/api/experiments/searching/` με strict name/input/results validation και shared transactional store_experiment. Snapshot v1: browser provenance, αρχική numeric συλλογή/target, ordered algorithm identities και πλήρη results. Completed rows κρατούν found/index/correctness/probes/comparisons/time, error rows μόνο error code χωρίς fabricated metrics. Unsorted preconditions επαληθεύονται· correctness ελέγχεται έναντι του input, χωρίς rerun του algorithm. Timings/counters παραμένουν browser-reported, όχι server-verified benchmarks. Το experiment είναι failed αν υπάρχει error ή incorrect row.
+
+UI: 1–4 algorithms για single run ή comparison, named save με shared duplicate-request/timeout controller, απομόνωση save state ανά νέο run. Κοινό history με Searching label και read-only detail από αποθηκευμένα snapshots μετά από refresh/ID, χωρίς νέο run. Input edits ακυρώνουν το προηγούμενο save UI. Sorting/pathfinding παραμένουν συμβατά. Απαιτείται `python backend/manage.py migrate` για το migration 0006 (family choice). Δεν προστίθενται accounts/edit/delete/animation-state persistence/string search.
+
+Validation #121: 114 frontend / 122 backend tests, lint/build, Django check και migration consistency επιτυχή. Browser smoke: αποθήκευση πραγματικού comparison ως #17, refresh/history/reopen με ίδιες μετρήσεις, run disabled και console χωρίς errors. Migration 0006 εφαρμόστηκε τοπικά.
+
+## Comprehensive searching coverage (#122)
+
+Νέο deterministic oracle matrix στο tests/searching-coverage.test.mjs για Linear/Binary/Jump/Exponential. Exhaustive arrays μήκους 0–5 πάνω σε {-1,0,1}, 48 seeded collections, fractions/extreme finite values, first/middle/last/absent/duplicates. Ανεξάρτητο matching-index oracle αποδέχεται οποιοδήποτε σωστό duplicate. Έλεγχοι observer/probe bounds, input immutability, exact counter fixtures, repeated-run isolation και 10.000 στοιχεία. Unsorted matrix απορρίπτεται πριν runner/clock για sorted algorithms, ενώ Linear συνεχίζει. Invalid traces/counters ελέγχονται για κάθε identity. Δεν υπάρχουν wall-clock performance thresholds ή νέες dependencies· εκτελείται με npm test και το υπάρχον CI.
+
+## Naive String Search (#128)
+
+Πραγματική pure implementation στο src/stringSearch/naive.ts ως PrepareStringSearch. Κρατά το pattern σε closure χωρίς tables/cache, με 0 preprocessing character comparisons (ο χρόνος prepare μετριέται κανονικά). Το search δοκιμάζει offsets αριστερά προς δεξιά και code units αριστερά προς δεξιά, σταματώντας στο πρώτο mismatch ή πρώτο πλήρες match. Empty pattern: index 0, alignments [0], comparisons 0· μεγαλύτερο pattern: null/[]/0. Case-sensitive UTF-16 semantics χωρίς normalization/regex και χωρίς χρήση native indexOf μέσα στην implementation.
+
+Κάθε search δημιουργεί νέο trace/counters. Worst-case O((n-m+1)·m) για 1≤m≤n, O(1) algorithm state συν O(n-m+1) trace. Το κοινό evaluation/comparison κρατά validation και independent oracle έξω από τα χωριστά prepare/search timings. Tests: exact fixtures, empty/first/middle/last/overlap/repeated/case/Unicode, exhaustive 3.937 short text-pattern pairs, repeated-run isolation, common comparison και max 10.000/1.000 repeated-prefix input χωρίς timing thresholds. UI, visualization, persistence και KMP/Rabin-Karp/Boyer-Moore είναι επόμενα scopes.

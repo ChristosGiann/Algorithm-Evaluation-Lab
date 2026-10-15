@@ -28,8 +28,20 @@ export interface PathfindingExperiment extends ExperimentHeader<"completed"> {
   results: StoredResult<{algorithm:string; name:string; language:string; version:number},
     import("../pathfinding/evaluation").PathfindingResult>[];
 }
+export interface SearchingExperiment extends ExperimentHeader<"completed" | "failed"> {
+  family: "searching";
+  implementations: []; datasets: [];
+  input_snapshot: {
+    version: 1; source: "browser";
+    input: import("../searching/evaluation").SearchingInput;
+    algorithms: import("../searching/evaluation").SearchingAlgorithm[];
+  };
+  results: StoredResult<{algorithm:string; name:string; language:string; version:number},
+    import("../searching/evaluation").SearchingResult>[];
+}
 /** Add a family here without widening either existing metric contract. */
 export interface ExperimentByFamily {
+  searching: SearchingExperiment;
   sorting: SortingExperiment;
   pathfinding: PathfindingExperiment;
 }

@@ -8,6 +8,8 @@
 
 [Τοπική εγκατάσταση](#quick-start) · [Αρχιτεκτονική](#architecture) · [Roadmap](docs/ROADMAP.md) · [API](docs/API.md)
 
+Το Searching διαθέτει Linear/Binary/Jump/Exponential Search, el/en education, step visualization, same-input comparison και αποθήκευση/history χωρίς rerun (#114–#122). Το String Search διαθέτει evaluation foundation και pure Naive implementation (#128), χωρίς UI ακόμη.
+
 ## Τι λειτουργεί σήμερα
 
 | Περιοχή | Υλοποιημένη δυνατότητα |
@@ -189,7 +191,8 @@ git diff --check
 | Υλοποιημένο στο παρόν feature snapshot | Language selector Ελληνικά / English (#11), με διατήρηση φόρμας και αποτελεσμάτων κατά την αλλαγή. |
 | Υλοποιημένο στο dev | Sorting comparison/history/statistics, educational Library, visualization, trusted local custom comparison και CI (#58–#64/#66–#68). |
 | Foundation στο dev | Pathfinding input/result/evaluation contract (#65), [αναλυτικά](docs/PATHFINDING.md). |
-| Μελλοντικά | Pathfinding persistence, searching και άλλες οικογένειες. |
+| Searching | Τέσσερις algorithms, education, visualization, comparison και persistence. |
+| String Search | Foundation και Naive· επόμενα KMP/Rabin-Karp/Boyer-Moore, visualization/comparison/education (#129–#134). |
 
 Το [Roadmap](docs/ROADMAP.md) καταγράφει τις φάσεις και το [Progress](docs/PROGRESS.md) το τρέχον snapshot. Οι μελλοντικοί στόχοι δεν παρουσιάζονται ως έτοιμες λειτουργίες.
 

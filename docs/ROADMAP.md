@@ -1,6 +1,6 @@
 # Roadmap
 
-Τρέχον snapshot, 2026-10-05: sorting comparison/persistence/statistics/education/visualization/custom execution και CI υλοποιήθηκαν (#58–#64/#66–#68). Το #65 προετοιμάζει το pathfinding evaluation contract. Τα #2/#3/#1 παρέχουν neighbours, reconstruction και pure BFS. Το #10 καλύπτει τα tests και το #4 το BFS animation. Ακολουθούν controls/statistics/DFS/comparison (#5–#9).
+Τρέχον snapshot, 2026-10-15: ολοκληρωμένα sorting evaluation και weighted pathfinding UI/education/persistence. Το Searching #114–#122 περιλαμβάνει τέσσερις algorithms, visualization, comparison, education, persistence και comprehensive tests. Το String Search έχει foundation και pure Naive (#128). Επόμενα #129–#134: KMP, Rabin-Karp, Boyer-Moore, visualization, comparison και education. String-search persistence/coverage και public deployment ακολουθούν σε ξεχωριστά issues.
 
 ## Main development path
 
@@ -422,3 +422,41 @@ Foundation με explicit first-match contract και σχεδιασμό επέκ
 ## Multi-family education (#98)
 
 Το κοινό educational framework υποστηρίζει localized common και family-specific sections, με backward-compatible sorting/pathfinding content. Επόμενο scope είναι οι πραγματικές searching/string-search implementations και το curated περιεχόμενό τους μέσω ξεχωριστών issues. Βλ. [Education](EDUCATION.md).
+
+## Linear Search (#114)
+
+Πραγματική pure linear implementation στο src/searching/linear.ts για validated sorted/unsorted input. Εξετάζει αριστερά προς δεξιά και επιστρέφει το πρώτο match (συμβατό με any-match contract), αλλιώς null. Κάθε probe μετρά μία equality comparison. O(n) search χρόνος, O(1) algorithm state συν O(n) educational trace. Validation/copy/oracle παραμένουν εκτός timing στο evaluation layer. Tests καλύπτουν empty/singleton, first/middle/last, duplicates, absent, fractions, repeated runs, trace isolation και 10.000 στοιχεία μέσω common comparison. Δεν προστίθεται UI/API/persistence. Ακολουθεί Binary Search (#115).
+
+## Binary Search (#115)
+
+Pure iterative binary implementation: inclusive low/high, lower midpoint, μία equality comparison και (μόνο αν αποτύχει) μία less-than comparison ανά probe. Duplicates επιστρέφουν deterministic οποιοδήποτε matching midpoint. Το evaluateSearching επιβάλλει ascending input πριν το timing· direct binary καλείται μόνο με validated sorted data. Δεν γίνεται implicit sort. O(log n) search χρόνος/state O(1), συν O(log n) trace· το O(n) sortedness validation παραμένει εκτός search timing. Tests καλύπτουν boundaries/duplicates/absent/fractions, exact counters, unsorted rejection, common comparison με Linear και repeated runs σε 10.000 στοιχεία. Ακολουθεί Jump Search (#116), χωρίς αλλαγή UI/API.
+
+## Jump Search (#116)
+
+Pure jump implementation με deterministic step=max(1,floor(sqrt(n))). Κάνει μία less-than comparison ανά block-end probe και equality scans μόνο στο πρώτο block του οποίου το end δεν είναι μικρότερο από target. Repeated endpoint probes μετρούν ξανά· δεν γίνεται reuse παλιού probe. O(√n) search χρόνος, O(1) state συν O(√n) trace. Το shared evaluation επιβάλλει ascending input εκτός timing. Tests καλύπτουν empty/small, exact block boundaries, truncated last block, first/last, duplicates/fractions, absent, unsorted rejection και Linear/Binary/Jump comparison σε 10.000 στοιχεία. Δεν αλλάζει UI/API/persistence. Επόμενο #117 Exponential Search.
+
+## Exponential Search (#117)
+
+Pure exponential implementation: equality probe στο 0, doubling bounds 1/2/4/… με μία >= comparison ανά expansion probe και inclusive binary phase με equality/order comparisons. Repeated probes μετρούν ξανά. Input validation/sortedness προηγούνται του timing. Tests καλύπτουν empty/singleton/near/far/last/duplicates/absent, bounds, exact counters, isolation, 10.000 στοιχεία και σύγκριση και των τεσσάρων algorithms. Search O(log n), O(1) state συν O(log n) trace. UI/visualization ακολουθούν στο #118.
+
+## Searching visualization (#118)
+
+Οι τέσσερις πραγματικές implementations παρέχουν optional observer με probe, inclusive low/high και phase (scan/binary/jump/expand). Χωρίς observer διατηρούν τα ίδια metrics. Το searchingAnimation καταγράφει immutable frames έως 64 στοιχεία χωρίς clock/benchmark metrics. Linear δείχνει remaining suffix, Binary midpoint/range, Jump block boundaries και scan, Exponential expansion και binary phase. Το registry είναι η κοινή executable πηγή. UI: el/en, collection/target/algorithm, Play/Pause/Step/Reset/Speed, current/visited/range/match και σαφή precondition errors. Input/algorithm edits καθαρίζουν trace και timer, reset επαναφέρει frame 0. Pure reducer/trace tests και bilingual rendering tests ελέγχουν lifecycle, phase order, bounds και συμφωνία με πραγματικά probes. Το #119 προσθέτει ξεχωριστή measured comparison ροή.
+
+## Searching comparison UI (#119)
+
+Searching implementations (#114–#117), visualization (#118) και comparison UI/metrics (#119) είναι υλοποιημένα. Παραμένουν τα ξεχωριστά education και experiment persistence scopes· δεν έχουν προστεθεί αυτόματο sorting, string searching UI ή cross-family comparisons.
+
+## Searching education (#120)
+
+Η shared Algorithm Library εμφανίζει Linear/Binary/Jump/Exponential μέσω FamilyEducation και EducationalContent, ανεξάρτητα από τη φόρτωση του backend catalogue. Versioned el/en metadata: what/intuition/steps/complexity/strengths/limitations/uses/pitfalls/completeness και explicit preconditions. Τα κοινά walkthroughs στο [1,3,5,7,9,11,13,15]/11 ελέγχονται απέναντι στις πραγματικές implementations, μαζί με probes/counters και immutability. Διαχωρίζονται algorithm state, trace memory και validation cost· δεν εξάγεται performance ranking. Rendering tests ελέγχουν completeness και missing optional fields χωρίς invented content. Δεν προστίθεται runtime AI, API ή persistence.
+
+## Searching persistence (#121)
+
+Single-run/comparison save, shared history και reopen χωρίς rerun υλοποιήθηκαν. Ακολουθούν comprehensive searching coverage (#122) και Naive String Search (#128).
+
+Το #122 ολοκληρώνει το comprehensive Searching test scope. Επόμενο: Naive String Search (#128).
+
+## Naive String Search (#128)
+
+Η πρώτη πραγματική string-search implementation λειτουργεί με το κοινό evaluation/comparison contract και deterministic tests. Παραμένουν τα επόμενα string-search algorithms και UI/visualization/persistence scopes.

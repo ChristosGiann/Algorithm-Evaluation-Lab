@@ -620,3 +620,129 @@ test('education adapter preserves legacy metadata and omits empty localized sect
     }
   }
 });
+
+test('searching visualization renders localized controls and honest timing/precondition explanation', async () => {
+  const { SearchingVisualization }=await import('../src/components/Searching/SearchingVisualization.tsx');
+  const { searchingTexts }=await import('../src/i18n/searching.ts');
+  assert.deepEqual(Object.keys(searchingTexts.el).sort(),Object.keys(searchingTexts.en).sort());
+  for(const language of ['el','en']) {
+    const html=render(SearchingVisualization,{language});
+    for(const label of ['Linear Search','Binary Search','Jump Search','Exponential Search','Play','Pause','Step','Reset'])assert.ok(html.includes(label));
+    assert.ok(html.includes(searchingTexts[language].title));
+    assert.ok(html.includes(searchingTexts[language].empty));
+    assert.ok(html.includes('64'));
+    assert.ok(!html.includes('executionTimeMs'));
+  }
+});
+
+const { SearchingComparison } = await import('../src/components/Searching/SearchingComparison.tsx');
+const { SearchingResults } = await import('../src/components/Searching/SearchingResults.tsx');
+const { searchingComparisonTexts } = await import('../src/i18n/searchingComparison.ts');
+const { runSearchingComparison } = await import('../src/searching/comparison.ts');
+test('searching comparison renders bilingual form and matching dictionary shapes', () => {
+  assert.deepEqual(shape(searchingComparisonTexts.el),shape(searchingComparisonTexts.en));
+  for(const language of ['el','en']) {
+    const html=render(SearchingComparison,{language}),t=searchingComparisonTexts[language];
+    assert.ok(html.includes(t.title)); assert.ok(html.includes(t.select));
+    assert.ok(html.includes(t.empty)); assert.ok(html.includes(t.run));
+    assert.equal((html.match(/type="checkbox"/g)||[]).length,4);
+  }
+});
+test('searching results table preserves zero index, not-found and independent correctness', () => {
+  const zero=runSearchingComparison('4','4',['linear','binary']);
+  const absent=runSearchingComparison('4','7',['linear','binary']);
+  for(const language of ['el','en']) {
+    const t=searchingComparisonTexts[language];
+    const html=render(SearchingResults,{result:zero,language});
+    assert.ok(html.includes('<caption>'+t.results+'</caption>'));
+    assert.equal((html.match(/scope="col"/g)||[]).length,7);
+    assert.equal((html.match(/scope="row"/g)||[]).length,2);
+    assert.ok(html.includes('<td>'+t.found+'</td><td>0</td>'));
+    assert.ok(render(SearchingResults,{result:absent,language}).includes('<td>'+t.absent+'</td><td>—</td><td>'+t.correct+'</td>'));
+    const incorrect={...zero,rows:[{...zero.rows[0],correct:false}]};
+    assert.ok(render(SearchingResults,{result:incorrect,language}).includes('<td>'+t.incorrect+'</td>'));
+  }
+});
+test('searching table displays mixed and error-only rows without fabricated metrics', () => {
+  const mixed=runSearchingComparison('3, 1, 2','2',['linear','binary','jump','exponential']);
+  for(const language of ['el','en']) {
+    const t=searchingComparisonTexts[language],html=render(SearchingResults,{result:mixed,language});
+    assert.ok(html.includes('<td>'+t.found+'</td><td>2</td>'));
+    assert.equal((html.match(/colSpan="6"/gi)||[]).length,3);
+    assert.ok(html.includes(t.errors.requires_sorted_input));
+    for(const error of ['runner_error','invalid_result','invalid_clock','requires_sorted_input']) {
+      const result={input:mixed.input,rows:[{algorithm:'linear',status:'error',error}]};
+      const markup=render(SearchingResults,{result,language});
+      assert.ok(markup.includes(t.errors[error]));
+      assert.equal((markup.match(/<td/g)||[]).length,1);
+      assert.ok(!markup.includes('<td>0</td>'));
+    }
+  }
+});
+
+test('Library includes all four searching cards in both languages independently of catalogue loading', async () => {
+  const { AlgorithmLibrary }=await import('../src/components/AlgorithmLibrary/AlgorithmLibrary.tsx');
+  const { SearchingEducation }=await import('../src/components/AlgorithmLibrary/SearchingEducation.tsx');
+  const { SEARCHING_EDUCATION }=await import('../src/searching/education.ts');
+  const { SEARCHING_DEFINITIONS }=await import('../src/searching/evaluation.ts');
+  const { educationTexts }=await import('../src/i18n/education.ts');
+  for(const language of ['el','en']) {
+    const html=render(SearchingEducation,{language});
+    assert.equal((html.match(/<article/g)||[]).length,4);
+    assert.equal((html.match(/<details/g)||[]).length,4);
+    assert.ok(html.includes('id="searching-education-title"'));
+    for(const [key,entry] of Object.entries(SEARCHING_EDUCATION)) {
+      assert.ok(html.includes(SEARCHING_DEFINITIONS[key].name));
+      assert.deepEqual(shape(entry.education.el),shape(entry.education.en));
+      assert.ok(html.includes(entry.education[language].what));
+      assert.ok(html.includes(educationTexts[language].example));
+      assert.ok(html.includes(educationTexts[language].theory));
+      const precondition=entry.education[language].sections[0].paragraphs[0];
+      assert.ok(precondition.includes(key==='linear' ? (language==='el'?'οποιαδήποτε σειρά':'any order') : (language==='el'?'Απαιτείται αύξουσα':'Ascending (non-decreasing) order is required')));
+    }
+    const library=render(AlgorithmLibrary,{language,texts:translations[language].algorithmLibrary});
+    assert.ok(library.includes('searching-education-title'));
+    assert.ok(library.includes('Exponential Search'));
+    assert.ok(library.includes(translations[language].algorithmLibrary.loading));
+  }
+});
+test('partial searching metadata hides missing optional sections without inventing content', async () => {
+  const { EducationalContent }=await import('../src/components/AlgorithmLibrary/EducationalContent.tsx');
+  const { SEARCHING_EDUCATION }=await import('../src/searching/education.ts');
+  const { educationSections }=await import('../src/education/content.ts');
+  const metadata=structuredClone(SEARCHING_EDUCATION.binary.education);
+  for(const language of ['el','en']) {
+    delete metadata[language].complexity; delete metadata[language].example;
+    delete metadata[language].strengths; delete metadata[language].sections;
+    const sections=educationSections(metadata,language);
+    for(const missing of ['complexity','walkthrough','strengths','preconditions','stable','in_place'])assert.ok(!sections.some(section=>section.id===missing));
+    assert.ok(sections.some(section=>section.id==='how'));
+    const html=render(EducationalContent,{algorithm:{education:metadata},language});
+    assert.ok(!html.includes('O(log n)'));
+  }
+});
+
+test('searching saved detail and history reopen JSON snapshots in both languages without running', async () => {
+  const { searchingPersistenceTexts } = await import('../src/i18n/searchingPersistence.ts');
+  const { searchingComparisonTexts } = await import('../src/i18n/searchingComparison.ts');
+  const { SaveSearching } = await import('../src/components/Searching/SaveSearching.tsx');
+  const experiment=JSON.parse(JSON.stringify({id:121,name:'Saved searching',family:'searching',status:'failed',execution_error:'',implementations:[],datasets:[],
+    input_snapshot:{version:1,source:'browser',input:{values:[3,1],target:3},algorithms:['linear','binary']},
+    results:[{id:1,implementation_snapshot:{name:'Linear Search v1'},measurement:{algorithm:'linear',status:'completed',found:true,correct:true,index:0,executionTimeMs:0,probeCount:1,comparisons:1,probes:[0]}},
+      {id:2,implementation_snapshot:{name:'Binary Search v1'},measurement:{algorithm:'binary',status:'error',error:'requires_sorted_input'}}]}));
+  const original=globalThis.performance;
+  Object.defineProperty(globalThis,'performance',{configurable:true,value:{now(){throw new Error('must not run')}}});
+  try {
+    for(const language of ['el','en']) {
+      const html=render(ExperimentDetails,{experiment,language});
+      assert.ok(html.includes(searchingPersistenceTexts[language].note));
+      assert.ok(html.includes(searchingComparisonTexts[language].errors.requires_sorted_input));
+      assert.ok(html.includes('Linear Search v1'));
+      assert.match(html,/<td>0<\/td>/);
+      assert.doesNotMatch(html,/<button/);
+      const form=render(SaveSearching,{snapshot:{input:experiment.input_snapshot.input,results:[]},language});
+      assert.ok(form.includes(searchingPersistenceTexts[language].name));
+      assert.match(form,/maxLength="200"/);
+    }
+  } finally {Object.defineProperty(globalThis,'performance',{configurable:true,value:original});}
+});

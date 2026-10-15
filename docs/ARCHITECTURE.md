@@ -432,3 +432,15 @@ solve(values) επιστρέφει list ή None για in-place. Δέκα fresh 
 ## Shared education (#98)
 
 EducationMetadata → educationSections adapter → EducationalContent renderer. Τα common/extension sections είναι ανεξάρτητα από family. Sorting catalogue και pathfinding domain παραμένουν sources of truth, με legacy fields συμβατά. Το FamilyEducation αποδίδει data-driven cards για νέες families. Βλ. [Education](EDUCATION.md).
+
+## Searching visualization (#118)
+
+Οι τέσσερις πραγματικές implementations παρέχουν optional observer με probe, inclusive low/high και phase (scan/binary/jump/expand). Χωρίς observer διατηρούν τα ίδια metrics. Το searchingAnimation καταγράφει immutable frames έως 64 στοιχεία χωρίς clock/benchmark metrics. Linear δείχνει remaining suffix, Binary midpoint/range, Jump block boundaries και scan, Exponential expansion και binary phase. Το registry είναι η κοινή executable πηγή. UI: el/en, collection/target/algorithm, Play/Pause/Step/Reset/Speed, current/visited/range/match και σαφή precondition errors. Input/algorithm edits καθαρίζουν trace και timer, reset επαναφέρει frame 0. Pure reducer/trace tests και bilingual rendering tests ελέγχουν lifecycle, phase order, bounds και συμφωνία με πραγματικά probes. Το #119 προσθέτει ξεχωριστή measured comparison ροή.
+
+## Searching comparison UI (#119)
+
+SearchingComparison → runSearchingComparison → κοινό input parser/registry → compareSearching/evaluateSearching. SearchingResults αποδίδει το discriminated result contract: completed metrics ή explicit error row. Η visualization και η measured comparison έχουν ανεξάρτητο state, χρησιμοποιούν όμως ίδιες implementations. Δεν απαιτείται backend request ή migration.
+
+## Searching education (#120)
+
+Η shared Algorithm Library εμφανίζει Linear/Binary/Jump/Exponential μέσω FamilyEducation και EducationalContent, ανεξάρτητα από τη φόρτωση του backend catalogue. Versioned el/en metadata: what/intuition/steps/complexity/strengths/limitations/uses/pitfalls/completeness και explicit preconditions. Τα κοινά walkthroughs στο [1,3,5,7,9,11,13,15]/11 ελέγχονται απέναντι στις πραγματικές implementations, μαζί με probes/counters και immutability. Διαχωρίζονται algorithm state, trace memory και validation cost· δεν εξάγεται performance ranking. Rendering tests ελέγχουν completeness και missing optional fields χωρίς invented content. Δεν προστίθεται runtime AI, API ή persistence.

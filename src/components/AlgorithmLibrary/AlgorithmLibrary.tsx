@@ -1,3 +1,4 @@
+import { SearchingEducation } from "./SearchingEducation";
 import { PathfindingEducation } from "./PathfindingEducation";
 import {
   useEffect,
@@ -98,6 +99,7 @@ export function AlgorithmLibrary({
       </header>
 
       <PathfindingEducation language={language} />
+      <SearchingEducation language={language} />
       <h3>Sorting</h3>
 
       {status === "loading" && (

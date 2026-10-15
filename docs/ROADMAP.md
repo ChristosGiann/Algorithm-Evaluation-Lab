@@ -468,3 +468,7 @@ Pure KMP με frozen LPS table και deterministic preprocessing comparisons. S
 ## Rabin-Karp (#130)
 
 Pure deterministic rolling hash: base 257, modulus 1.000.003, UTF-16 codeUnit+1. Όλα τα ενδιάμεσα integers παραμένουν κάτω από 2^53. Pattern hash/power στο prepare, initial window/rolling updates στο search. Hash equality δεν μετρά ως character comparison· κάθε hash candidate επαληθεύεται χαρακτήρα προς χαρακτήρα, άρα collisions δεν δίνουν false positives. Expected O(n+m), worst O(nm) με πολλούς candidates· O(1) state συν O(n) trace. Tests περιλαμβάνουν constructed collision [0,257]/[1,0], exact metrics, high code units, edge/repeated inputs, isolation και κοινό comparison σε max input. Δεν προστίθεται UI/persistence.
+
+## Boyer-Moore (#131)
+
+Pure bad-character-only variant: last-occurrence map στο prepare, right-to-left comparisons στο search, shift=max(1,j-last[text[offset+j]]) με absent=-1. Δεν χρησιμοποιούνται good-suffix ή Galil heuristics και δεν διεκδικούμε τη worst-case εγγύηση άλλων variants. O(m) preprocessing, O(nm) worst-case search, O(min(m,alphabet)) table συν alignment trace. Map writes/lookups δεν μετρούν ως character comparisons· preprocessingComparisons=0, αλλά ο χρόνος prepare μετριέται κανονικά. Empty/first-match/UTF-16 semantics κοινά. Tests: exact shifts/counters, repeats, boundaries/no-match, Unicode, isolation και comparison όλων των implementations σε long deterministic input. Χωρίς UI/persistence.

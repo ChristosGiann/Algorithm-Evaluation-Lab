@@ -287,3 +287,35 @@ test('Rabin-Karp rolling arithmetic works on generated/high code units and maxim
   const rows=compareStringSearch(data,[{algorithm:'naive',prepare:naive},{algorithm:'kmp',prepare:kmp},{algorithm:'rabinKarp',prepare:rabinKarp}],()=>0);
   assert.ok(rows.every(row=>row.correct&&row.index===9000));
 });
+
+const { boyerMoore } = await import('../src/stringSearch/boyerMoore.ts');
+test('Boyer-Moore bad-character shifts and right-to-left counts are deterministic',()=>{
+  for(const [text,pattern,index,alignments,comparisons] of [
+    ['','',0,[0],0],['abc','',0,[0],0],['','a',null,[],0],['a','aa',null,[],0],
+    ['xxabc','abc',2,[0,2],4],['abcdef','xyz',null,[0,3],2],
+    ['banana','ana',1,[0,1],4],['aaaaab','aaab',2,[0,1,2],6],['aaaaa','aaa',0,[0],3],
+    ['ABAAABCD','ABC',4,[0,2,4],5],
+  ])assert.deepEqual(boyerMoore(pattern).search(text),{index,alignments,comparisons},JSON.stringify({text,pattern}));
+});
+test('Boyer-Moore boundaries, UTF-16 and repeated-run isolation match native oracle',()=>{
+  const fixtures=[['ABC','abc'],['😀a😀','a'],['ababab','abab'],['abc','c'],['abcd','ab'],['abcd','bc']];
+  for(let size=0;size<150;size++)fixtures.push(['ab'.repeat(size)+'aabc','aabc']);
+  for(const [text,pattern] of fixtures) {
+    const source=Object.freeze(input(text,pattern));
+    const result=evaluateStringSearch('boyerMoore',source,boyerMoore,()=>0);
+    assert.equal(result.correct,true,JSON.stringify(source)); assert.equal(result.preprocessingComparisons,0);
+    const prepared=boyerMoore(pattern), first=prepared.search(text), copy=structuredClone(first);
+    first.alignments.push(-1); prepared.search(''); assert.deepEqual(prepared.search(text),copy);
+    assert.deepEqual(source,input(text,pattern));
+  }
+});
+test('Boyer-Moore joins all four real algorithms on long deterministic inputs',()=>{
+  for(const pattern of ['a'.repeat(999)+'b','b'+'a'.repeat(999)]) {
+    const rows=compareStringSearch(input('a'.repeat(9999)+'b',pattern),[
+      {algorithm:'naive',prepare:naive},{algorithm:'kmp',prepare:kmp},
+      {algorithm:'rabinKarp',prepare:rabinKarp},{algorithm:'boyerMoore',prepare:boyerMoore},
+    ],()=>0);
+    assert.ok(rows.every(row=>row.correct));
+    for(const row of rows)assert.ok(row.alignments.every(offset=>offset>=0&&offset<=9000));
+  }
+});

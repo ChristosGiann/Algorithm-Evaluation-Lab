@@ -253,3 +253,37 @@ test('KMP deterministic generated and long repeated-prefix inputs match an indep
   assert.ok(result.comparisons<=2*text.length);
   assert.ok(result.preprocessingComparisons<=2*pattern.length);
 });
+
+const { rabinKarp, HASH_BASE, HASH_MODULUS } = await import('../src/stringSearch/rabinKarp.ts');
+test('Rabin-Karp verifies constructed hash collisions before accepting a match',()=>{
+  const collision=String.fromCharCode(0,257), pattern=String.fromCharCode(1,0);
+  const hash=value=>[...value].reduce((h,c)=>(h*HASH_BASE+c.charCodeAt(0)+1)%HASH_MODULUS,0);
+  assert.equal(hash(collision),hash(pattern)); assert.notEqual(collision,pattern);
+  assert.deepEqual(rabinKarp(pattern).search(collision),{index:null,alignments:[0],comparisons:1});
+  const text=collision+'xx'+pattern;
+  const result=evaluateStringSearch('rabinKarp',input(text,pattern),rabinKarp,()=>0);
+  assert.equal(result.index,4); assert.equal(result.correct,true); assert.equal(result.comparisons,3);
+});
+test('Rabin-Karp edge cases and deterministic windows agree with the first-match oracle',()=>{
+  for(const [text,pattern] of [['',''],['abc',''],['','a'],['a','aa'],['banana','ana'],['aaaaab','aaab'],['ABC','abc'],['xxabc','abc'],['abc','z'],['😀a😀','a']]) {
+    const data=Object.freeze(input(text,pattern));
+    const result=evaluateStringSearch('rabinKarp',data,rabinKarp,()=>0);
+    assert.equal(result.correct,true,JSON.stringify(data)); assert.equal(result.preprocessingComparisons,0);
+    const expected=text.indexOf(pattern), last=expected<0?text.length-pattern.length:expected;
+    assert.deepEqual(result.alignments,Array.from({length:Math.max(0,last+1)},(_,i)=>i));
+    const prepared=rabinKarp(pattern), first=prepared.search(text), copy=structuredClone(first);
+    first.alignments.push(-1); prepared.search('');
+    assert.deepEqual(prepared.search(text),copy); assert.deepEqual(data,input(text,pattern));
+  }
+  assert.deepEqual(rabinKarp('ana').search('banana'),{index:1,alignments:[0,1],comparisons:3});
+  assert.deepEqual(rabinKarp('z').search('abc'),{index:null,alignments:[0,1,2],comparisons:0});
+});
+test('Rabin-Karp rolling arithmetic works on generated/high code units and maximum input',()=>{
+  for(let size=0;size<120;size++) {
+    const text=Array.from({length:size},(_,i)=>String.fromCharCode((i*7919+size*17)%65536)).join('');
+    for(const pattern of ['',text.slice(0,3),text.slice(-4),'absent'])assert.equal(evaluateStringSearch('rabinKarp',input(text,pattern),rabinKarp,()=>0).correct,true);
+  }
+  const data=input('a'.repeat(9999)+'b','a'.repeat(999)+'b');
+  const rows=compareStringSearch(data,[{algorithm:'naive',prepare:naive},{algorithm:'kmp',prepare:kmp},{algorithm:'rabinKarp',prepare:rabinKarp}],()=>0);
+  assert.ok(rows.every(row=>row.correct&&row.index===9000));
+});

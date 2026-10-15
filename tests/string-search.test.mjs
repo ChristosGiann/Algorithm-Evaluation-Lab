@@ -217,3 +217,39 @@ test('Naive maximum-size repeated-prefix regression uses counters instead of tim
     assert.equal(result.alignments.at(-1),MAX_TEXT_LENGTH-MAX_PATTERN_LENGTH);
   }
 });
+
+const { kmp, buildLps } = await import('../src/stringSearch/kmp.ts');
+test('KMP LPS is deterministic, immutable and counts prefix comparisons',()=>{
+  assert.deepEqual(buildLps('ababaca'),{table:[0,0,1,2,3,0,1],comparisons:8});
+  assert.deepEqual(buildLps('aaaa'),{table:[0,1,2,3],comparisons:3});
+  assert.deepEqual(buildLps(''),{table:[],comparisons:0});
+  assert.ok(Object.isFrozen(buildLps('ababaca').table));
+});
+test('KMP first-match, fallback, boundaries and repeated runs use common evaluation',()=>{
+  for(const [text,pattern] of [['',''],['','a'],['abc',''],['a','aa'],['banana','ana'],['abababacaba','ababaca'],['aaaaab','aaab'],['ABC','abc'],['xxabc','abc'],['abc','x'],['😀a😀','a']]) {
+    const source=Object.freeze(input(text,pattern));
+    const result=evaluateStringSearch('kmp',source,kmp,()=>0);
+    assert.equal(result.correct,true,JSON.stringify(source));
+    const expected=text.indexOf(pattern);
+    assert.equal(result.index,expected<0?null:expected);
+    assert.deepEqual(source,input(text,pattern));
+    const prepared=kmp(pattern), first=prepared.search(text), copy=structuredClone(first);
+    first.alignments.push(-1); prepared.search('');
+    assert.deepEqual(prepared.search(text),copy);
+  }
+  assert.deepEqual(kmp('aaab').search('aaaaab'),{index:2,alignments:[0,1,2],comparisons:8});
+  const rows=compareStringSearch(input('aaaaab','aaab'),[{algorithm:'naive',prepare:naive},{algorithm:'kmp',prepare:kmp}],()=>0);
+  assert.ok(rows.every(row=>row.correct));
+  assert.equal(rows[1].preprocessingComparisons,5);
+});
+test('KMP deterministic generated and long repeated-prefix inputs match an independent oracle',()=>{
+  for(let size=0;size<100;size++)for(const pattern of ['','a','b','aba','ababac','aaaaab']) {
+    const text='ab'.repeat(size)+'ac'+'a'.repeat(size)+'b';
+    assert.equal(evaluateStringSearch('kmp',input(text,pattern),kmp,()=>0).correct,true);
+  }
+  const text='a'.repeat(9999)+'b', pattern='a'.repeat(999)+'b';
+  const result=evaluateStringSearch('kmp',input(text,pattern),kmp,()=>0);
+  assert.equal(result.index,9000); assert.equal(result.correct,true);
+  assert.ok(result.comparisons<=2*text.length);
+  assert.ok(result.preprocessingComparisons<=2*pattern.length);
+});

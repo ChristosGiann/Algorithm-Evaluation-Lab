@@ -460,3 +460,7 @@ Single-run/comparison save, shared history και reopen χωρίς rerun υλο
 ## Naive String Search (#128)
 
 Η πρώτη πραγματική string-search implementation λειτουργεί με το κοινό evaluation/comparison contract και deterministic tests. Παραμένουν τα επόμενα string-search algorithms και UI/visualization/persistence scopes.
+
+## KMP (#129)
+
+Pure KMP με frozen LPS table και deterministic preprocessing comparisons. Search κρατά text progress και κάνει fallback μέσω LPS, καταγράφοντας κάθε νέο valid candidate offset χωρίς invalid tail alignments. First-match/empty/UTF-16 semantics και χωριστά prepare/search timings μέσω shared contract. O(m) preprocessing, O(n) search, O(m) table συν O(n) trace. Tests: exact LPS/counters, overlapping/repeated prefixes, absent/boundaries/Unicode, repeated-run isolation, same-input comparison και 10.000/1.000 regression με operation-count bounds, όχι wall-time thresholds. Δεν προστίθεται UI/persistence.

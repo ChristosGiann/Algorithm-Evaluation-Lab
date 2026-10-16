@@ -1,6 +1,6 @@
 # Roadmap
 
-Τρέχον snapshot, 2026-10-15: ολοκληρωμένα sorting evaluation και weighted pathfinding UI/education/persistence. Το Searching #114–#122 περιλαμβάνει τέσσερις algorithms, visualization, comparison, education, persistence και comprehensive tests. Το String Search έχει foundation και pure Naive (#128). Επόμενα #129–#134: KMP, Rabin-Karp, Boyer-Moore, visualization, comparison και education. String-search persistence/coverage και public deployment ακολουθούν σε ξεχωριστά issues.
+Τρέχον snapshot, 2026-10-16: ολοκληρωμένα sorting evaluation και weighted pathfinding UI/education/persistence. Το Searching #114–#122 περιλαμβάνει τέσσερις algorithms, visualization, comparison, education, persistence και comprehensive tests. Το String Search διαθέτει τέσσερις algorithms, visualization, comparison και education (#128–#134). String-search persistence/coverage και public deployment ακολουθούν σε ξεχωριστά issues.
 
 ## Main development path
 
@@ -481,3 +481,8 @@ Optional search observer στις πραγματικές Naive/KMP/Rabin-Karp/Bo
 ## String-search comparison (#133)
 
 El/en comparison για 2–4 algorithms στο ίδιο literal text/pattern. Διακριτά preprocessing/search timings και character counters, first-match index (0 διατηρείται, null εμφανίζεται ως —), correctness και isolated error rows χωρίς fabricated metrics. Edit input/selection καθαρίζει stale results. Χωρίς ranking ή persistence (ακολουθεί στο #135). Tests καλύπτουν empty/absent, selection validation και error/zero rendering.
+
+
+## String Search education — #134 (2026-10-16)
+
+Ολοκληρώθηκε το el/en περιεχόμενο Naive, KMP, Rabin-Karp και Boyer-Moore (bad-character) στο κοινό FamilyEducation. Περιλαμβάνει preprocessing, βήματα, complexity, περιορισμούς, χρήσεις και UTF-16/first-match semantics. Τα τέσσερα walkthroughs ελέγχονται απέναντι στο registry μαζί με τους preprocessing counters. Το #132 παρέχει visualization και το #133 comparison UI. Επόμενα: persistence #135 και cross-algorithm coverage #136.

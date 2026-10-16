@@ -381,3 +381,14 @@ test('string comparison preserves literal input, ordered selection and first/abs
   }
   for (const selected of [[],['naive'],['naive','naive'],['naive','unknown']]) assert.throws(()=>runStringSearchComparison('a','a',selected),/invalid_selection/);
 });
+
+
+test('published string-search walkthroughs match executable traces and preparation counts', async () => {
+  const { STRING_SEARCH_EDUCATION } = await import('../src/stringSearch/education.ts');
+  const { STRING_SEARCH_REGISTRY } = await import('../src/stringSearch/registry.ts');
+  for (const [algorithm, {walkthrough}] of Object.entries(STRING_SEARCH_EDUCATION)) {
+    const prepared=STRING_SEARCH_REGISTRY[algorithm](walkthrough.input.pattern);
+    assert.equal(prepared.comparisons,walkthrough.preprocessingComparisons);
+    assert.deepEqual(prepared.search(walkthrough.input.text),walkthrough.expected);
+  }
+});

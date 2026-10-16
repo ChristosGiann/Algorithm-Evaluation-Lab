@@ -771,3 +771,26 @@ test('string-search visualization controls and frame states render in both langu
     assert.ok(render(StringSearchFrame,{animation:empty,frame:empty.frames.at(-1),language}).includes(t.emptyPattern));
   }
 });
+
+const { StringSearchComparison } = await import('../src/components/StringSearch/StringSearchComparison.tsx');
+const { StringSearchResults } = await import('../src/components/StringSearch/StringSearchResults.tsx');
+const { stringSearchComparisonTexts } = await import('../src/i18n/stringSearchComparison.ts');
+test('string comparison renders zero/index-null, separate phases and isolated errors in el/en', async () => {
+  const { compareStringSearch } = await import('../src/stringSearch/evaluation.ts');
+  const { naive } = await import('../src/stringSearch/naive.ts');
+  for (const language of ['el','en']) {
+    const t=stringSearchComparisonTexts[language];
+    const form=render(StringSearchComparison,{language});
+    for (const name of ['Naive','KMP','Rabin-Karp','Boyer-Moore']) assert.ok(form.includes(name));
+    for (const pattern of ['', 'z']) {
+      const input={text:'abc',pattern,mode:'first'};
+      const rows=compareStringSearch(input,[{algorithm:'naive',prepare:naive},{algorithm:'kmp',prepare:()=>{throw new Error('private error');}}],()=>0);
+      const html=render(StringSearchResults,{language,result:{input,rows}});
+      assert.ok(html.includes(pattern ? '<td>—</td>' : '<td>0</td>'));
+      assert.ok(html.includes(t.prepTime)&&html.includes(t.searchTime));
+      assert.ok(html.includes('colSpan="7"')&&html.includes(t.errors.preprocessing_error));
+      assert.ok(!html.includes('private error'));
+      assert.ok(html.includes('tabindex="0"'));
+    }
+  }
+});

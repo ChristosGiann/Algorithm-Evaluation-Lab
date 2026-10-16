@@ -370,3 +370,14 @@ test('string-search playback resets, pauses, completes and clears stale frames',
   assert.deepEqual(stringSearchPlayback(state,{type:'clear'}),emptyStringSearchPlayback);
   assert.deepEqual(stringSearchPlayback(state,{type:'load',animation}),{animation,index:0,playing:false});
 });
+
+const { runStringSearchComparison } = await import('../src/stringSearch/comparison.ts');
+test('string comparison preserves literal input, ordered selection and first/absent/empty results', () => {
+  for (const [text, pattern, expected] of [['aaaaab','aaab',2],['abc','z',null],['','',0],[' a ',' ',0],['A','a',null]]) {
+    const result = runStringSearchComparison(text,pattern,['boyerMoore','kmp','naive','rabinKarp']);
+    assert.equal(result.input.text,text); assert.equal(result.input.pattern,pattern);
+    assert.deepEqual(result.rows.map(row=>row.algorithm),['boyerMoore','kmp','naive','rabinKarp']);
+    for (const row of result.rows) {assert.equal(row.index,expected);assert.equal(row.correct,true);}
+  }
+  for (const selected of [[],['naive'],['naive','naive'],['naive','unknown']]) assert.throws(()=>runStringSearchComparison('a','a',selected),/invalid_selection/);
+});

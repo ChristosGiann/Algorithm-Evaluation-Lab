@@ -1,3 +1,4 @@
+import { StringSearchComparison } from "./components/StringSearch/StringSearchComparison";
 import { StringSearchVisualization } from "./components/StringSearch/StringSearchVisualization";
 import { SearchingComparison } from "./components/Searching/SearchingComparison";
 import { useEffect, useState } from "react";
@@ -44,6 +45,7 @@ function App() {
       <SearchingVisualization language={language} />
       <SearchingComparison language={language} />
       <StringSearchVisualization language={language} />
+      <StringSearchComparison language={language} />
 
       <AlgorithmLibrary
         texts={texts.algorithmLibrary}

@@ -746,3 +746,28 @@ test('searching saved detail and history reopen JSON snapshots in both languages
     }
   } finally {Object.defineProperty(globalThis,'performance',{configurable:true,value:original});}
 });
+
+test('string-search visualization controls and frame states render in both languages',async()=>{
+  const {StringSearchVisualization}=await import('../src/components/StringSearch/StringSearchVisualization.tsx');
+  const {StringSearchFrame}=await import('../src/components/StringSearch/StringSearchFrame.tsx');
+  const {stringSearchAnimation}=await import('../src/stringSearch/visualization.ts');
+  const {stringSearchTexts}=await import('../src/i18n/stringSearch.ts');
+  for(const language of ['el','en']) {
+    const t=stringSearchTexts[language],html=render(StringSearchVisualization,{language});
+    for(const key of ['title','note','load','empty','speed'])assert.ok(html.includes(t[key]));
+    for(const name of ['Naive','KMP','Rabin-Karp','Boyer-Moore'])assert.ok(html.includes(name));
+    assert.match(html,/<button disabled="">Step/);
+    for(const algorithm of ['naive','kmp','rabinKarp','boyerMoore']) {
+      const animation=stringSearchAnimation(algorithm,{text:'aaaaab',pattern:'aaab',mode:'first'});
+      for(const frame of animation.frames) {
+        const body=render(StringSearchFrame,{animation,frame,language});
+        assert.ok(body.includes(t.legend));assert.ok(body.includes('tabindex="0"'));
+        if(frame.phase==='compare')assert.ok(body.includes(frame.equal?t.match:t.mismatch));
+        if(frame.phase==='fallback')assert.ok(body.includes(t.matched));
+        if(frame.phase==='hash')assert.ok(body.includes(t.hash));
+      }
+    }
+    const empty=stringSearchAnimation('naive',{text:'',pattern:'',mode:'first'});
+    assert.ok(render(StringSearchFrame,{animation:empty,frame:empty.frames.at(-1),language}).includes(t.emptyPattern));
+  }
+});

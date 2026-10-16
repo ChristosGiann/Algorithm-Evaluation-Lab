@@ -15,10 +15,21 @@ export interface StringSearchTrace {
   /** Pattern start offsets considered, in execution order (repeats allowed). */
   readonly alignments: readonly number[];
 }
+export interface StringSearchStep {
+  readonly phase: "compare" | "fallback" | "shift" | "hash";
+  readonly offset: number;
+  readonly textIndex?: number;
+  readonly patternIndex?: number;
+  readonly equal?: boolean;
+  readonly nextOffset?: number;
+  readonly matched?: number;
+  readonly windowHash?: number;
+  readonly patternHash?: number;
+}
 export interface PreparedStringSearch {
   readonly comparisons: number;
   /** One prepared pattern, one text; no cache reuse between evaluation entries. */
-  readonly search: (text: string) => StringSearchTrace;
+  readonly search: (text: string, observe?: (step: StringSearchStep) => void) => StringSearchTrace;
 }
 export type PrepareStringSearch = (pattern: string) => PreparedStringSearch;
 export type StringSearchResult = { algorithm: StringSearchAlgorithm; mode: "first" } & (

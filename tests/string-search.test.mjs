@@ -319,3 +319,54 @@ test('Boyer-Moore joins all four real algorithms on long deterministic inputs',(
     for(const row of rows)assert.ok(row.alignments.every(offset=>offset>=0&&offset<=9000));
   }
 });
+
+const { STRING_SEARCH_REGISTRY }=await import('../src/stringSearch/registry.ts');
+const { stringSearchAnimation, stringSearchPlayback, emptyStringSearchPlayback, codeUnitLabel }=await import('../src/stringSearch/visualization.ts');
+test('string-search visualization observes real comparisons without changing measured traces',()=>{
+  for(const [algorithm,prepare] of Object.entries(STRING_SEARCH_REGISTRY))for(const [text,pattern] of [['banana','ana'],['aaaaab','aaab'],['abc','z'],['',''],['a','abc']]) {
+    const prepared=prepare(pattern),steps=[];
+    const observed=prepared.search(text,step=>steps.push(step));
+    assert.deepEqual(observed,prepared.search(text));
+    assert.equal(steps.filter(step=>step.phase==='compare').length,observed.comparisons);
+    for(const step of steps.filter(step=>step.phase==='compare')) {
+      assert.equal(step.equal,text[step.textIndex]===pattern[step.patternIndex]);
+      assert.equal(step.textIndex,step.offset+step.patternIndex);
+    }
+    const animation=stringSearchAnimation(algorithm,input(text,pattern));
+    assert.equal(animation.index,observed.index);
+    assert.deepEqual(animation.frames.slice(1,-1),steps);
+    assert.deepEqual(animation,stringSearchAnimation(algorithm,input(text,pattern)));
+    assert.ok(Object.isFrozen(animation.frames)&&Object.isFrozen(animation.input));
+    assert.ok(animation.frames.every(frame=>Object.isFrozen(frame)));
+    assert.ok(!('executionTimeMs' in animation));
+  }
+});
+test('string-search visualization exposes KMP fallback, RK windows and right-to-left BM shifts',()=>{
+  const k=stringSearchAnimation('kmp',input('aaaaab','aaab'));
+  assert.deepEqual(k.frames.filter(f=>f.phase==='fallback').map(f=>[f.nextOffset,f.matched]),[[1,2],[2,2]]);
+  const r=stringSearchAnimation('rabinKarp',input('banana','ana'));
+  assert.deepEqual(r.frames.filter(f=>f.phase==='hash').map(f=>[f.offset,f.equal]),[[0,false],[1,true]]);
+  const b=stringSearchAnimation('boyerMoore',input('xxabc','abc'));
+  assert.deepEqual(b.frames.filter(f=>f.phase==='compare').map(f=>f.patternIndex),[2,2,1,0]);
+  assert.equal(b.frames.find(f=>f.phase==='shift').nextOffset,2);
+  assert.throws(()=>stringSearchAnimation('naive',input('x'.repeat(65),'a')));
+  assert.throws(()=>stringSearchAnimation('naive',input('a','x'.repeat(17))));
+  assert.equal(codeUnitLabel(' '),'U+0020');
+  assert.equal(codeUnitLabel(String.fromCharCode(0xde00)),'U+DE00');
+});
+test('string-search playback resets, pauses, completes and clears stale frames',()=>{
+  const animation=stringSearchAnimation('naive',input());
+  let state=stringSearchPlayback(emptyStringSearchPlayback,{type:'load',animation});
+  state=stringSearchPlayback(state,{type:'play'});
+  assert.equal(stringSearchPlayback(state,{type:'step'}),state);
+  state=stringSearchPlayback(state,{type:'tick'});
+  state=stringSearchPlayback(state,{type:'pause'});
+  assert.equal(stringSearchPlayback(state,{type:'tick'}),state);
+  state=stringSearchPlayback(state,{type:'step'}); assert.equal(state.index,2);
+  state=stringSearchPlayback(state,{type:'play'});
+  for(let i=0;i<30;i++)state=stringSearchPlayback(state,{type:'tick'});
+  assert.equal(state.index,animation.frames.length-1);assert.equal(state.playing,false);
+  assert.deepEqual(stringSearchPlayback(state,{type:'reset'}),{animation,index:0,playing:false});
+  assert.deepEqual(stringSearchPlayback(state,{type:'clear'}),emptyStringSearchPlayback);
+  assert.deepEqual(stringSearchPlayback(state,{type:'load',animation}),{animation,index:0,playing:false});
+});

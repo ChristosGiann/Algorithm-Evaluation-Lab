@@ -1,0 +1,9 @@
+.string-trace { overflow-x:auto; border:1px solid #94a3b8; border-radius:8px; padding:12px; }
+.string-track { width:max-content; min-width:100%; }
+.string-row { display:flex; gap:4px; min-height:62px; padding:4px 0; }
+.string-unit { box-sizing:border-box; flex:0 0 72px; width:72px; display:flex; flex-direction:column; align-items:center; justify-content:center; border:2px solid transparent; border-radius:5px; color:#f8fafc; background:#1e293b; font-family:monospace; }
+.string-unit small { font-size:12px; }
+.string-unit b { font-size:14px; }
+.string-unit.active { outline:3px solid #f97316; outline-offset:0; }
+.string-unit.match { background:#166534; }
+.string-unit.mismatch { background:#991b1b; }

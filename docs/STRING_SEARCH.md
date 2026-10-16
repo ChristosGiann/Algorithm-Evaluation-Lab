@@ -81,3 +81,8 @@ Pure bad-character-only variant: last-occurrence map στο prepare, right-to-le
 ## String-search visualization (#132)
 
 Optional search observer στις πραγματικές Naive/KMP/Rabin-Karp/Boyer-Moore implementations: compare/match/mismatch, KMP fallback/retained prefix, hash windows με πραγματικά hash values και BM right-to-left/shift. Χωρίς observer διατηρούνται results/counters. Immutable educational trace έως 64 text / 16 pattern UTF-16 units, χωρίς evaluation clocks. Κοινό registry identities, pure playback reducer, Play/Pause/Step/Reset/Speed, stale-state clear σε edits/new run. El/en aligned text/pattern rows σε κοινή οριζόντια κλίμακα με explicit UTF-16 indexes, U+ labels για whitespace/control/surrogate units, keyboard-scroll region και found/not-found completion. Tests: observer equivalence/order, phase details, reset lifecycle, limits και bilingual rendering. Χωρίς persistence ή animation-derived benchmark metrics.
+
+
+## String-search comparison (#133)
+
+El/en comparison για 2–4 algorithms στο ίδιο literal text/pattern. Διακριτά preprocessing/search timings και character counters, first-match index (0 διατηρείται, null εμφανίζεται ως —), correctness και isolated error rows χωρίς fabricated metrics. Edit input/selection καθαρίζει stale results. Χωρίς ranking ή persistence (ακολουθεί στο #135). Tests καλύπτουν empty/absent, selection validation και error/zero rendering.

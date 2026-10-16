@@ -9,7 +9,7 @@ export const rabinKarp: PrepareStringSearch = pattern => {
     patternHash = (patternHash * HASH_BASE + pattern.charCodeAt(i) + 1) % HASH_MODULUS;
     if (i) power = (power * HASH_BASE) % HASH_MODULUS;
   }
-  return { comparisons: 0, search(text) {
+  return { comparisons: 0, search(text, observe) {
     const alignments: number[] = [];
     let comparisons = 0, windowHash = 0;
     if (!pattern.length) return { index: 0, alignments: [0], comparisons };
@@ -17,11 +17,14 @@ export const rabinKarp: PrepareStringSearch = pattern => {
     for (let i = 0; i < pattern.length; i++) windowHash = (windowHash * HASH_BASE + text.charCodeAt(i) + 1) % HASH_MODULUS;
     for (let offset = 0; offset <= text.length - pattern.length; offset++) {
       alignments.push(offset);
+      observe?.({ phase: "hash", offset, windowHash, patternHash, equal: windowHash === patternHash });
       if (windowHash === patternHash) {
         let position = 0;
         for (; position < pattern.length; position++) {
           comparisons++;
-          if (text[offset + position] !== pattern[position]) break;
+          const equal = text[offset + position] === pattern[position];
+          observe?.({ phase: "compare", offset, textIndex: offset + position, patternIndex: position, equal });
+          if (!equal) break;
         }
         if (position === pattern.length) return { index: offset, alignments, comparisons };
       }

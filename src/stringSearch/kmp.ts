@@ -15,7 +15,7 @@ export function buildLps(pattern: string): { table: readonly number[]; compariso
 
 export const kmp: PrepareStringSearch = pattern => {
   const { table, comparisons } = buildLps(pattern);
-  return { comparisons, search(text) {
+  return { comparisons, search(text, observe) {
     const alignments: number[] = [];
     let position = 0, matched = 0, comparisons = 0;
     if (!pattern.length) return { index: 0, alignments: [0], comparisons };
@@ -23,11 +23,18 @@ export const kmp: PrepareStringSearch = pattern => {
       const offset = position - matched;
       if (alignments.at(-1) !== offset) alignments.push(offset);
       comparisons++;
-      if (text[position] === pattern[matched]) {
+      const equal = text[position] === pattern[matched];
+      observe?.({ phase: "compare", offset, textIndex: position, patternIndex: matched, equal });
+      if (equal) {
         position++; matched++;
         if (matched === pattern.length) return { index: position - matched, alignments, comparisons };
-      } else if (matched) matched = table[matched - 1];
-      else position++;
+      } else if (matched) {
+        matched = table[matched - 1];
+        observe?.({ phase: "fallback", offset, nextOffset: position - matched, matched });
+      } else {
+        position++;
+        observe?.({ phase: "shift", offset, nextOffset: position });
+      }
     }
     return { index: null, alignments, comparisons };
   } };

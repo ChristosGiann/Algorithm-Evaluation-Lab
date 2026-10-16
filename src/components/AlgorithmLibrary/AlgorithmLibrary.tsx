@@ -1,3 +1,4 @@
+import { StringSearchEducation } from "./StringSearchEducation";
 import { SearchingEducation } from "./SearchingEducation";
 import { PathfindingEducation } from "./PathfindingEducation";
 import {
@@ -100,6 +101,7 @@ export function AlgorithmLibrary({
 
       <PathfindingEducation language={language} />
       <SearchingEducation language={language} />
+      <StringSearchEducation language={language} />
       <h3>Sorting</h3>
 
       {status === "loading" && (

@@ -46,3 +46,8 @@ sections: [{
 87 frontend tests, lint/build: επιτυχή. Legacy sorting/pathfinding rendering και τα walkthrough tests παραμένουν ενεργά. Πρόσθετα tests καλύπτουν el/en multi-family extension sections, missing/empty fallback, escaping και input immutability.
 
 Browser smoke στο production preview: expanded BFS και Bubble Sort, Ελληνικά → English → Ελληνικά, διατήρηση guarantees/stability/walkthroughs και κανένα console error.
+
+
+## String Search education — #134 (2026-10-16)
+
+Ολοκληρώθηκε το el/en περιεχόμενο Naive, KMP, Rabin-Karp και Boyer-Moore (bad-character) στο κοινό FamilyEducation. Περιλαμβάνει preprocessing, βήματα, complexity, περιορισμούς, χρήσεις και UTF-16/first-match semantics. Τα τέσσερα walkthroughs ελέγχονται απέναντι στο registry μαζί με τους preprocessing counters. Το #132 παρέχει visualization και το #133 comparison UI. Επόμενα: persistence #135 και cross-algorithm coverage #136.

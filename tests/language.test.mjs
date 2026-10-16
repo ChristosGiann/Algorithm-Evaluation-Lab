@@ -794,3 +794,19 @@ test('string comparison renders zero/index-null, separate phases and isolated er
     }
   }
 });
+
+
+test('string-search education has complete localized content and shared family rendering', async () => {
+  const { STRING_SEARCH_EDUCATION }=await import('../src/stringSearch/education.ts');
+  const { StringSearchEducation }=await import('../src/components/AlgorithmLibrary/StringSearchEducation.tsx');
+  for(const language of ['el','en']) {
+    const html=render(StringSearchEducation,{language});
+    for(const {education} of Object.values(STRING_SEARCH_EDUCATION)) {
+      const content=education[language];
+      for(const key of ['what','intuition','complexity','strengths','weaknesses','uses','pitfalls']) assert.ok(content[key].trim());
+      assert.ok(content.how.length>=3 && content.example.length>=2);
+      assert.ok(html.includes(content.what));
+    }
+    for(const term of ['UTF-16','LPS','1000003','good-suffix','Galil','O(nm)']) assert.ok(html.toLowerCase().includes(term.toLowerCase()), `${language}: ${term}`);
+  }
+});

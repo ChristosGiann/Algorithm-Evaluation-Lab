@@ -571,3 +571,8 @@ El/en comparison για 2–4 algorithms στο ίδιο literal text/pattern. �
 ## String Search persistence — #135
 
 Frontend: detached/frozen snapshots, single selection, localized save/read-only details και type narrowing. Backend: save/list/reopen χωρίς execution, errors/incorrect first match, empty/absent, Unicode astral και isolated surrogates, strict malformed payload rejection και atomic rollback. Regression suite καλύπτει και τις υπάρχουσες families.
+
+
+## Cross-algorithm regressions — #136
+
+Το `tests/string-search.test.mjs` ελέγχει 127 binary texts × 31 patterns για όλους τους runners, 300 seeded mixed UTF-16 datasets, ρητά boundary/Unicode/collision fixtures και τέσσερα maximum-size inputs. Κάθε case τρέχει και με αντίστροφη σειρά algorithms, με independent `String.indexOf` oracle και deterministic injected clock. Ελέγχονται immutable inputs, safe counters, valid offsets, first occurrence, detached results και failure isolation σε κάθε comparison θέση. Δεν υπάρχουν performance thresholds ή αλλαγές στο CI configuration.

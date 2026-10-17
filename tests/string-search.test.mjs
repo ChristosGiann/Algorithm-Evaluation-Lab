@@ -409,3 +409,89 @@ test('string-search save snapshots detach input, arrays, counters and error rows
   assert.ok(Object.isFrozen(snapshot.results[0].alignments)&&Object.isFrozen(snapshot.results[0].occurrenceIndexes));
   assert.deepEqual(JSON.parse(JSON.stringify(snapshot)),snapshot);
 });
+
+
+const { STRING_SEARCH_REGISTRY: coverageRegistry } = await import('../src/stringSearch/registry.ts');
+const coverageEntries = Object.entries(coverageRegistry).map(([algorithm,prepare])=>({algorithm,prepare}));
+function verifyCommonResult(row, data) {
+  const nativeIndex=data.text.indexOf(data.pattern);
+  const expected=nativeIndex===-1?null:nativeIndex;
+  assert.equal(row.status,'completed');
+  assert.equal(row.index,expected,JSON.stringify({algorithm:row.algorithm,...data}));
+  assert.equal(row.correct,true);assert.equal(row.found,expected!==null);
+  assert.deepEqual(row.occurrenceIndexes,expected===null?[]:[expected]);
+  for(const key of ['comparisons','preprocessingComparisons']) assert.ok(Number.isSafeInteger(row[key])&&row[key]>=0);
+  assert.ok(row.alignments.length<=MAX_ALIGNMENTS);
+  assert.ok(row.alignments.every(offset=>Number.isInteger(offset)&&offset>=0&&offset<=data.text.length-data.pattern.length));
+  assert.ok(expected===null||row.alignments.includes(expected));
+  assert.equal(row.mode,'first');
+}
+function verifyCommonCase(text, pattern) {
+  const data=Object.freeze(input(text,pattern)),before=JSON.stringify(data);
+  const first=compareStringSearch(data,coverageEntries,()=>0);
+  const second=compareStringSearch(data,[...coverageEntries].reverse(),()=>0).reverse();
+  assert.deepEqual(first,second,'selection order must not leak algorithm state');
+  assert.equal(JSON.stringify(data),before);
+  for(const row of first) verifyCommonResult(row,data);
+  return first;
+}
+
+test('all four real algorithms share exhaustive binary and Unicode first-match datasets',()=>{
+  function words(max) {
+    let level=[''];const all=[...level];
+    for(let size=1;size<=max;size++) {level=level.flatMap(prefix=>['a','b'].map(c=>prefix+c));all.push(...level);}
+    return all;
+  }
+  for(const text of words(6))for(const pattern of words(4))verifyCommonCase(text,pattern);
+  for(const [text,pattern] of [
+    ['',''],['','a'],['abc',''],['a','aa'],['abcxx','abc'],['xxabcxx','abc'],['xxabc','abc'],
+    ['aaaaaa','aaa'],['abababa','ababa'],['banana','ana'],['abc','z'],['AaA','a'],['ABC','abc'],
+    ['😀a😀','a'],['😀a😀','😀'],['😀','\ude00'],['x\ud800z','\ud800'],
+    ['é','e\u0301'],['e\u0301','é'],['αβγαβ','β'],[' a\n\t',' '],['a\0b','\0'],
+    [String.fromCharCode(0,257),String.fromCharCode(1,0)],
+  ])verifyCommonCase(text,pattern);
+});
+
+test('seeded mixed-code-unit datasets preserve correctness and deterministic isolated results',()=>{
+  let seed=0x135136;
+  const next=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed;};
+  const alphabet=['a','b','A',' ','\0','é','\u0301','\ud83d','\ude00','\uffff'];
+  for(let trial=0;trial<300;trial++) {
+    const length=next()%100;
+    const text=Array.from({length},()=>alphabet[next()%alphabet.length]).join('');
+    const start=next()%(text.length+1);
+    const pattern=trial%2?text.slice(start,start+next()%15):Array.from({length:next()%20},()=>alphabet[next()%alphabet.length]).join('');
+    const rows=verifyCommonCase(text,pattern);
+    rows[0].comparisons=Number.MAX_SAFE_INTEGER;
+    rows[0].index=null;
+    const fresh=compareStringSearch(input(text,pattern),coverageEntries,()=>0);
+    for(const row of fresh)verifyCommonResult(row,input(text,pattern));
+    assert.ok(Object.isFrozen(fresh[0].alignments)&&Object.isFrozen(fresh[0].occurrenceIndexes));
+  }
+});
+
+test('maximum-sized common regressions use structural checks without timing thresholds',()=>{
+  for(const [text,pattern] of [
+    ['a'.repeat(MAX_TEXT_LENGTH-1)+'b','a'.repeat(MAX_PATTERN_LENGTH-1)+'b'],
+    ['a'.repeat(MAX_TEXT_LENGTH),'a'.repeat(MAX_PATTERN_LENGTH-1)+'b'],
+    ['ab'.repeat(MAX_TEXT_LENGTH/2),'ab'.repeat(MAX_PATTERN_LENGTH/2)],
+    ['😀'.repeat(MAX_TEXT_LENGTH/2),'😀'.repeat(MAX_PATTERN_LENGTH/2)],
+  ])verifyCommonCase(text,pattern);
+});
+
+test('each comparison position isolates preparation, execution and malformed-result failures',()=>{
+  const data=Object.freeze(input('aaaaab','aaab'));
+  const baseline=compareStringSearch(data,coverageEntries,()=>0);
+  const failures=[
+    ['preprocessing_error',()=>{throw new Error('preparation failed');}],
+    ['runner_error',()=>({comparisons:0,search(){throw new Error('search failed');}})],
+    ['invalid_result',()=>({comparisons:0,search(){return {index:99,comparisons:0,alignments:[99]};}})],
+  ];
+  for(let failed=0;failed<coverageEntries.length;failed++)for(const [error,badPrepare] of failures) {
+    const entries=coverageEntries.map((entry,index)=>index===failed?{...entry,prepare:badPrepare}:entry);
+    const rows=compareStringSearch(data,entries,()=>0);
+    assert.deepEqual(rows[failed],{algorithm:entries[failed].algorithm,mode:'first',status:'error',error});
+    rows.forEach((row,index)=>{if(index!==failed)assert.deepEqual(row,baseline[index]);});
+    assert.deepEqual(compareStringSearch(data,coverageEntries,()=>0),baseline);
+  }
+});

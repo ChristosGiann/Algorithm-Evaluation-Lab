@@ -91,3 +91,8 @@ El/en comparison για 2–4 algorithms στο ίδιο literal text/pattern. �
 ## String Search education — #134 (2026-10-16)
 
 Ολοκληρώθηκε το el/en περιεχόμενο Naive, KMP, Rabin-Karp και Boyer-Moore (bad-character) στο κοινό FamilyEducation. Περιλαμβάνει preprocessing, βήματα, complexity, περιορισμούς, χρήσεις και UTF-16/first-match semantics. Τα τέσσερα walkthroughs ελέγχονται απέναντι στο registry μαζί με τους preprocessing counters. Το #132 παρέχει visualization και το #133 comparison UI. Επόμενα: persistence #135 και cross-algorithm coverage #136.
+
+
+## Αποθήκευση και ιστορικό (#135)
+
+Η ενότητα υποστηρίζει single run ή comparison (1–4 algorithms). Μετά το run δίνεις όνομα και αποθηκεύεις ένα immutable snapshot. Αλλαγή input/selection αφαιρεί το προηγούμενο αποτέλεσμα και save form. Νέο run αποκτά νέο save state. Το κοινό ιστορικό ανοίγει input, mode, ordered algorithms, δύο timings, counters και alignment trace χωρίς νέα εκτέλεση. Error rows παραμένουν errors χωρίς επινοημένα metrics. Η migration 0007 προσθέτει family choice, χωρίς νέο table.

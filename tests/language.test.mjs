@@ -810,3 +810,25 @@ test('string-search education has complete localized content and shared family r
     for(const term of ['UTF-16','LPS','1000003','good-suffix','Galil','O(nm)']) assert.ok(html.toLowerCase().includes(term.toLowerCase()), `${language}: ${term}`);
   }
 });
+
+
+test('saved string searches render stored results without rerunning and localize save/history', async () => {
+  const {SaveStringSearch}=await import('../src/components/StringSearch/SaveStringSearch.tsx');
+  const {stringSearchPersistenceTexts}=await import('../src/i18n/stringSearchPersistence.ts');
+  const {ExperimentDetails}=await import('../src/components/Experiments/ExperimentDetails.tsx');
+  const input={text:'😀a',pattern:'a',mode:'first'};
+  const rows=[{algorithm:'naive',mode:'first',status:'completed',found:true,correct:true,index:2,occurrenceIndexes:[2],preprocessingTimeMs:0,executionTimeMs:123.456,preprocessingComparisons:0,comparisons:3,alignments:[0,1,2]},
+    {algorithm:'kmp',mode:'first',status:'error',error:'runner_error'}];
+  const experiment={id:135,name:'<snapshot>',family:'string_search',status:'failed',input_snapshot:{version:1,source:'browser',input,algorithms:['naive','kmp']},results:rows.map((measurement,id)=>({id,measurement,implementation_snapshot:{name:'Stored '+measurement.algorithm}}))};
+
+    for(const language of ['el','en']) {
+      const t=stringSearchPersistenceTexts[language];
+      const html=render(ExperimentDetails,{experiment,language});
+      assert.ok(html.includes(t.note)&&html.includes('Stored naive')&&html.includes('&lt;snapshot&gt;'));
+      assert.ok(html.includes('<td>2</td>')&&html.includes((123.456).toLocaleString(language==='el'?'el-GR':'en-US',{maximumSignificantDigits:6})));
+      assert.ok(!html.includes('<button'));
+      const save=render(SaveStringSearch,{snapshot:{input,results:rows},language});
+      assert.ok(save.includes(t.name)&&save.includes(t.save)&&save.includes('disabled=""'));
+    }
+
+});

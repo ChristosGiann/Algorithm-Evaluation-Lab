@@ -42,7 +42,7 @@ class StringSearchPersistenceTests(APITestCase):
             self.assertEqual(method(reverse("experiment-detail", args=[pk]), {}, format="json").status_code, 405)
 
     def test_utf16_empty_absent_and_incorrect_first_match_round_trip(self):
-        cases = [("", "", 0, True), ("", "x", None, True), ("abc", "z", None, True),
+        cases = [("a\0b", "\0", 1, True), ("", "", 0, True), ("", "x", None, True), ("abc", "z", None, True),
                  ("banana", "ana", 3, False), ("banana", "ana", None, False),
                  ("😀abc", "a", 2, True), ("😀", "\ude00", 1, True), ("x\ud800z", "\ud800", 1, True),
                  ("e\u0301", "é", None, True), (" a ", " ", 0, True), ("A", "a", None, True)]

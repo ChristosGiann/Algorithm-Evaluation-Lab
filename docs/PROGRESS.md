@@ -1,10 +1,10 @@
 # Project Progress
 
-Last verified: **2026-10-16**
+Last verified: **2026-10-17**
 
 ## Current phase
 
-Ολοκληρωμένα: sorting evaluation, weighted BFS/DFS/Dijkstra/A* με education και persistence, Searching Linear/Binary/Jump/Exponential με visualization/comparison/education/persistence και comprehensive tests (#114–#122). String Search: Naive/KMP/Rabin-Karp/Boyer-Moore, visualization, comparison και education (#128–#134). Επόμενα: persistence #135 και coverage #136. Τα παρακάτω επιμέρους στάδια καταγράφουν την ιστορική εξέλιξη.
+Ολοκληρωμένα: sorting evaluation, weighted BFS/DFS/Dijkstra/A* με education και persistence, Searching Linear/Binary/Jump/Exponential με visualization/comparison/education/persistence και comprehensive tests (#114–#122). String Search: Naive/KMP/Rabin-Karp/Boyer-Moore, visualization, comparison, education, persistence και comprehensive coverage (#128–#136). Τα παρακάτω επιμέρους στάδια καταγράφουν την ιστορική εξέλιξη.
 
 Το παρόν snapshot περιλαμβάνει το ολοκληρωμένο sorting evaluation scope #58–#64/#66–#68:
 comparison, αποθήκευση/ιστορικό, statistics/baseline, Big-O context, educational
@@ -425,3 +425,8 @@ El/en comparison για 2–4 algorithms στο ίδιο literal text/pattern. �
 ## String Search persistence — #135 (2026-10-17)
 
 Ολοκληρώθηκε η αποθήκευση single run/comparison στο κοινό Experiment API/history, με versioned browser snapshots και read-only reopen. Επόμενο #136: comprehensive cross-algorithm coverage.
+
+
+## Comprehensive String Search coverage — #136 (2026-10-17)
+
+Κοινά deterministic datasets για όλους τους πραγματικούς runners: exhaustive binary strings, 300 seeded mixed UTF-16 περιπτώσεις και maximum-size regressions. Independent native first-match oracle, structural counters/traces, frozen input, επανάληψη σε αντίστροφη σειρά και failure isolation ανά θέση/phase. Χωρίς timing thresholds. Εκτελούνται από το υπάρχον npm test/CI.

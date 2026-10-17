@@ -1,6 +1,6 @@
 # Roadmap
 
-Τρέχον snapshot, 2026-10-16: ολοκληρωμένα sorting evaluation και weighted pathfinding UI/education/persistence. Το Searching #114–#122 περιλαμβάνει τέσσερις algorithms, visualization, comparison, education, persistence και comprehensive tests. Το String Search διαθέτει τέσσερις algorithms, visualization, comparison και education (#128–#134). String-search persistence/coverage και public deployment ακολουθούν σε ξεχωριστά issues.
+Τρέχον snapshot, 2026-10-17: ολοκληρωμένα sorting evaluation και weighted pathfinding UI/education/persistence. Το Searching #114–#122 περιλαμβάνει τέσσερις algorithms, visualization, comparison, education, persistence και comprehensive tests. Το String Search διαθέτει τέσσερις algorithms, visualization, comparison, education, persistence και comprehensive coverage (#128–#136). Τα επόμενα roadmap/public-deployment βήματα παραμένουν ξεχωριστά issues.
 
 ## Main development path
 
@@ -491,3 +491,8 @@ El/en comparison για 2–4 algorithms στο ίδιο literal text/pattern. �
 ## String Search persistence — #135
 
 Single runs/comparisons αποθηκεύονται στο κοινό ιστορικό χωρίς rerun. Απομένει το #136 για comprehensive coverage πριν τα επόμενα roadmap issues.
+
+
+## Comprehensive String Search coverage — #136 (2026-10-17)
+
+Κοινά deterministic datasets για όλους τους πραγματικούς runners: exhaustive binary strings, 300 seeded mixed UTF-16 περιπτώσεις και maximum-size regressions. Independent native first-match oracle, structural counters/traces, frozen input, επανάληψη σε αντίστροφη σειρά και failure isolation ανά θέση/phase. Χωρίς timing thresholds. Εκτελούνται από το υπάρχον npm test/CI.

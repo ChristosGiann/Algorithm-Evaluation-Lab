@@ -435,3 +435,8 @@ El/en comparison για 2–4 algorithms στο ίδιο literal text/pattern. �
 ## PostgreSQL preparation — #143
 
 Environment-based PostgreSQL/SQLite selection, pinned driver και πραγματικά PostgreSQL migration/regression checks στο CI. Βλ. DEPLOYMENT.md. Hosted Neon/Render verification παραμένει ξεχωριστό βήμα.
+
+
+## Production configuration — #144
+
+Strict production env validation, explicit hosts/HTTPS origins, secure cookies/HSTS/redirect και automated deploy-check coverage. Το production δεν φορτώνει local .env. Δεν έχει δημιουργηθεί hosted service.

@@ -17,3 +17,12 @@ python backend/manage.py check
 Πηγές: [dj-database-url](https://pypi.org/project/dj-database-url/), [PostgreSQL JSON Unicode restrictions](https://www.postgresql.org/docs/current/datatype-json.html).
 
 Δεν έχει επιβεβαιωθεί hosted Render/Neon deployment. Αυτή η ενότητα περιγράφει την υποστήριξη του repository, όχι ενεργή online υπηρεσία.
+
+
+## Production settings — #144
+
+`DJANGO_ENV=production` (ή Render `RENDER=true`) ενεργοποιεί strict configuration. Απαιτούνται generated secret ≥50 χαρακτήρων, `DJANGO_DEBUG=false`, PostgreSQL `DATABASE_URL`, comma-separated `DJANGO_ALLOWED_HOSTS` χωρίς wildcard/scheme/port και HTTPS `DJANGO_CORS_ALLOWED_ORIGINS`. Προαιρετικά explicit HTTPS `DJANGO_CSRF_TRUSTED_ORIGINS` για cookie-authenticated cross-origin flows. CORS δεν είναι authentication.
+
+HTTPS redirect, secure cookies και HSTS ενεργοποιούνται σε production. Forwarded-protocol trust ενεργοποιείται μόνο στο Render· άλλος reverse proxy απαιτεί ξεχωριστή ελεγμένη ρύθμιση. Localhost παραμένει HTTP-compatible. `python backend/manage.py check --deploy --fail-level WARNING` ελέγχεται με production configuration σε subprocess test χωρίς πραγματικά credentials.
+
+Πηγή: [Django deployment checklist](https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/).

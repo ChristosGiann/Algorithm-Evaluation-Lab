@@ -8,7 +8,7 @@
 
 [Τοπική εγκατάσταση](#quick-start) · [Αρχιτεκτονική](#architecture) · [Roadmap](docs/ROADMAP.md) · [API](docs/API.md)
 
-Το Searching διαθέτει Linear/Binary/Jump/Exponential Search, el/en education, step visualization, same-input comparison και αποθήκευση/history χωρίς rerun (#114–#122). Το String Search διαθέτει Naive/KMP/Rabin-Karp/Boyer-Moore (bad-character), step visualization, same-input comparison και el/en education (#128–#134).
+Το Searching διαθέτει Linear/Binary/Jump/Exponential Search, el/en education, step visualization, same-input comparison και αποθήκευση/history χωρίς rerun (#114–#122). Το String Search διαθέτει Naive/KMP/Rabin-Karp/Boyer-Moore (bad-character), step visualization, same-input comparison el/en education και αποθήκευση/history χωρίς rerun (#128–#135).
 
 ## Τι λειτουργεί σήμερα
 

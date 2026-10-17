@@ -1,3 +1,5 @@
+import { captureStringSearch } from "../../stringSearch/persistence";
+import { SaveStringSearch } from "./SaveStringSearch";
 import { useState } from "react";
 import type { Language } from "../../i18n/translations";
 import { stringSearchComparisonTexts } from "../../i18n/stringSearchComparison";
@@ -12,8 +14,9 @@ export function StringSearchComparison({language}: {language: Language}) {
   const [algorithms,setAlgorithms] = useState<StringSearchAlgorithm[]>([...STRING_SEARCH_ALGORITHMS]);
   const [text,setText] = useState("aaaaab"), [pattern,setPattern] = useState("aaab");
   const [result,setResult] = useState<StringSearchComparisonResult|null>(null);
+  const [revision,setRevision] = useState(0);
   const [error,setError] = useState<"invalid"|"selection"|null>(null);
-  function clear() {setResult(null);setError(null);}
+  function clear() {setResult(null);setError(null);setRevision(previous=>previous+1); }
   return <section className="benchmark" aria-labelledby="string-search-comparison-title">
     <h2 id="string-search-comparison-title">{t.title}</h2><p>{t.note}</p>
     <form onSubmit={event=>{event.preventDefault();clear();try {setResult(runStringSearchComparison(text,pattern,algorithms));}catch(error){setError(error instanceof Error && error.message === "invalid_selection" ? "selection" : "invalid");}}}>
@@ -25,6 +28,6 @@ export function StringSearchComparison({language}: {language: Language}) {
       </div>
     </form>
     {error&&<p role="alert">{t[error]}</p>}
-    {result?<StringSearchResults result={result} language={language}/>:<p>{t.empty}</p>}
+    {result?<><StringSearchResults result={result} language={language}/><SaveStringSearch key={revision} snapshot={captureStringSearch(result.input,result.rows)} language={language}/></>:<p>{t.empty}</p>}
   </section>;
 }

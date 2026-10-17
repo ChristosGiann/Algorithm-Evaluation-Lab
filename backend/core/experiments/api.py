@@ -2,8 +2,14 @@ from django.db import transaction
 from rest_framework import generics, serializers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.renderers import JSONRenderer
 
 from core.models import AlgorithmImplementation, DatasetDefinition, Experiment, ExperimentResult
+
+
+class SnapshotJSONRenderer(JSONRenderer):
+    """JSON escapes preserve literal UTF-16 surrogates in browser snapshots."""
+    ensure_ascii = True
 
 
 class StrictIntegerField(serializers.IntegerField):
@@ -124,6 +130,7 @@ class ExperimentCreateAPIView(generics.CreateAPIView):
 
 
 class ExperimentDetailAPIView(generics.RetrieveAPIView):
+    renderer_classes = [SnapshotJSONRenderer]
     serializer_class = ExperimentSerializer
     queryset = Experiment.objects.prefetch_related("implementations__algorithm", "datasets", "results")
 

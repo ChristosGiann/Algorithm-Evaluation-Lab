@@ -379,7 +379,7 @@ test('string comparison preserves literal input, ordered selection and first/abs
     assert.deepEqual(result.rows.map(row=>row.algorithm),['boyerMoore','kmp','naive','rabinKarp']);
     for (const row of result.rows) {assert.equal(row.index,expected);assert.equal(row.correct,true);}
   }
-  for (const selected of [[],['naive'],['naive','naive'],['naive','unknown']]) assert.throws(()=>runStringSearchComparison('a','a',selected),/invalid_selection/);
+  for (const selected of [[],['naive','naive'],['naive','unknown']]) assert.throws(()=>runStringSearchComparison('a','a',selected),/invalid_selection/);
 });
 
 
@@ -391,4 +391,21 @@ test('published string-search walkthroughs match executable traces and preparati
     assert.equal(prepared.comparisons,walkthrough.preprocessingComparisons);
     assert.deepEqual(prepared.search(walkthrough.input.text),walkthrough.expected);
   }
+});
+
+
+test('string-search save snapshots detach input, arrays, counters and error rows', async () => {
+  const {captureStringSearch}=await import('../src/stringSearch/persistence.ts');
+  const {runStringSearchComparison}=await import('../src/stringSearch/comparison.ts');
+  const single=runStringSearchComparison('banana','ana',['naive']);
+  assert.equal(single.rows.length,1);
+  const source={...single.input};
+  const rows=[{...single.rows[0],alignments:[0,1],occurrenceIndexes:[1]}, {algorithm:'kmp',mode:'first',status:'error',error:'runner_error'}];
+  const snapshot=captureStringSearch(source,rows);
+  source.text='edited';rows[0].alignments.length=0;rows[0].occurrenceIndexes[0]=9;rows[0].comparisons=99;rows[1].error='invalid_clock';
+  assert.equal(snapshot.input.text,'banana');assert.deepEqual(snapshot.results[0].alignments,[0,1]);
+  assert.deepEqual(snapshot.results[0].occurrenceIndexes,[1]);assert.equal(snapshot.results[0].comparisons,4);
+  assert.equal(snapshot.results[1].error,'runner_error');
+  assert.ok(Object.isFrozen(snapshot.results[0].alignments)&&Object.isFrozen(snapshot.results[0].occurrenceIndexes));
+  assert.deepEqual(JSON.parse(JSON.stringify(snapshot)),snapshot);
 });

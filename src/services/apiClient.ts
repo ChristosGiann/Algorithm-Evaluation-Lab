@@ -121,3 +121,9 @@ export function saveSearching(name: string, snapshot: import("../searching/persi
     method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name, ...snapshot}), signal,
   });
 }
+
+export function saveStringSearch(name: string, snapshot: import("../stringSearch/persistence").StringSearchSnapshot, signal: AbortSignal): Promise<import("../types/experiment").StringSearchExperiment> {
+  return apiRequest("/api/experiments/string-search/", {
+    method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name, ...snapshot}), signal,
+  });
+}

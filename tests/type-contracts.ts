@@ -9,6 +9,7 @@ const wrongPath: typeof pathfinding.results[number]["measurement"] = sorting.res
 const stored: StoredResult<{name:string}, {cost:number}> = {id:1,created_at:"",implementation_snapshot:{name:"Example"},measurement:{cost:1}};
 function narrow(experiment: Experiment) {
   if (experiment.family === "pathfinding") return experiment.input_snapshot.grid;
+  if (experiment.family === "string_search") return experiment.input_snapshot.input;
   if (experiment.family === "searching") return experiment.input_snapshot.input;
   return experiment.results[0]?.measurement.timings_ns;
 }

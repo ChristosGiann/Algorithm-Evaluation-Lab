@@ -60,7 +60,7 @@ export const translations = {
     },
 
     algorithmLibrary: {
-      eyebrow: "Sorting · Pathfinding · Searching",
+      eyebrow: "Sorting · Pathfinding · Searching · String Search",
       title: "Βιβλιοθήκη Αλγορίθμων",
       description:
         "Εξερεύνησε πώς λειτουργούν οι sorting, pathfinding και searching algorithms, τις εγγυήσεις τους και μικρά παραδείγματα.",
@@ -140,7 +140,7 @@ export const translations = {
     },
 
     algorithmLibrary: {
-      eyebrow: "Sorting · Pathfinding · Searching",
+      eyebrow: "Sorting · Pathfinding · Searching · String Search",
       title: "Algorithm Library",
       description:
         "Explore how sorting, pathfinding and searching algorithms work, their guarantees and small examples.",

@@ -2,7 +2,7 @@ export const experimentTexts = {
   el: {
     history: "Ιστορικό experiments", historyLoading: "Φόρτωση ιστορικού…", historyEmpty: "Δεν υπάρχουν experiments σε αυτή τη σελίδα.",
     historyError: "Δεν φορτώθηκε το ιστορικό. Δοκίμασε ξανά.", historyRefresh: "Ανανέωση ιστορικού", previous: "Προηγούμενη", next: "Επόμενη", page: "Σελίδα", created: "Δημιουργήθηκε", updated: "Ενημερώθηκε",
-    title: "Αποθηκευμένα experiments", description: "Δημιούργησε sorting drafts εδώ. Τα pathfinding και searching runs αποθηκεύονται από την ενότητά τους. Άνοιξε όλα τα experiments από το κοινό ιστορικό ή με ID.",
+    title: "Αποθηκευμένα experiments", description: "Δημιούργησε sorting drafts εδώ. Τα pathfinding, searching και string-search runs αποθηκεύονται από την ενότητά τους. Άνοιξε όλα τα experiments από το κοινό ιστορικό ή με ID.",
     name: "Όνομα experiment", implementations: "Υλοποιήσεις προς εκτέλεση", save: "Αποθήκευση draft", run: "Εκτέλεση experiment", open: "Άνοιγμα", refresh: "Ανανέωση από server", id: "ID experiment",
     loading: "Φόρτωση υλοποιήσεων…", loadError: "Δεν φορτώθηκαν οι υλοποιήσεις.", retry: "Νέα προσπάθεια", empty: "Δεν υπάρχουν εκτελέσιμες υλοποιήσεις.",
     busy: "Επικοινωνία με τον server…", invalid: "Δώσε όνομα, 1–4 υλοποιήσεις, μέγεθος 1–1000 και ακέραιο seed 32-bit.", invalidId: "Δώσε θετικό ακέραιο ID.",
@@ -15,7 +15,7 @@ export const experimentTexts = {
   en: {
     history: "Experiment history", historyLoading: "Loading history…", historyEmpty: "No experiments on this page.",
     historyError: "Could not load history. Try again.", historyRefresh: "Refresh history", previous: "Previous", next: "Next", page: "Page", created: "Created", updated: "Updated",
-    title: "Saved experiments", description: "Create sorting drafts here. Save pathfinding and searching runs from their section. Reopen all experiments from the shared history or by ID.",
+    title: "Saved experiments", description: "Create sorting drafts here. Save pathfinding, searching and string-search runs from their section. Reopen all experiments from the shared history or by ID.",
     name: "Experiment name", implementations: "Implementations to run", save: "Save draft", run: "Run experiment", open: "Open", refresh: "Refresh from server", id: "Experiment ID",
     loading: "Loading implementations…", loadError: "Could not load implementations.", retry: "Retry", empty: "No executable implementations available.",
     busy: "Contacting the server…", invalid: "Enter a name, 1–4 implementations, size 1–1000 and an integer 32-bit seed.", invalidId: "Enter a positive integer ID.",

@@ -8,7 +8,7 @@
 
 [Τοπική εγκατάσταση](#quick-start) · [Αρχιτεκτονική](#architecture) · [Roadmap](docs/ROADMAP.md) · [API](docs/API.md)
 
-Το Searching διαθέτει Linear/Binary/Jump/Exponential Search, el/en education, step visualization, same-input comparison και αποθήκευση/history χωρίς rerun (#114–#122). Το String Search διαθέτει evaluation foundation και pure Naive implementation (#128), χωρίς UI ακόμη.
+Το Searching διαθέτει Linear/Binary/Jump/Exponential Search, el/en education, step visualization, same-input comparison και αποθήκευση/history χωρίς rerun (#114–#122). Το String Search διαθέτει Naive/KMP/Rabin-Karp/Boyer-Moore (bad-character), step visualization, same-input comparison el/en education και αποθήκευση/history χωρίς rerun και comprehensive correctness tests (#128–#136).
 
 ## Τι λειτουργεί σήμερα
 
@@ -227,3 +227,8 @@ results. Προηγήσου με `python backend/manage.py migrate` (migration 0
 Βλ. [Experiments](docs/EXPERIMENTS.md) για όρια και αποτυχίες.
 
 Τα ολοκληρωμένα pathfinding runs/comparisons αποθηκεύονται πλέον με grid και measurements στο κοινό history (#94). Εφάρμοσε `python backend/manage.py migrate` για τη migration 0005. Το reopen μετά από refresh δεν εκτελεί νέο search.
+
+
+## Public deployment preparation
+
+PostgreSQL/production settings και Render backend configuration: [Deployment](docs/DEPLOYMENT.md). Το configuration στο dev δεν σημαίνει ενεργή hosted υπηρεσία. Public rollout απαιτεί ξεχωριστή προώθηση στη main και Render/Neon setup.

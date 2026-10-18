@@ -39,9 +39,21 @@ export interface SearchingExperiment extends ExperimentHeader<"completed" | "fai
   results: StoredResult<{algorithm:string; name:string; language:string; version:number},
     import("../searching/evaluation").SearchingResult>[];
 }
+export interface StringSearchExperiment extends ExperimentHeader<"completed" | "failed"> {
+  family: "string_search";
+  implementations: []; datasets: [];
+  input_snapshot: {
+    version: 1; source: "browser";
+    input: import("../stringSearch/evaluation").StringSearchInput;
+    algorithms: import("../stringSearch/evaluation").StringSearchAlgorithm[];
+  };
+  results: StoredResult<{algorithm:string; name:string; language:string; version:number},
+    import("../stringSearch/evaluation").StringSearchResult>[];
+}
 /** Add a family here without widening either existing metric contract. */
 export interface ExperimentByFamily {
   searching: SearchingExperiment;
+  string_search: StringSearchExperiment;
   sorting: SortingExperiment;
   pathfinding: PathfindingExperiment;
 }

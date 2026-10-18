@@ -65,3 +65,34 @@ npm test εκτελεί tests/string-search.test.mjs μαζί με όλα τα �
 Πραγματική pure implementation στο src/stringSearch/naive.ts ως PrepareStringSearch. Κρατά το pattern σε closure χωρίς tables/cache, με 0 preprocessing character comparisons (ο χρόνος prepare μετριέται κανονικά). Το search δοκιμάζει offsets αριστερά προς δεξιά και code units αριστερά προς δεξιά, σταματώντας στο πρώτο mismatch ή πρώτο πλήρες match. Empty pattern: index 0, alignments [0], comparisons 0· μεγαλύτερο pattern: null/[]/0. Case-sensitive UTF-16 semantics χωρίς normalization/regex και χωρίς χρήση native indexOf μέσα στην implementation.
 
 Κάθε search δημιουργεί νέο trace/counters. Worst-case O((n-m+1)·m) για 1≤m≤n, O(1) algorithm state συν O(n-m+1) trace. Το κοινό evaluation/comparison κρατά validation και independent oracle έξω από τα χωριστά prepare/search timings. Tests: exact fixtures, empty/first/middle/last/overlap/repeated/case/Unicode, exhaustive 3.937 short text-pattern pairs, repeated-run isolation, common comparison και max 10.000/1.000 repeated-prefix input χωρίς timing thresholds. UI, visualization, persistence και KMP/Rabin-Karp/Boyer-Moore είναι επόμενα scopes.
+
+## KMP (#129)
+
+Pure KMP με frozen LPS table και deterministic preprocessing comparisons. Search κρατά text progress και κάνει fallback μέσω LPS, καταγράφοντας κάθε νέο valid candidate offset χωρίς invalid tail alignments. First-match/empty/UTF-16 semantics και χωριστά prepare/search timings μέσω shared contract. O(m) preprocessing, O(n) search, O(m) table συν O(n) trace. Tests: exact LPS/counters, overlapping/repeated prefixes, absent/boundaries/Unicode, repeated-run isolation, same-input comparison και 10.000/1.000 regression με operation-count bounds, όχι wall-time thresholds. Δεν προστίθεται UI/persistence.
+
+## Rabin-Karp (#130)
+
+Pure deterministic rolling hash: base 257, modulus 1.000.003, UTF-16 codeUnit+1. Όλα τα ενδιάμεσα integers παραμένουν κάτω από 2^53. Pattern hash/power στο prepare, initial window/rolling updates στο search. Hash equality δεν μετρά ως character comparison· κάθε hash candidate επαληθεύεται χαρακτήρα προς χαρακτήρα, άρα collisions δεν δίνουν false positives. Expected O(n+m), worst O(nm) με πολλούς candidates· O(1) state συν O(n) trace. Tests περιλαμβάνουν constructed collision [0,257]/[1,0], exact metrics, high code units, edge/repeated inputs, isolation και κοινό comparison σε max input. Δεν προστίθεται UI/persistence.
+
+## Boyer-Moore (#131)
+
+Pure bad-character-only variant: last-occurrence map στο prepare, right-to-left comparisons στο search, shift=max(1,j-last[text[offset+j]]) με absent=-1. Δεν χρησιμοποιούνται good-suffix ή Galil heuristics και δεν διεκδικούμε τη worst-case εγγύηση άλλων variants. O(m) preprocessing, O(nm) worst-case search, O(min(m,alphabet)) table συν alignment trace. Map writes/lookups δεν μετρούν ως character comparisons· preprocessingComparisons=0, αλλά ο χρόνος prepare μετριέται κανονικά. Empty/first-match/UTF-16 semantics κοινά. Tests: exact shifts/counters, repeats, boundaries/no-match, Unicode, isolation και comparison όλων των implementations σε long deterministic input. Χωρίς UI/persistence.
+
+## String-search visualization (#132)
+
+Optional search observer στις πραγματικές Naive/KMP/Rabin-Karp/Boyer-Moore implementations: compare/match/mismatch, KMP fallback/retained prefix, hash windows με πραγματικά hash values και BM right-to-left/shift. Χωρίς observer διατηρούνται results/counters. Immutable educational trace έως 64 text / 16 pattern UTF-16 units, χωρίς evaluation clocks. Κοινό registry identities, pure playback reducer, Play/Pause/Step/Reset/Speed, stale-state clear σε edits/new run. El/en aligned text/pattern rows σε κοινή οριζόντια κλίμακα με explicit UTF-16 indexes, U+ labels για whitespace/control/surrogate units, keyboard-scroll region και found/not-found completion. Tests: observer equivalence/order, phase details, reset lifecycle, limits και bilingual rendering. Χωρίς persistence ή animation-derived benchmark metrics.
+
+
+## String-search comparison (#133)
+
+El/en comparison για 2–4 algorithms στο ίδιο literal text/pattern. Διακριτά preprocessing/search timings και character counters, first-match index (0 διατηρείται, null εμφανίζεται ως —), correctness και isolated error rows χωρίς fabricated metrics. Edit input/selection καθαρίζει stale results. Χωρίς ranking ή persistence (ακολουθεί στο #135). Tests καλύπτουν empty/absent, selection validation και error/zero rendering.
+
+
+## String Search education — #134 (2026-10-16)
+
+Ολοκληρώθηκε το el/en περιεχόμενο Naive, KMP, Rabin-Karp και Boyer-Moore (bad-character) στο κοινό FamilyEducation. Περιλαμβάνει preprocessing, βήματα, complexity, περιορισμούς, χρήσεις και UTF-16/first-match semantics. Τα τέσσερα walkthroughs ελέγχονται απέναντι στο registry μαζί με τους preprocessing counters. Το #132 παρέχει visualization και το #133 comparison UI. Επόμενα: persistence #135 και cross-algorithm coverage #136.
+
+
+## Αποθήκευση και ιστορικό (#135)
+
+Η ενότητα υποστηρίζει single run ή comparison (1–4 algorithms). Μετά το run δίνεις όνομα και αποθηκεύεις ένα immutable snapshot. Αλλαγή input/selection αφαιρεί το προηγούμενο αποτέλεσμα και save form. Νέο run αποκτά νέο save state. Το κοινό ιστορικό ανοίγει input, mode, ordered algorithms, δύο timings, counters και alignment trace χωρίς νέα εκτέλεση. Error rows παραμένουν errors χωρίς επινοημένα metrics. Η migration 0007 προσθέτει family choice, χωρίς νέο table.

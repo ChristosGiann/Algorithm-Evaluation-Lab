@@ -1,0 +1,33 @@
+# Apply only after explicit dev -> main promotion and provider setup.
+services:
+  - type: web
+    name: algorithm-evaluation-lab-api
+    runtime: python
+    plan: free
+    region: frankfurt
+    branch: main
+    autoDeployTrigger: checksPass
+    buildCommand: bash scripts/build-backend.sh
+    startCommand: bash scripts/start-backend.sh
+    healthCheckPath: /api/health/
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.13
+      - key: DJANGO_ENV
+        value: production
+      - key: DJANGO_DEBUG
+        value: "false"
+      - key: ENABLE_TRUSTED_CUSTOM_EXECUTION
+        value: "false"
+      - key: DJANGO_SECRET_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: MIGRATION_DATABASE_URL
+        sync: false
+      - key: DJANGO_ALLOWED_HOSTS
+        sync: false
+      - key: DJANGO_CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: DJANGO_CSRF_TRUSTED_ORIGINS
+        sync: false

@@ -43,3 +43,53 @@ jobs:
       - run: npm test
       - run: npm run lint
       - run: npm run build
+
+  postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: lab
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: lab
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U lab -d lab"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DJANGO_SECRET_KEY: ci-only-not-a-production-secret
+      DJANGO_DEBUG: 'False'
+      DATABASE_URL: postgresql://lab:ci-only-password@127.0.0.1:5432/lab
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12.13'
+      - run: python -m pip install -r backend/requirements.txt
+      - name: Bootstrap fresh PostgreSQL database
+        env:
+          MIGRATION_DATABASE_URL: postgresql://lab:ci-only-password@127.0.0.1:5432/lab
+          DJANGO_ENV: production
+          DJANGO_DEBUG: 'false'
+          DJANGO_SECRET_KEY: ci-only-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+          DJANGO_ALLOWED_HOSTS: 127.0.0.1
+          DJANGO_CORS_ALLOWED_ORIGINS: https://frontend.example.test
+        run: python scripts/bootstrap_database.py
+      - run: python backend/manage.py test core reviews
+
+      - name: Production build and WSGI smoke
+        env:
+          MIGRATION_DATABASE_URL: postgresql://lab:ci-only-password@127.0.0.1:5432/lab
+          DJANGO_ENV: production
+          DJANGO_DEBUG: 'false'
+          RENDER: 'true'
+          DJANGO_SECRET_KEY: ci-only-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+          DJANGO_ALLOWED_HOSTS: 127.0.0.1
+          DJANGO_CORS_ALLOWED_ORIGINS: https://frontend.example.test
+        run: |
+          bash scripts/build-backend.sh
+          python scripts/bootstrap_database.py
+          python scripts/bootstrap_database.py
+          python scripts/smoke_wsgi.py

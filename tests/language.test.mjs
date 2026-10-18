@@ -746,3 +746,100 @@ test('searching saved detail and history reopen JSON snapshots in both languages
     }
   } finally {Object.defineProperty(globalThis,'performance',{configurable:true,value:original});}
 });
+
+test('string-search visualization controls and frame states render in both languages',async()=>{
+  const {StringSearchVisualization}=await import('../src/components/StringSearch/StringSearchVisualization.tsx');
+  const {StringSearchFrame}=await import('../src/components/StringSearch/StringSearchFrame.tsx');
+  const {stringSearchAnimation}=await import('../src/stringSearch/visualization.ts');
+  const {stringSearchTexts}=await import('../src/i18n/stringSearch.ts');
+  for(const language of ['el','en']) {
+    const t=stringSearchTexts[language],html=render(StringSearchVisualization,{language});
+    for(const key of ['title','note','load','empty','speed'])assert.ok(html.includes(t[key]));
+    for(const name of ['Naive','KMP','Rabin-Karp','Boyer-Moore'])assert.ok(html.includes(name));
+    assert.match(html,/<button disabled="">Step/);
+    for(const algorithm of ['naive','kmp','rabinKarp','boyerMoore']) {
+      const animation=stringSearchAnimation(algorithm,{text:'aaaaab',pattern:'aaab',mode:'first'});
+      for(const frame of animation.frames) {
+        const body=render(StringSearchFrame,{animation,frame,language});
+        assert.ok(body.includes(t.legend));assert.ok(body.includes('tabindex="0"'));
+        if(frame.phase==='compare')assert.ok(body.includes(frame.equal?t.match:t.mismatch));
+        if(frame.phase==='fallback')assert.ok(body.includes(t.matched));
+        if(frame.phase==='hash')assert.ok(body.includes(t.hash));
+      }
+    }
+    const empty=stringSearchAnimation('naive',{text:'',pattern:'',mode:'first'});
+    assert.ok(render(StringSearchFrame,{animation:empty,frame:empty.frames.at(-1),language}).includes(t.emptyPattern));
+  }
+});
+
+const { StringSearchComparison } = await import('../src/components/StringSearch/StringSearchComparison.tsx');
+const { StringSearchResults } = await import('../src/components/StringSearch/StringSearchResults.tsx');
+const { stringSearchComparisonTexts } = await import('../src/i18n/stringSearchComparison.ts');
+test('string comparison renders zero/index-null, separate phases and isolated errors in el/en', async () => {
+  const { compareStringSearch } = await import('../src/stringSearch/evaluation.ts');
+  const { naive } = await import('../src/stringSearch/naive.ts');
+  for (const language of ['el','en']) {
+    const t=stringSearchComparisonTexts[language];
+    const form=render(StringSearchComparison,{language});
+    for (const name of ['Naive','KMP','Rabin-Karp','Boyer-Moore']) assert.ok(form.includes(name));
+    for (const pattern of ['', 'z']) {
+      const input={text:'abc',pattern,mode:'first'};
+      const rows=compareStringSearch(input,[{algorithm:'naive',prepare:naive},{algorithm:'kmp',prepare:()=>{throw new Error('private error');}}],()=>0);
+      const html=render(StringSearchResults,{language,result:{input,rows}});
+      assert.ok(html.includes(pattern ? '<td>—</td>' : '<td>0</td>'));
+      assert.ok(html.includes(t.prepTime)&&html.includes(t.searchTime));
+      assert.ok(html.includes('colSpan="7"')&&html.includes(t.errors.preprocessing_error));
+      assert.ok(!html.includes('private error'));
+      assert.ok(html.includes('tabindex="0"'));
+    }
+  }
+});
+
+
+test('string-search education has complete localized content and shared family rendering', async () => {
+  const { STRING_SEARCH_EDUCATION }=await import('../src/stringSearch/education.ts');
+  const { StringSearchEducation }=await import('../src/components/AlgorithmLibrary/StringSearchEducation.tsx');
+  for(const language of ['el','en']) {
+    const html=render(StringSearchEducation,{language});
+    for(const {education} of Object.values(STRING_SEARCH_EDUCATION)) {
+      const content=education[language];
+      for(const key of ['what','intuition','complexity','strengths','weaknesses','uses','pitfalls']) assert.ok(content[key].trim());
+      assert.ok(content.how.length>=3 && content.example.length>=2);
+      assert.ok(html.includes(content.what));
+    }
+    for(const term of ['UTF-16','LPS','1000003','good-suffix','Galil','O(nm)']) assert.ok(html.toLowerCase().includes(term.toLowerCase()), `${language}: ${term}`);
+  }
+});
+
+
+test('saved string searches render stored results without rerunning and localize save/history', async () => {
+  const {SaveStringSearch}=await import('../src/components/StringSearch/SaveStringSearch.tsx');
+  const {stringSearchPersistenceTexts}=await import('../src/i18n/stringSearchPersistence.ts');
+  const {ExperimentDetails}=await import('../src/components/Experiments/ExperimentDetails.tsx');
+  const input={text:'😀a',pattern:'a',mode:'first'};
+  const rows=[{algorithm:'naive',mode:'first',status:'completed',found:true,correct:true,index:2,occurrenceIndexes:[2],preprocessingTimeMs:0,executionTimeMs:123.456,preprocessingComparisons:0,comparisons:3,alignments:[0,1,2]},
+    {algorithm:'kmp',mode:'first',status:'error',error:'runner_error'}];
+  const experiment={id:135,name:'<snapshot>',family:'string_search',status:'failed',input_snapshot:{version:1,source:'browser',input,algorithms:['naive','kmp']},results:rows.map((measurement,id)=>({id,measurement,implementation_snapshot:{name:'Stored '+measurement.algorithm}}))};
+
+    for(const language of ['el','en']) {
+      const t=stringSearchPersistenceTexts[language];
+      const html=render(ExperimentDetails,{experiment,language});
+      assert.ok(html.includes(t.note)&&html.includes('Stored naive')&&html.includes('&lt;snapshot&gt;'));
+      assert.ok(html.includes('<td>2</td>')&&html.includes((123.456).toLocaleString(language==='el'?'el-GR':'en-US',{maximumSignificantDigits:6})));
+      assert.ok(!html.includes('<button'));
+      const save=render(SaveStringSearch,{snapshot:{input,results:rows},language});
+      assert.ok(save.includes(t.name)&&save.includes(t.save)&&save.includes('disabled=""'));
+    }
+
+});
+
+
+test('custom execution explains public denial and local clone in both languages',async()=>{
+  const {CustomBenchmark}=await import('../src/components/CustomPython/CustomBenchmark.tsx');
+  const {customExecutionTexts}=await import('../src/i18n/customExecution.ts');
+  for(const language of ['el','en']) {
+    const html=render(CustomBenchmark,{source:'def solve(values): return values',language});
+    assert.ok(html.includes(customExecutionTexts[language].note));
+    assert.ok(html.includes('public demo')&&html.includes('local clone'));
+  }
+});

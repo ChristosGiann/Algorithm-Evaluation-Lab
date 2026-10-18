@@ -217,3 +217,281 @@ test('Naive maximum-size repeated-prefix regression uses counters instead of tim
     assert.equal(result.alignments.at(-1),MAX_TEXT_LENGTH-MAX_PATTERN_LENGTH);
   }
 });
+
+const { kmp, buildLps } = await import('../src/stringSearch/kmp.ts');
+test('KMP LPS is deterministic, immutable and counts prefix comparisons',()=>{
+  assert.deepEqual(buildLps('ababaca'),{table:[0,0,1,2,3,0,1],comparisons:8});
+  assert.deepEqual(buildLps('aaaa'),{table:[0,1,2,3],comparisons:3});
+  assert.deepEqual(buildLps(''),{table:[],comparisons:0});
+  assert.ok(Object.isFrozen(buildLps('ababaca').table));
+});
+test('KMP first-match, fallback, boundaries and repeated runs use common evaluation',()=>{
+  for(const [text,pattern] of [['',''],['','a'],['abc',''],['a','aa'],['banana','ana'],['abababacaba','ababaca'],['aaaaab','aaab'],['ABC','abc'],['xxabc','abc'],['abc','x'],['😀a😀','a']]) {
+    const source=Object.freeze(input(text,pattern));
+    const result=evaluateStringSearch('kmp',source,kmp,()=>0);
+    assert.equal(result.correct,true,JSON.stringify(source));
+    const expected=text.indexOf(pattern);
+    assert.equal(result.index,expected<0?null:expected);
+    assert.deepEqual(source,input(text,pattern));
+    const prepared=kmp(pattern), first=prepared.search(text), copy=structuredClone(first);
+    first.alignments.push(-1); prepared.search('');
+    assert.deepEqual(prepared.search(text),copy);
+  }
+  assert.deepEqual(kmp('aaab').search('aaaaab'),{index:2,alignments:[0,1,2],comparisons:8});
+  const rows=compareStringSearch(input('aaaaab','aaab'),[{algorithm:'naive',prepare:naive},{algorithm:'kmp',prepare:kmp}],()=>0);
+  assert.ok(rows.every(row=>row.correct));
+  assert.equal(rows[1].preprocessingComparisons,5);
+});
+test('KMP deterministic generated and long repeated-prefix inputs match an independent oracle',()=>{
+  for(let size=0;size<100;size++)for(const pattern of ['','a','b','aba','ababac','aaaaab']) {
+    const text='ab'.repeat(size)+'ac'+'a'.repeat(size)+'b';
+    assert.equal(evaluateStringSearch('kmp',input(text,pattern),kmp,()=>0).correct,true);
+  }
+  const text='a'.repeat(9999)+'b', pattern='a'.repeat(999)+'b';
+  const result=evaluateStringSearch('kmp',input(text,pattern),kmp,()=>0);
+  assert.equal(result.index,9000); assert.equal(result.correct,true);
+  assert.ok(result.comparisons<=2*text.length);
+  assert.ok(result.preprocessingComparisons<=2*pattern.length);
+});
+
+const { rabinKarp, HASH_BASE, HASH_MODULUS } = await import('../src/stringSearch/rabinKarp.ts');
+test('Rabin-Karp verifies constructed hash collisions before accepting a match',()=>{
+  const collision=String.fromCharCode(0,257), pattern=String.fromCharCode(1,0);
+  const hash=value=>[...value].reduce((h,c)=>(h*HASH_BASE+c.charCodeAt(0)+1)%HASH_MODULUS,0);
+  assert.equal(hash(collision),hash(pattern)); assert.notEqual(collision,pattern);
+  assert.deepEqual(rabinKarp(pattern).search(collision),{index:null,alignments:[0],comparisons:1});
+  const text=collision+'xx'+pattern;
+  const result=evaluateStringSearch('rabinKarp',input(text,pattern),rabinKarp,()=>0);
+  assert.equal(result.index,4); assert.equal(result.correct,true); assert.equal(result.comparisons,3);
+});
+test('Rabin-Karp edge cases and deterministic windows agree with the first-match oracle',()=>{
+  for(const [text,pattern] of [['',''],['abc',''],['','a'],['a','aa'],['banana','ana'],['aaaaab','aaab'],['ABC','abc'],['xxabc','abc'],['abc','z'],['😀a😀','a']]) {
+    const data=Object.freeze(input(text,pattern));
+    const result=evaluateStringSearch('rabinKarp',data,rabinKarp,()=>0);
+    assert.equal(result.correct,true,JSON.stringify(data)); assert.equal(result.preprocessingComparisons,0);
+    const expected=text.indexOf(pattern), last=expected<0?text.length-pattern.length:expected;
+    assert.deepEqual(result.alignments,Array.from({length:Math.max(0,last+1)},(_,i)=>i));
+    const prepared=rabinKarp(pattern), first=prepared.search(text), copy=structuredClone(first);
+    first.alignments.push(-1); prepared.search('');
+    assert.deepEqual(prepared.search(text),copy); assert.deepEqual(data,input(text,pattern));
+  }
+  assert.deepEqual(rabinKarp('ana').search('banana'),{index:1,alignments:[0,1],comparisons:3});
+  assert.deepEqual(rabinKarp('z').search('abc'),{index:null,alignments:[0,1,2],comparisons:0});
+});
+test('Rabin-Karp rolling arithmetic works on generated/high code units and maximum input',()=>{
+  for(let size=0;size<120;size++) {
+    const text=Array.from({length:size},(_,i)=>String.fromCharCode((i*7919+size*17)%65536)).join('');
+    for(const pattern of ['',text.slice(0,3),text.slice(-4),'absent'])assert.equal(evaluateStringSearch('rabinKarp',input(text,pattern),rabinKarp,()=>0).correct,true);
+  }
+  const data=input('a'.repeat(9999)+'b','a'.repeat(999)+'b');
+  const rows=compareStringSearch(data,[{algorithm:'naive',prepare:naive},{algorithm:'kmp',prepare:kmp},{algorithm:'rabinKarp',prepare:rabinKarp}],()=>0);
+  assert.ok(rows.every(row=>row.correct&&row.index===9000));
+});
+
+const { boyerMoore } = await import('../src/stringSearch/boyerMoore.ts');
+test('Boyer-Moore bad-character shifts and right-to-left counts are deterministic',()=>{
+  for(const [text,pattern,index,alignments,comparisons] of [
+    ['','',0,[0],0],['abc','',0,[0],0],['','a',null,[],0],['a','aa',null,[],0],
+    ['xxabc','abc',2,[0,2],4],['abcdef','xyz',null,[0,3],2],
+    ['banana','ana',1,[0,1],4],['aaaaab','aaab',2,[0,1,2],6],['aaaaa','aaa',0,[0],3],
+    ['ABAAABCD','ABC',4,[0,2,4],5],
+  ])assert.deepEqual(boyerMoore(pattern).search(text),{index,alignments,comparisons},JSON.stringify({text,pattern}));
+});
+test('Boyer-Moore boundaries, UTF-16 and repeated-run isolation match native oracle',()=>{
+  const fixtures=[['ABC','abc'],['😀a😀','a'],['ababab','abab'],['abc','c'],['abcd','ab'],['abcd','bc']];
+  for(let size=0;size<150;size++)fixtures.push(['ab'.repeat(size)+'aabc','aabc']);
+  for(const [text,pattern] of fixtures) {
+    const source=Object.freeze(input(text,pattern));
+    const result=evaluateStringSearch('boyerMoore',source,boyerMoore,()=>0);
+    assert.equal(result.correct,true,JSON.stringify(source)); assert.equal(result.preprocessingComparisons,0);
+    const prepared=boyerMoore(pattern), first=prepared.search(text), copy=structuredClone(first);
+    first.alignments.push(-1); prepared.search(''); assert.deepEqual(prepared.search(text),copy);
+    assert.deepEqual(source,input(text,pattern));
+  }
+});
+test('Boyer-Moore joins all four real algorithms on long deterministic inputs',()=>{
+  for(const pattern of ['a'.repeat(999)+'b','b'+'a'.repeat(999)]) {
+    const rows=compareStringSearch(input('a'.repeat(9999)+'b',pattern),[
+      {algorithm:'naive',prepare:naive},{algorithm:'kmp',prepare:kmp},
+      {algorithm:'rabinKarp',prepare:rabinKarp},{algorithm:'boyerMoore',prepare:boyerMoore},
+    ],()=>0);
+    assert.ok(rows.every(row=>row.correct));
+    for(const row of rows)assert.ok(row.alignments.every(offset=>offset>=0&&offset<=9000));
+  }
+});
+
+const { STRING_SEARCH_REGISTRY }=await import('../src/stringSearch/registry.ts');
+const { stringSearchAnimation, stringSearchPlayback, emptyStringSearchPlayback, codeUnitLabel }=await import('../src/stringSearch/visualization.ts');
+test('string-search visualization observes real comparisons without changing measured traces',()=>{
+  for(const [algorithm,prepare] of Object.entries(STRING_SEARCH_REGISTRY))for(const [text,pattern] of [['banana','ana'],['aaaaab','aaab'],['abc','z'],['',''],['a','abc']]) {
+    const prepared=prepare(pattern),steps=[];
+    const observed=prepared.search(text,step=>steps.push(step));
+    assert.deepEqual(observed,prepared.search(text));
+    assert.equal(steps.filter(step=>step.phase==='compare').length,observed.comparisons);
+    for(const step of steps.filter(step=>step.phase==='compare')) {
+      assert.equal(step.equal,text[step.textIndex]===pattern[step.patternIndex]);
+      assert.equal(step.textIndex,step.offset+step.patternIndex);
+    }
+    const animation=stringSearchAnimation(algorithm,input(text,pattern));
+    assert.equal(animation.index,observed.index);
+    assert.deepEqual(animation.frames.slice(1,-1),steps);
+    assert.deepEqual(animation,stringSearchAnimation(algorithm,input(text,pattern)));
+    assert.ok(Object.isFrozen(animation.frames)&&Object.isFrozen(animation.input));
+    assert.ok(animation.frames.every(frame=>Object.isFrozen(frame)));
+    assert.ok(!('executionTimeMs' in animation));
+  }
+});
+test('string-search visualization exposes KMP fallback, RK windows and right-to-left BM shifts',()=>{
+  const k=stringSearchAnimation('kmp',input('aaaaab','aaab'));
+  assert.deepEqual(k.frames.filter(f=>f.phase==='fallback').map(f=>[f.nextOffset,f.matched]),[[1,2],[2,2]]);
+  const r=stringSearchAnimation('rabinKarp',input('banana','ana'));
+  assert.deepEqual(r.frames.filter(f=>f.phase==='hash').map(f=>[f.offset,f.equal]),[[0,false],[1,true]]);
+  const b=stringSearchAnimation('boyerMoore',input('xxabc','abc'));
+  assert.deepEqual(b.frames.filter(f=>f.phase==='compare').map(f=>f.patternIndex),[2,2,1,0]);
+  assert.equal(b.frames.find(f=>f.phase==='shift').nextOffset,2);
+  assert.throws(()=>stringSearchAnimation('naive',input('x'.repeat(65),'a')));
+  assert.throws(()=>stringSearchAnimation('naive',input('a','x'.repeat(17))));
+  assert.equal(codeUnitLabel(' '),'U+0020');
+  assert.equal(codeUnitLabel(String.fromCharCode(0xde00)),'U+DE00');
+});
+test('string-search playback resets, pauses, completes and clears stale frames',()=>{
+  const animation=stringSearchAnimation('naive',input());
+  let state=stringSearchPlayback(emptyStringSearchPlayback,{type:'load',animation});
+  state=stringSearchPlayback(state,{type:'play'});
+  assert.equal(stringSearchPlayback(state,{type:'step'}),state);
+  state=stringSearchPlayback(state,{type:'tick'});
+  state=stringSearchPlayback(state,{type:'pause'});
+  assert.equal(stringSearchPlayback(state,{type:'tick'}),state);
+  state=stringSearchPlayback(state,{type:'step'}); assert.equal(state.index,2);
+  state=stringSearchPlayback(state,{type:'play'});
+  for(let i=0;i<30;i++)state=stringSearchPlayback(state,{type:'tick'});
+  assert.equal(state.index,animation.frames.length-1);assert.equal(state.playing,false);
+  assert.deepEqual(stringSearchPlayback(state,{type:'reset'}),{animation,index:0,playing:false});
+  assert.deepEqual(stringSearchPlayback(state,{type:'clear'}),emptyStringSearchPlayback);
+  assert.deepEqual(stringSearchPlayback(state,{type:'load',animation}),{animation,index:0,playing:false});
+});
+
+const { runStringSearchComparison } = await import('../src/stringSearch/comparison.ts');
+test('string comparison preserves literal input, ordered selection and first/absent/empty results', () => {
+  for (const [text, pattern, expected] of [['aaaaab','aaab',2],['abc','z',null],['','',0],[' a ',' ',0],['A','a',null]]) {
+    const result = runStringSearchComparison(text,pattern,['boyerMoore','kmp','naive','rabinKarp']);
+    assert.equal(result.input.text,text); assert.equal(result.input.pattern,pattern);
+    assert.deepEqual(result.rows.map(row=>row.algorithm),['boyerMoore','kmp','naive','rabinKarp']);
+    for (const row of result.rows) {assert.equal(row.index,expected);assert.equal(row.correct,true);}
+  }
+  for (const selected of [[],['naive','naive'],['naive','unknown']]) assert.throws(()=>runStringSearchComparison('a','a',selected),/invalid_selection/);
+});
+
+
+test('published string-search walkthroughs match executable traces and preparation counts', async () => {
+  const { STRING_SEARCH_EDUCATION } = await import('../src/stringSearch/education.ts');
+  const { STRING_SEARCH_REGISTRY } = await import('../src/stringSearch/registry.ts');
+  for (const [algorithm, {walkthrough}] of Object.entries(STRING_SEARCH_EDUCATION)) {
+    const prepared=STRING_SEARCH_REGISTRY[algorithm](walkthrough.input.pattern);
+    assert.equal(prepared.comparisons,walkthrough.preprocessingComparisons);
+    assert.deepEqual(prepared.search(walkthrough.input.text),walkthrough.expected);
+  }
+});
+
+
+test('string-search save snapshots detach input, arrays, counters and error rows', async () => {
+  const {captureStringSearch}=await import('../src/stringSearch/persistence.ts');
+  const {runStringSearchComparison}=await import('../src/stringSearch/comparison.ts');
+  const single=runStringSearchComparison('banana','ana',['naive']);
+  assert.equal(single.rows.length,1);
+  const source={...single.input};
+  const rows=[{...single.rows[0],alignments:[0,1],occurrenceIndexes:[1]}, {algorithm:'kmp',mode:'first',status:'error',error:'runner_error'}];
+  const snapshot=captureStringSearch(source,rows);
+  source.text='edited';rows[0].alignments.length=0;rows[0].occurrenceIndexes[0]=9;rows[0].comparisons=99;rows[1].error='invalid_clock';
+  assert.equal(snapshot.input.text,'banana');assert.deepEqual(snapshot.results[0].alignments,[0,1]);
+  assert.deepEqual(snapshot.results[0].occurrenceIndexes,[1]);assert.equal(snapshot.results[0].comparisons,4);
+  assert.equal(snapshot.results[1].error,'runner_error');
+  assert.ok(Object.isFrozen(snapshot.results[0].alignments)&&Object.isFrozen(snapshot.results[0].occurrenceIndexes));
+  assert.deepEqual(JSON.parse(JSON.stringify(snapshot)),snapshot);
+});
+
+
+const { STRING_SEARCH_REGISTRY: coverageRegistry } = await import('../src/stringSearch/registry.ts');
+const coverageEntries = Object.entries(coverageRegistry).map(([algorithm,prepare])=>({algorithm,prepare}));
+function verifyCommonResult(row, data) {
+  const nativeIndex=data.text.indexOf(data.pattern);
+  const expected=nativeIndex===-1?null:nativeIndex;
+  assert.equal(row.status,'completed');
+  assert.equal(row.index,expected,JSON.stringify({algorithm:row.algorithm,...data}));
+  assert.equal(row.correct,true);assert.equal(row.found,expected!==null);
+  assert.deepEqual(row.occurrenceIndexes,expected===null?[]:[expected]);
+  for(const key of ['comparisons','preprocessingComparisons']) assert.ok(Number.isSafeInteger(row[key])&&row[key]>=0);
+  assert.ok(row.alignments.length<=MAX_ALIGNMENTS);
+  assert.ok(row.alignments.every(offset=>Number.isInteger(offset)&&offset>=0&&offset<=data.text.length-data.pattern.length));
+  assert.ok(expected===null||row.alignments.includes(expected));
+  assert.equal(row.mode,'first');
+}
+function verifyCommonCase(text, pattern) {
+  const data=Object.freeze(input(text,pattern)),before=JSON.stringify(data);
+  const first=compareStringSearch(data,coverageEntries,()=>0);
+  const second=compareStringSearch(data,[...coverageEntries].reverse(),()=>0).reverse();
+  assert.deepEqual(first,second,'selection order must not leak algorithm state');
+  assert.equal(JSON.stringify(data),before);
+  for(const row of first) verifyCommonResult(row,data);
+  return first;
+}
+
+test('all four real algorithms share exhaustive binary and Unicode first-match datasets',()=>{
+  function words(max) {
+    let level=[''];const all=[...level];
+    for(let size=1;size<=max;size++) {level=level.flatMap(prefix=>['a','b'].map(c=>prefix+c));all.push(...level);}
+    return all;
+  }
+  for(const text of words(6))for(const pattern of words(4))verifyCommonCase(text,pattern);
+  for(const [text,pattern] of [
+    ['',''],['','a'],['abc',''],['a','aa'],['abcxx','abc'],['xxabcxx','abc'],['xxabc','abc'],
+    ['aaaaaa','aaa'],['abababa','ababa'],['banana','ana'],['abc','z'],['AaA','a'],['ABC','abc'],
+    ['😀a😀','a'],['😀a😀','😀'],['😀','\ude00'],['x\ud800z','\ud800'],
+    ['é','e\u0301'],['e\u0301','é'],['αβγαβ','β'],[' a\n\t',' '],['a\0b','\0'],
+    [String.fromCharCode(0,257),String.fromCharCode(1,0)],
+  ])verifyCommonCase(text,pattern);
+});
+
+test('seeded mixed-code-unit datasets preserve correctness and deterministic isolated results',()=>{
+  let seed=0x135136;
+  const next=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed;};
+  const alphabet=['a','b','A',' ','\0','é','\u0301','\ud83d','\ude00','\uffff'];
+  for(let trial=0;trial<300;trial++) {
+    const length=next()%100;
+    const text=Array.from({length},()=>alphabet[next()%alphabet.length]).join('');
+    const start=next()%(text.length+1);
+    const pattern=trial%2?text.slice(start,start+next()%15):Array.from({length:next()%20},()=>alphabet[next()%alphabet.length]).join('');
+    const rows=verifyCommonCase(text,pattern);
+    rows[0].comparisons=Number.MAX_SAFE_INTEGER;
+    rows[0].index=null;
+    const fresh=compareStringSearch(input(text,pattern),coverageEntries,()=>0);
+    for(const row of fresh)verifyCommonResult(row,input(text,pattern));
+    assert.ok(Object.isFrozen(fresh[0].alignments)&&Object.isFrozen(fresh[0].occurrenceIndexes));
+  }
+});
+
+test('maximum-sized common regressions use structural checks without timing thresholds',()=>{
+  for(const [text,pattern] of [
+    ['a'.repeat(MAX_TEXT_LENGTH-1)+'b','a'.repeat(MAX_PATTERN_LENGTH-1)+'b'],
+    ['a'.repeat(MAX_TEXT_LENGTH),'a'.repeat(MAX_PATTERN_LENGTH-1)+'b'],
+    ['ab'.repeat(MAX_TEXT_LENGTH/2),'ab'.repeat(MAX_PATTERN_LENGTH/2)],
+    ['😀'.repeat(MAX_TEXT_LENGTH/2),'😀'.repeat(MAX_PATTERN_LENGTH/2)],
+  ])verifyCommonCase(text,pattern);
+});
+
+test('each comparison position isolates preparation, execution and malformed-result failures',()=>{
+  const data=Object.freeze(input('aaaaab','aaab'));
+  const baseline=compareStringSearch(data,coverageEntries,()=>0);
+  const failures=[
+    ['preprocessing_error',()=>{throw new Error('preparation failed');}],
+    ['runner_error',()=>({comparisons:0,search(){throw new Error('search failed');}})],
+    ['invalid_result',()=>({comparisons:0,search(){return {index:99,comparisons:0,alignments:[99]};}})],
+  ];
+  for(let failed=0;failed<coverageEntries.length;failed++)for(const [error,badPrepare] of failures) {
+    const entries=coverageEntries.map((entry,index)=>index===failed?{...entry,prepare:badPrepare}:entry);
+    const rows=compareStringSearch(data,entries,()=>0);
+    assert.deepEqual(rows[failed],{algorithm:entries[failed].algorithm,mode:'first',status:'error',error});
+    rows.forEach((row,index)=>{if(index!==failed)assert.deepEqual(row,baseline[index]);});
+    assert.deepEqual(compareStringSearch(data,coverageEntries,()=>0),baseline);
+  }
+});

@@ -1,3 +1,4 @@
+from .experiments.string_search import save_string_search
 from .experiments.searching import save_searching
 from .experiments.pathfinding import save_pathfinding
 from django.urls import path
@@ -10,6 +11,7 @@ from .custom_python.api import validate_custom_python
 
 
 urlpatterns = [
+    path("experiments/string-search/", save_string_search, name="save-string-search"),
     path("experiments/searching/", save_searching, name="save-searching"),
     path("experiments/pathfinding/", save_pathfinding, name="save-pathfinding"),
     path("benchmarks/sorting/custom/", custom_benchmark, name="custom-sorting-benchmark"),

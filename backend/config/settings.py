@@ -17,14 +17,12 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(BASE_DIR / ".env")
+if os.getenv("DJANGO_ENV") != "production" and os.getenv("RENDER", "").lower() != "true":
+    load_dotenv(BASE_DIR / ".env")
 
-SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
+from .environment import environment_config
 
-DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
-
-ALLOWED_HOSTS = []
-
+globals().update(environment_config(os.environ))
 
 # Application definition
 
@@ -43,6 +41,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     "corsheaders.middleware.CorsMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -75,12 +74,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+from .database import database_config
+
+DATABASES = {"default": database_config(BASE_DIR, os.getenv("DATABASE_URL"))}
 
 
 # Password validation
@@ -117,17 +113,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / "staticfiles"
+if PRODUCTION:
+    STORAGES = {
+        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+        "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+    }
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
-
 # Trusted local MVP only; never enable on a public server.
-ENABLE_TRUSTED_CUSTOM_EXECUTION = os.getenv("ENABLE_TRUSTED_CUSTOM_EXECUTION", "false").lower() == "true"
+ENABLE_TRUSTED_CUSTOM_EXECUTION = not PRODUCTION and os.getenv("ENABLE_TRUSTED_CUSTOM_EXECUTION", "false").lower() == "true"

@@ -273,3 +273,8 @@ POST `/api/experiments/pathfinding/` αποθηκεύει completed browser runs
 ## Searching snapshot save (#121)
 
 POST `/api/experiments/searching/`: `{name, input:{values:number[],target:number}, results:SearchingResult[]}`. 1–4 unique algorithms, ≤10.000 finite values, ≤100.000 valid probe indexes ανά row, safe integer counters και finite nonnegative ms. Strict union completed/error· γνωστά error codes, no mixed metrics. HTTP 201 με Searching Experiment envelope, 400 για invalid payload, atomic storage. Name 1–200 trimmed characters. Input snapshot `{version:1,source:"browser",input,algorithms}`. `GET /api/experiments/` και `GET /api/experiments/{id}/` δίνουν history/detail χωρίς execution. Run endpoint επιστρέφει 409. Browser measurements δεν πιστοποιούνται με rerun.
+
+
+## String Search snapshots (#135)
+
+`POST /api/experiments/string-search/` δέχεται `{name, input: {text, pattern, mode: "first"}, results}` με 1–4 μοναδικούς algorithms. Αποθηκεύει `family=string_search`, version 1, source browser, ordered algorithms και ολοκληρωμένα/error results χωρίς rerun. Strict validation ελέγχει UTF-16 όρια 10000/1000, indexes, first-match correctness, finite nonnegative timings, safe counters και alignments έως 100000. Τα timings/counters είναι browser measurements, όχι server benchmark. Το κοινό GET list/detail επιστρέφει read-only snapshots. JSON escapes διατηρούν και isolated UTF-16 surrogates. Invalid payload → 400 χωρίς partial writes· server run → 409.

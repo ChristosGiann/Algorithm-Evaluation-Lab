@@ -13,11 +13,12 @@ export function CustomBenchmark({source,language}:{source:string;language:Langua
   const [size,setSize]=useState(100),[seed,setSeed]=useState(42),[dataset,setDataset]=useState<DatasetType>("random");
   const [result,setResult]=useState<ComparisonResult|null>(null);
   const [algorithms,setAlgorithms]=useState<SortingAlgorithm[]>([]);
+  const denied=result?.results.some(row=>row.status!=="completed"&&row.error==="execution_disabled")??false;
   const active=useRef<AbortController|null>(null);
   useEffect(()=>()=>active.current?.abort(),[]);
   return <section className="benchmark" aria-labelledby="custom-benchmark-title"><h3 id="custom-benchmark-title">{t.title}</h3><p>{t.note}</p>
     <form onSubmit={async event=>{
-      event.preventDefault(); if(active.current||!trusted||algorithms.length>4)return;
+      event.preventDefault(); if(active.current||denied||!trusted||algorithms.length>4)return;
       const controller=new AbortController();active.current=controller;setRunning(true);setError(false);setResult(null);
       try {
         const signal=AbortSignal.any([controller.signal,AbortSignal.timeout(30000)]);
@@ -29,10 +30,10 @@ export function CustomBenchmark({source,language}:{source:string;language:Langua
       catch {if(!controller.signal.aborted)setError(true);}
       finally {active.current=null;if(!controller.signal.aborted)setRunning(false);}
     }}>
-      <fieldset disabled={running}><legend>{t.select}</legend>
+      <fieldset disabled={running||denied}><legend>{t.select}</legend>
         {Object.entries(b.algorithms).map(([slug,label])=><label key={slug}><input type="checkbox" checked={algorithms.includes(slug as SortingAlgorithm)} disabled={algorithms.length>=4&&!algorithms.includes(slug as SortingAlgorithm)} onChange={event=>setAlgorithms(current=>event.target.checked?[...current,slug as SortingAlgorithm]:current.filter(item=>item!==slug))}/>{label}</label>)}
       </fieldset>
-      <fieldset className="benchmark__fields" disabled={running}>
+      <fieldset className="benchmark__fields" disabled={running||denied}>
         <label>{b.dataset}<select value={dataset} onChange={e=>setDataset(e.target.value as DatasetType)}>{Object.entries(b.types).map(([key,value])=><option value={key} key={key}>{value}</option>)}</select></label>
         <label>{b.size}<input type="number" required min={1} max={1000} step={1} value={size} onChange={e=>setSize(Number(e.target.value))}/></label>
         <label>{b.seed}<input type="number" required min={-2147483648} max={2147483647} step={1} value={seed} onChange={e=>setSeed(Number(e.target.value))}/></label>

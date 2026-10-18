@@ -9,7 +9,7 @@ from .benchmark import error_result, measure_custom
 
 
 def execution_allowed(request):
-    return (settings.DEBUG and settings.ENABLE_TRUSTED_CUSTOM_EXECUTION
+    return (not settings.PRODUCTION and settings.DEBUG and settings.ENABLE_TRUSTED_CUSTOM_EXECUTION
             and request.META.get("REMOTE_ADDR") in ("127.0.0.1", "::1")
             and request.META.get("HTTP_ORIGIN") in settings.CORS_ALLOWED_ORIGINS)
 

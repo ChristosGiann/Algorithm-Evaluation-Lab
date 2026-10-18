@@ -120,4 +120,4 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Trusted local MVP only; never enable on a public server.
-ENABLE_TRUSTED_CUSTOM_EXECUTION = os.getenv("ENABLE_TRUSTED_CUSTOM_EXECUTION", "false").lower() == "true"
+ENABLE_TRUSTED_CUSTOM_EXECUTION = not PRODUCTION and os.getenv("ENABLE_TRUSTED_CUSTOM_EXECUTION", "false").lower() == "true"

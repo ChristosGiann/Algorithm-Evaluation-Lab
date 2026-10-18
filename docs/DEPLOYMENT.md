@@ -33,3 +33,18 @@ HTTPS redirect, secure cookies και HSTS ενεργοποιούνται σε p
 Production/Render mode αναγκάζει `ENABLE_TRUSTED_CUSTOM_EXECUTION=False`. Και το shared API execution gate απορρίπτει PRODUCTION ανεξάρτητα από DEBUG/opt-in flags, σε direct custom benchmark και custom comparison. Structured `execution_disabled` χωρίς worker spawn. Το UI εξηγεί public-demo περιορισμό/local clone και κλειδώνει τα execution controls μετά από denial (refresh μετά από αλλαγή server configuration).
 
 Τοπικά: clone, `DJANGO_ENV=development`, `DJANGO_DEBUG=true`, explicit `ENABLE_TRUSTED_CUSTOM_EXECUTION=true`, backend σε 127.0.0.1 και allowed localhost origin. Μόνο δικός σου trusted code· δεν είναι hostile-code sandbox. Static validation και built-in benchmarks παραμένουν διαθέσιμα.
+
+
+## Render backend configuration — #146
+
+Το `render.yaml` ορίζει free Python Web Service στο Frankfurt, branch **main**, auto-deploy μόνο μετά από επιτυχημένα checks, health path `/api/health/`. Η main ενημερώνεται μόνο με ρητή εντολή. Μέχρι να προωθηθούν οι αλλαγές και να δημιουργηθεί service, αυτό είναι configuration, όχι ενεργό deployment.
+
+Build: `bash scripts/build-backend.sh` (dependencies, deploy checks, collectstatic). Start: `bash scripts/start-backend.sh` (production preflight, migration consistency, Gunicorn WSGI). Provider `PORT` ελέγχεται και γίνεται bind στο `0.0.0.0`. Το local development συνεχίζει με Django runserver· Gunicorn εκτελείται σε Linux. WhiteNoise σερβίρει Django admin/static assets.
+
+Στο Render dashboard εισάγονται τα sync:false env values: Neon DATABASE_URL, explicit backend hostname, HTTPS frontend origins και generated DJANGO_SECRET_KEY τουλάχιστον 50 χαρακτήρων (π.χ. `secrets.token_urlsafe(64)` τοπικά). Δεν μπαίνουν secrets σε Git ή chat. CSRF origins μπορούν να μείνουν κενά αν δεν χρησιμοποιείται cross-origin cookie authentication. Δεν απαιτείται αγορά paid plan.
+
+Μετά τη δημιουργία ελέγχουμε public `/api/health/`, static assets, startup logs και auto-deploy από main. Το frontend build παίρνει `VITE_API_BASE_URL=https://<backend-host>` χωρίς trailing slash. Frontend hosting ανήκει στο #148.
+
+Το CI εκκινεί το ίδιο start script με Gunicorn και production configuration σε disposable PostgreSQL και ελέγχει πραγματικό HTTP health/static response. Αυτό **δεν αποδεικνύει** Render provisioning, routing ή auto-deploy. Το #146 μένει ανοιχτό μέχρι τη hosted επαλήθευση.
+
+Πηγές: [Render Django](https://render.com/docs/deploy-django), [Blueprint reference](https://render.com/docs/blueprint-spec).

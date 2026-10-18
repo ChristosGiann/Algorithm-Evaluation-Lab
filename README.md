@@ -227,3 +227,8 @@ results. Προηγήσου με `python backend/manage.py migrate` (migration 0
 Βλ. [Experiments](docs/EXPERIMENTS.md) για όρια και αποτυχίες.
 
 Τα ολοκληρωμένα pathfinding runs/comparisons αποθηκεύονται πλέον με grid και measurements στο κοινό history (#94). Εφάρμοσε `python backend/manage.py migrate` για τη migration 0005. Το reopen μετά από refresh δεν εκτελεί νέο search.
+
+
+## Public deployment preparation
+
+PostgreSQL/production settings και Render backend configuration: [Deployment](docs/DEPLOYMENT.md). Το configuration στο dev δεν σημαίνει ενεργή hosted υπηρεσία. Public rollout απαιτεί ξεχωριστή προώθηση στη main και Render/Neon setup.

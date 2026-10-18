@@ -48,3 +48,31 @@ Build: `bash scripts/build-backend.sh` (dependencies, deploy checks, collectstat
 Το CI εκκινεί το ίδιο start script με Gunicorn και production configuration σε disposable PostgreSQL και ελέγχει πραγματικό HTTP health/static response. Αυτό **δεν αποδεικνύει** Render provisioning, routing ή auto-deploy. Το #146 μένει ανοιχτό μέχρι τη hosted επαλήθευση.
 
 Πηγές: [Render Django](https://render.com/docs/deploy-django), [Blueprint reference](https://render.com/docs/blueprint-spec).
+
+
+## Neon migrations and seed bootstrap — #147
+
+Στο Neon δημιουργούμε database/role για το public demo, χωρίς import της προσωπικής SQLite βάσης. Στο Connect panel παίρνουμε δύο URLs για **το ίδιο project/branch/database**:
+
+- `DATABASE_URL`: runtime connection, μπορεί να είναι pooled.
+- `MIGRATION_DATABASE_URL`: direct (pooling off) connection για migrations και session advisory lock. Διατηρούμε τα TLS options του Neon. Δεν γράφουμε URLs στο repository/chat/logs.
+
+Τα env vars μπαίνουν στο Render dashboard. Το start script καλεί `python scripts/bootstrap_database.py` πριν από Gunicorn. Το script επιλέγει το direct URL μόνο στο δικό του process, ελέγχει production configuration, αποκτά PostgreSQL advisory lock, εκτελεί `migrate --noinput`, το atomic/idempotent `seed_sorting_algorithms` και verification για unapplied migrations. Ο runtime server συνεχίζει με το αρχικό DATABASE_URL. Το build **δεν** αλλάζει schema.
+
+Η διαδικασία γίνεται σε κάθε start και είναι συμβατή με ένα free-tier service, χωρίς paid pre-deploy hook. Κρατάμε έναν deploy runner. Αν υπάρχει άλλο bootstrap, η εκκίνηση αποτυγχάνει και επαναλαμβάνεται αφού τελειώσει το πρώτο. Δεν χρησιμοποιούμε pooled migration URL· το session lock χρειάζεται direct connection.
+
+### Initial deployment
+
+1. Δημιουργία Neon project/database και καταχώριση των δύο URLs στο provider environment.
+2. Καταχώριση strong secret, backend hostname και frontend origins στο Render.
+3. Ρητή προώθηση του ελεγμένου dev στη main και δημιουργία/sync του Blueprint.
+4. Στα startup logs επιβεβαιώνουμε `Database bootstrap completed.` και έπειτα Gunicorn listening.
+5. Public `/api/health/` → 200, `/api/algorithms/` → πέντε sorting algorithms. Επαναλαμβάνουμε deploy και ελέγχουμε ότι δεν δημιουργούνται duplicates. Ελέγχουμε save/history και για τις τέσσερις families.
+
+### Επόμενες migrations και αποτυχίες
+
+Κάθε migration γίνεται commit μαζί με την αλλαγή και ελέγχεται σε disposable PostgreSQL CI πριν τη main. Αν migration ή seed αποτύχει, δεν ξεκινά νέος server. Δεν παρακάμπτουμε με `--fake`, manual SQL ή διαγραφή migration records. Ελέγχουμε την αιτία, διορθώνουμε σε νέο issue/PR και ξανατρέχουμε. Ήδη ολοκληρωμένες migrations παραμένουν εφαρμοσμένες· δεν γίνεται αυτόματο rollback ολόκληρου deployment. Οι PostgreSQL atomic migrations και το atomic seed προστατεύουν τα επιμέρους βήματα. Για μελλοντικές destructive migrations χρειάζεται προηγούμενο backup και συμβατότητα με την προηγούμενη έκδοση.
+
+CI: fresh database bootstrap, repeated bootstrap, seed idempotence/history preservation, failure ordering/lock tests και πραγματικό Gunicorn health/static/catalogue smoke. Τα existing experiment suites τρέχουν σε PostgreSQL. **Hosted Neon credentials/connectivity και Render auto-deploy δεν έχουν ελεγχθεί ακόμη**· τα #146/#147 μένουν ανοιχτά για provider validation.
+
+Πηγή: [Neon connection strings](https://neon.com/docs/connect/connect-from-any-app).

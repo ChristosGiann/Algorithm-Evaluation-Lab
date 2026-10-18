@@ -28,6 +28,9 @@ try:
             time.sleep(0.25)
     with urlopen(Request("http://127.0.0.1:18080/static/admin/css/base.css", headers={"X-Forwarded-Proto": "https"}), timeout=5) as response:
         assert response.status == 200 and "text/css" in response.headers["Content-Type"]
+    with urlopen(Request("http://127.0.0.1:18080/api/algorithms/", headers={"X-Forwarded-Proto": "https"}), timeout=5) as response:
+        catalogue = json.load(response)
+        assert len(catalogue) == 5 and len({row["slug"] for row in catalogue}) == 5
     print("Production Gunicorn health and static-file smoke passed")
 finally:
     try:

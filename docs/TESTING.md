@@ -576,3 +576,8 @@ Frontend: detached/frozen snapshots, single selection, localized save/read-only 
 ## Cross-algorithm regressions — #136
 
 Το `tests/string-search.test.mjs` ελέγχει 127 binary texts × 31 patterns για όλους τους runners, 300 seeded mixed UTF-16 datasets, ρητά boundary/Unicode/collision fixtures και τέσσερα maximum-size inputs. Κάθε case τρέχει και με αντίστροφη σειρά algorithms, με independent `String.indexOf` oracle και deterministic injected clock. Ελέγχονται immutable inputs, safe counters, valid offsets, first occurrence, detached results και failure isolation σε κάθε comparison θέση. Δεν υπάρχουν performance thresholds ή αλλαγές στο CI configuration.
+
+
+## Deployment checks (#143–#147)
+
+SQLite και PostgreSQL 17 backend suites, production check --deploy χωρίς warnings, direct/mixed custom execution denial, provider port validation, fresh/repeated bootstrap, idempotent seed/history preservation και Linux Gunicorn HTTP health/static/catalogue smoke. Τα CI results δεν υποκαθιστούν hosted Render/Neon verification.

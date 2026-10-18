@@ -452,3 +452,8 @@ Production/Render mode αναγκάζει `ENABLE_TRUSTED_CUSTOM_EXECUTION=False
 ## Render preparation — #146
 
 Blueprint, Gunicorn/WhiteNoise, fail-fast build/start και Linux CI HTTP smoke. Hosted Render health/auto-deploy pending· το issue δεν θεωρείται πλήρως κλειστό πριν από provider verification.
+
+
+## Database bootstrap preparation — #147 (2026-10-18)
+
+Direct migration URL, serialized migrations/atomic idempotent seed, startup failure propagation και PostgreSQL CI bootstrap/smoke. Το repository scope υλοποιήθηκε· actual Neon/Render provisioning και hosted verification εκκρεμούν. Τα #143–#145 ολοκληρώθηκαν, #146–#147 παραμένουν ανοιχτά μέχρι hosted validation.

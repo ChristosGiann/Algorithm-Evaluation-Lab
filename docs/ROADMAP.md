@@ -496,3 +496,8 @@ Single runs/comparisons αποθηκεύονται στο κοινό ιστορ�
 ## Comprehensive String Search coverage — #136 (2026-10-17)
 
 Κοινά deterministic datasets για όλους τους πραγματικούς runners: exhaustive binary strings, 300 seeded mixed UTF-16 περιπτώσεις και maximum-size regressions. Independent native first-match oracle, structural counters/traces, frozen input, επανάληψη σε αντίστροφη σειρά και failure isolation ανά θέση/phase. Χωρίς timing thresholds. Εκτελούνται από το υπάρχον npm test/CI.
+
+
+## Public deployment preparation (2026-10-18)
+
+#143 PostgreSQL, #144 production settings και #145 local-only custom execution ολοκληρώθηκαν. Τα #146 Render και #147 Neon bootstrap διαθέτουν repository configuration/CI, αλλά απαιτούν ακόμη provider setup και hosted επαλήθευση. Η main δεν ενημερώθηκε. Frontend deployment #148 και public smoke/docs #149–#150 ακολουθούν.

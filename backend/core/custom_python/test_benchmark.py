@@ -46,3 +46,19 @@ class CustomBenchmarkTests(SimpleTestCase):
         self.assertTrue(result.data["measurement"]["correct"])
         with override_settings(ENABLE_TRUSTED_CUSTOM_EXECUTION=False):
             self.assertEqual(client.post(url,data,format="json",HTTP_ORIGIN="http://127.0.0.1:5173").data["error"],"execution_disabled")
+
+    @override_settings(PRODUCTION=True, DEBUG=True, ENABLE_TRUSTED_CUSTOM_EXECUTION=True)
+    def test_public_denies_direct_and_comparison_even_if_local_flags_are_forced(self):
+        client=APIClient()
+        with patch("core.custom_python.benchmark.subprocess.run") as worker:
+            for path, payload in [
+                ("/api/benchmarks/sorting/custom/", {"source":"def solve(values): return sorted(values)","trusted":True,"size":5}),
+                ("/api/benchmarks/sorting/compare/", {"custom_source":"def solve(values): return sorted(values)","trusted":True,"size":5,"algorithms":["bubble-sort"]}),
+            ]:
+                response=client.post(path,payload,format="json",HTTP_ORIGIN="http://127.0.0.1:5173",REMOTE_ADDR="127.0.0.1")
+                self.assertIn("execution_disabled",str(response.data))
+                custom = response.data["results"][-1] if "results" in response.data else response.data
+                self.assertNotIn("measurement", custom)
+                if "results" in response.data:
+                    self.assertTrue(response.data["results"][0]["measurement"]["correct"])
+            worker.assert_not_called()

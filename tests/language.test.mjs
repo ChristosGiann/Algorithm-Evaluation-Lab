@@ -832,3 +832,14 @@ test('saved string searches render stored results without rerunning and localize
     }
 
 });
+
+
+test('custom execution explains public denial and local clone in both languages',async()=>{
+  const {CustomBenchmark}=await import('../src/components/CustomPython/CustomBenchmark.tsx');
+  const {customExecutionTexts}=await import('../src/i18n/customExecution.ts');
+  for(const language of ['el','en']) {
+    const html=render(CustomBenchmark,{source:'def solve(values): return values',language});
+    assert.ok(html.includes(customExecutionTexts[language].note));
+    assert.ok(html.includes('public demo')&&html.includes('local clone'));
+  }
+});

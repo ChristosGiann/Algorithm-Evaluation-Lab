@@ -440,3 +440,10 @@ Environment-based PostgreSQL/SQLite selection, pinned driver και πραγμα
 ## Production configuration — #144
 
 Strict production env validation, explicit hosts/HTTPS origins, secure cookies/HSTS/redirect και automated deploy-check coverage. Το production δεν φορτώνει local .env. Δεν έχει δημιουργηθεί hosted service.
+
+
+## Local-only execution — #145
+
+Production/Render mode αναγκάζει `ENABLE_TRUSTED_CUSTOM_EXECUTION=False`. Και το shared API execution gate απορρίπτει PRODUCTION ανεξάρτητα από DEBUG/opt-in flags, σε direct custom benchmark και custom comparison. Structured `execution_disabled` χωρίς worker spawn. Το UI εξηγεί public-demo περιορισμό/local clone και κλειδώνει τα execution controls μετά από denial (refresh μετά από αλλαγή server configuration).
+
+Τοπικά: clone, `DJANGO_ENV=development`, `DJANGO_DEBUG=true`, explicit `ENABLE_TRUSTED_CUSTOM_EXECUTION=true`, backend σε 127.0.0.1 και allowed localhost origin. Μόνο δικός σου trusted code· δεν είναι hostile-code sandbox. Static validation και built-in benchmarks παραμένουν διαθέσιμα.

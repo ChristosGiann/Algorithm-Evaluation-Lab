@@ -444,3 +444,20 @@ SearchingComparison → runSearchingComparison → κοινό input parser/regis
 ## Searching education (#120)
 
 Η shared Algorithm Library εμφανίζει Linear/Binary/Jump/Exponential μέσω FamilyEducation και EducationalContent, ανεξάρτητα από τη φόρτωση του backend catalogue. Versioned el/en metadata: what/intuition/steps/complexity/strengths/limitations/uses/pitfalls/completeness και explicit preconditions. Τα κοινά walkthroughs στο [1,3,5,7,9,11,13,15]/11 ελέγχονται απέναντι στις πραγματικές implementations, μαζί με probes/counters και immutability. Διαχωρίζονται algorithm state, trace memory και validation cost· δεν εξάγεται performance ranking. Rendering tests ελέγχουν completeness και missing optional fields χωρίς invented content. Δεν προστίθεται runtime AI, API ή persistence.
+
+
+## Research Console (#168)
+
+Το AppShell οργανώνει επτά workspaces με hash-based navigation και browser Back/Forward,
+χωρίς router dependency. `navigation.ts` επικυρώνει τα IDs και κρατά visited state.
+Κάθε workspace γίνεται mount στην πρώτη επίσκεψη και παραμένει mounted με `hidden`
+όταν δεν είναι ενεργό: διατηρείται το state, αποκλείεται το κρυφό UI από keyboard/AT,
+και υπάρχοντα requests/animations ολοκληρώνονται χωρίς αλλαγή execution contracts.
+Η ίδια πολιτική ισχύει για τα τέσσερα Sorting tools. Refresh επαναφέρει τα προσωρινά
+inputs/results στις defaults· persistence συνεχίζει να χρησιμοποιεί το υπάρχον API.
+
+`src/styles/tokens.css` παρέχει χρώματα, surfaces, spacing και typography tokens.
+`App.css` παρέχει shell/shared controls/panels και responsive rules, ενώ τα feature
+styles κρατούν τις ιδιαιτερότητες των visualizations. Semantic algorithm-state colors
+παραμένουν διακριτά από το purple interaction accent. Δεν προστίθεται γενική component
+library ούτε αλλάζουν backend, algorithms ή persistence contracts.

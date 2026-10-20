@@ -93,7 +93,7 @@ export function Toolbar({
           {texts.clearWalls}
         </button>
 
-        <button className="toolbar-button" type="button" onClick={onResetGrid} disabled={disabled}>
+        <button className="toolbar-button button-danger" type="button" onClick={onResetGrid} disabled={disabled}>
           {texts.resetGrid}
         </button>
       </div>

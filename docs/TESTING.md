@@ -581,3 +581,17 @@ Frontend: detached/frozen snapshots, single selection, localized save/read-only 
 ## Deployment checks (#143–#147)
 
 SQLite και PostgreSQL 17 backend suites, production check --deploy χωρίς warnings, direct/mixed custom execution denial, provider port validation, fresh/repeated bootstrap, idempotent seed/history preservation και Linux Gunicorn HTTP health/static/catalogue smoke. Τα CI results δεν υποκαθιστούν hosted Render/Neon verification.
+
+
+## Research Console checks (#168, 2026-10-20)
+
+- 154 frontend tests: περιλαμβάνουν hash validation/fallback, visited-state retention,
+  ένα αρχικά ορατό workspace, localized navigation/utilities, Sorting tool semantics.
+- Manual browser smoke σε production preview με local Django: sorting benchmark 20
+  στοιχείων, αλλαγή workspace/επιστροφή με διατήρηση input, Pathfinding comparison,
+  Searching και String Search load/step/comparison, Library, υπάρχον history snapshot reopen.
+- Έλεγχος el/en και responsive 320px σε όλες τις επτά ενότητες: document scrollWidth
+  ίσο με clientWidth (305px usable λόγω scrollbar). Tables/grid/strings έχουν contained scroll.
+- Νέα screenshots desktop/mobile στο `docs/images/`. Δεν γράφτηκαν νέα history records.
+- Τοπικό preview χρησιμοποιεί προσωρινή CORS allowance για 127.0.0.1:4173 μόνο στη
+  διεργασία QA· δεν τροποποιήθηκε κανένα .env ή production setting.

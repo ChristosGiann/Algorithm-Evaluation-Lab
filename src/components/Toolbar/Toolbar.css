@@ -7,8 +7,8 @@
   gap: 16px;
   align-items: end;
   justify-content: space-between;
-  background: #111827;
-  border: 1px solid #1f2937;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-surface-subtle);
   border-radius: 12px;
 }
 
@@ -21,16 +21,16 @@
 
 .toolbar-label {
   font-size: 13px;
-  color: #9ca3af;
+  color: var(--color-text-muted);
 }
 
 .toolbar-select {
   min-width: 150px;
   padding: 8px 10px;
-  border: 1px solid #374151;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: #020617;
-  color: #e5e7eb;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .toolbar-actions {
@@ -41,15 +41,15 @@
 
 .toolbar-button {
   padding: 9px 12px;
-  border: 1px solid #374151;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: #1f2937;
-  color: #e5e7eb;
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
   cursor: pointer;
 }
 
 .toolbar-button:hover:not(:disabled) {
-  background: #374151;
+  background: var(--color-border);
 }
 
 .toolbar-button:disabled {
@@ -58,10 +58,10 @@
 }
 
 .toolbar-button--primary {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 .toolbar-button--primary:hover:not(:disabled) {
-  background: #1d4ed8;
+  background: var(--color-accent-hover);
 }

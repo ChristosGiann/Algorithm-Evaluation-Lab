@@ -37,14 +37,21 @@
 
 ## Screenshots και demo
 
-Πραγματικό screenshot από το local app στις 2026-09-25: Bubble Sort με Random dataset, size 100, seed 42, αποτέλεσμα 10 εκτελέσεων και Algorithm Library. Το screenshot προέρχεται από το snapshot πριν από το #22 και δεν δείχνει τη νέα φόρμα validation. Οι τιμές είναι ενδεικτικές μιας εκτέλεσης και δεν αποτελούν performance εγγύηση.
+Το Research Console (#168) οργανώνει την εφαρμογή σε Overview, Sorting, Pathfinding,
+Searching, String Search, Experiments και Algorithm Library. Το sidebar γίνεται
+compact navigation σε στενές οθόνες. Το Sorting διαθέτει ξεχωριστά εργαλεία
+Benchmark / Σύγκριση / Οπτικοποίηση / Custom Python.
 
-<details>
-<summary>Προβολή εφαρμογής: benchmark, results dashboard και Algorithm Library</summary>
+Τα workspaces ανοίγουν και με hash links (π.χ. `/#strings`), υποστηρίζουν Back/Forward
+και διατηρούν τα inputs/results κατά την πλοήγηση μέσα στην ίδια σελίδα.
+Refresh μηδενίζει το προσωρινό state· τα αποθηκευμένα πειράματα παραμένουν στο ιστορικό.
+Εκτελέσεις και animations που έχουν ήδη ξεκινήσει συνεχίζονται στο παρασκήνιο.
 
-![Ελληνικό UI με επιτυχημένο Bubble Sort benchmark, γράφημα χρόνου και πέντε algorithm cards](docs/images/application.jpg)
+Πραγματικά screenshots του τοπικού build στις 2026-10-20:
 
-</details>
+![Research Console — desktop](docs/images/research-console.jpg)
+
+[Προβολή mobile layout στα 320px](docs/images/research-console-mobile.jpg)
 
 **Live demo:** δεν υπάρχει ακόμη δημοσιευμένο demo URL. Για δοκιμή ακολούθησε το local setup. Ο σύνδεσμος θα προστεθεί όταν γίνει deploy.
 

@@ -85,8 +85,7 @@ export function Pathfinding({ language }: { language: Language }) {
 
   return <section aria-label={texts.pathfinding.title} aria-busy={running}>
     <h2>{texts.pathfinding.title}</h2>
-    <p>{texts.pathfinding.description}</p>
-    <p>{texts.pathfinding.searchNote}</p>
+    <details className="console-guidance"><summary>{texts.pathfinding.guidance}</summary><p>{texts.pathfinding.description}</p><p>{texts.pathfinding.searchNote}</p></details>
     <Toolbar texts={texts.toolbar} algorithms={texts.algorithms} speed={texts.speed}
       disabled={running} selectedSpeed={speed}
       selectedAlgorithm={algorithm} onAlgorithmChange={value => {
@@ -101,10 +100,13 @@ export function Pathfinding({ language }: { language: Language }) {
     <p role="status">{comparison ? texts.pathfinding.comparison.ready : message}</p>
     <TerrainControls texts={texts.terrain} tool={tool} disabled={running}
       onChange={value => { if (!running) setTool(value); }} onClear={() => editGrid(clearTerrain)} />
+    <div className="grid-viewport" tabIndex={0} role="region" aria-label={texts.pathfinding.title}>
+    <Grid grid={state.grid} texts={texts.grid} disabled={running}
+      onNodeClick={(row, col) => editGrid(grid => paintTerrain(grid, row, col, tool))} />
+    </div>
     <PathfindingStatistics status={state.status} result={state.result} language={language} />
     <PathfindingComparison results={comparison} language={language} />
     {snapshot && (comparison || state.status === "completed") && <SavePathfinding key={runId} snapshot={snapshot} language={language} />}
-    <Grid grid={state.grid} texts={texts.grid} disabled={running}
-      onNodeClick={(row, col) => editGrid(grid => paintTerrain(grid, row, col, tool))} />
+
   </section>;
 }

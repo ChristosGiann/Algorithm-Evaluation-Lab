@@ -1,13 +1,13 @@
-.results { margin-top: 24px; padding: 20px; background: white; border: 1px solid #cbd5e1; border-radius: 12px; }
+.results { margin-top: 24px; padding: 20px; background: var(--color-surface-raised); border: 1px solid var(--color-border); border-radius: 12px; }
 .results__scroll { overflow-x: auto; margin-top: 16px; }
 .results table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
-.results caption { text-align: left; padding-bottom: 12px; color: #475569; }
-.results th, .results td { text-align: left; padding: 12px; border-bottom: 1px solid #cbd5e1; min-width: 80px; }
-.results thead { background: #f1f5f9; }
+.results caption { text-align: left; padding-bottom: 12px; color: var(--color-text-muted); }
+.results th, .results td { text-align: left; padding: 12px; border-bottom: 1px solid var(--color-border); min-width: 80px; }
+.results thead { background: var(--color-surface-subtle); }
 .results__chart { margin: 24px 0 0; }
 .results figcaption { font-weight: 700; }
 .results__plot { display: grid; grid-template-columns: minmax(130px, 1fr) minmax(100px, 3fr) minmax(90px, 1fr); align-items: center; gap: 16px; margin-top: 16px; font-variant-numeric: tabular-nums; }
-.results__track { position: relative; height: 24px; background: #f1f5f9; border-left: 1px solid #64748b; }
-.results__bar { height: 100%; background: #2563eb; }
-.results__range { position: absolute; top: 9px; height: 6px; background: #172033; border-left: 2px solid #172033; border-right: 2px solid #172033; box-sizing: border-box; }
+.results__track { position: relative; height: 24px; background: var(--color-surface-subtle); border-left: 1px solid var(--color-text-subtle); }
+.results__bar { height: 100%; background: var(--color-accent); }
+.results__range { position: absolute; top: 9px; height: 6px; background: var(--color-text); border-left: 2px solid var(--color-text); border-right: 2px solid var(--color-text); box-sizing: border-box; }
 @media (max-width: 600px) { .results { padding: 12px; } .results__plot { grid-template-columns: 1fr; gap: 6px; } }

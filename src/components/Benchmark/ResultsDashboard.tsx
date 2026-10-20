@@ -24,7 +24,7 @@ export function ResultsDashboard({ entries, running, language, onClear }: {
     {running && <p role="status">{texts.running}</p>}
     {!entries.length && !running && <p>{texts.emptyResults}</p>}
     {entries.length > 0 && <>
-      <button type="button" onClick={onClear} disabled={running}>{texts.clearResults}</button>
+      <button className="button-danger" type="button" onClick={onClear} disabled={running}>{texts.clearResults}</button>
       <div className="results__scroll" role="region" aria-label={texts.dashboard} tabIndex={0}>
         <table>
           <caption>{texts.sessionResults}</caption>

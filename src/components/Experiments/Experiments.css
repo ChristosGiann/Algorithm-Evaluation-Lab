@@ -1,19 +1,19 @@
-.experiments { margin: 24px 0; padding: 24px; border: 1px solid #cbd5e1; border-radius: 16px; background: #f8fafc; color: #172033; }
+.experiments { margin: 24px 0; padding: 24px; border: 1px solid var(--color-border); border-radius: 16px; background: var(--color-surface); color: var(--color-text); }
 .experiments fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
-.experiments fieldset fieldset { margin: 16px 0; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; }
+.experiments fieldset fieldset { margin: 16px 0; padding: 12px; border: 1px solid var(--color-border); border-radius: 8px; }
 .experiments label { display: flex; flex-direction: column; gap: 6px; }
 .experiments .experiments__choice { flex-direction: row; align-items: center; margin: 8px 0; }
-.experiments input, .experiments select { padding: 10px; border: 1px solid #94a3b8; border-radius: 6px; font: inherit; }
+.experiments input, .experiments select { padding: 10px; border: 1px solid var(--color-text-subtle); border-radius: 6px; font: inherit; }
 .experiments button { padding: 10px 16px; margin: 8px 0; cursor: pointer; }
 .experiments button:disabled { cursor: default; opacity: .55; }
 .experiments__fields { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; margin: 12px 0; }
-.experiment-details { padding: 16px; margin-top: 16px; background: white; border: 1px solid #cbd5e1; border-radius: 8px; }
+.experiment-details { padding: 16px; margin-top: 16px; background: var(--color-surface-raised); border: 1px solid var(--color-border); border-radius: 8px; }
 .experiment-details table { border-collapse: collapse; width: 100%; }
-.experiment-details th, .experiment-details td { padding: 10px; border-bottom: 1px solid #cbd5e1; text-align: left; }
+.experiment-details th, .experiment-details td { padding: 10px; border-bottom: 1px solid var(--color-border); text-align: left; }
 .experiment-details caption { text-align: left; padding: 12px 0; }
-.experiments [role="alert"] { color: #9f1239; }
+.experiments [role="alert"] { color: var(--color-danger); }
 
 .experiment-history { list-style: none; padding: 0; }
-.experiment-history li { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #cbd5e1; }
-.experiment-history small { flex-basis: 100%; color: #475569; }
+.experiment-history li { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--color-border); }
+.experiment-history small { flex-basis: 100%; color: var(--color-text-muted); }
 .experiment-history button { overflow-wrap: anywhere; text-align: left; }

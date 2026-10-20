@@ -49,7 +49,7 @@ function shape(value) {
 }
 test('all UI dictionaries have matching non-empty Greek and English entries', async () => {
   const additional=[];
-  for(const file of ['comparison','comparisonSave','complexity','education','visualization','customExecution']) {
+  for(const file of ['comparison','comparisonSave','complexity','education','visualization','customExecution','workspace']) {
     const module=await import(`../src/i18n/${file}.ts`); additional.push(...Object.values(module).filter(value=>value?.el&&value?.en));
   }
   for (const texts of [translations, reviewTexts, benchmarkTexts, customPythonTexts, experimentTexts,...additional]) {
@@ -841,5 +841,48 @@ test('custom execution explains public denial and local clone in both languages'
     const html=render(CustomBenchmark,{source:'def solve(values): return values',language});
     assert.ok(html.includes(customExecutionTexts[language].note));
     assert.ok(html.includes('public demo')&&html.includes('local clone'));
+  }
+});
+
+const { AppShell, Overview } = await import('../src/components/AppShell/AppShell.tsx');
+const { SortingWorkspace } = await import('../src/components/AppShell/SortingWorkspace.tsx');
+const { WORKSPACES, workspaceFromHash, navigate } = await import('../src/components/AppShell/navigation.ts');
+const { workspaceTexts } = await import('../src/i18n/workspace.ts');
+test('workspace navigation supports direct links, safe fallback and stable visited state', () => {
+  for (const key of WORKSPACES) assert.equal(workspaceFromHash(`#${key}`), key);
+  for (const hash of ['', '#unknown', '#__proto__', '#<script>']) assert.equal(workspaceFromHash(hash), 'overview');
+  let state = { active: 'overview', visited: ['overview'] };
+  state = navigate(state, 'sorting');
+  const previous = state;
+  state = navigate(state, 'strings');
+  state = navigate(state, 'sorting');
+  assert.deepEqual(state.visited, ['overview', 'sorting', 'strings']);
+  assert.deepEqual(previous.visited, ['overview', 'sorting']);
+  assert.equal(navigate(state, 'sorting'), state);
+});
+test('shell exposes one initial workspace, accessible navigation and localized utilities', () => {
+  for (const language of ['el', 'en']) {
+    const panels = Object.fromEntries(WORKSPACES.map(key => [key, createElement('p', null, `CONTENT-${key}`)]));
+    const html = render(AppShell, { language, onLanguageChange() {}, children: panels });
+    assert.equal((html.match(/aria-current="page"/g) || []).length, 1);
+    assert.match(html, /href="#overview" aria-current="page"/);
+    assert.match(html, /CONTENT-overview/);
+    for (const key of WORKSPACES.filter(key => key !== 'overview')) assert.ok(!html.includes(`CONTENT-${key}`));
+    assert.match(html, /<main id="workspace-content"/);
+    assert.match(html, /for="app-language"/);
+    assert.ok(html.includes(workspaceTexts[language].navigation));
+    assert.ok(html.includes(translations[language].backendStatus.loading));
+    const overview = render(Overview, { language });
+    for (const key of WORKSPACES.filter(key => key !== 'overview')) assert.ok(overview.includes(`href="#${key}"`));
+  }
+});
+test('sorting tools expose selection and mount only the initially selected tool', () => {
+  for (const language of ['el', 'en']) {
+    const panels = Object.fromEntries(['benchmark','comparison','visualization','custom'].map(key => [key, createElement('p', null, `TOOL-${key}`)]));
+    const html = render(SortingWorkspace, { language, panels });
+    assert.equal((html.match(/aria-pressed="true"/g) || []).length, 1);
+    assert.match(html, /TOOL-benchmark/);
+    assert.ok(!html.includes('TOOL-custom'));
+    for (const key of Object.keys(panels)) assert.ok(html.includes(`id="sorting-${key}"`));
   }
 });

@@ -8,6 +8,7 @@ export const translations = {
     },
 
     pathfinding: {
+      guidance: "Οδηγίες και ερμηνεία",
       title: "Pathfinding — BFS / DFS / Dijkstra / A*", description: "Μπλε: εξερεύνηση · Κίτρινο: διαδρομή. Η ταχύτητα αφορά μόνο το animation, όχι τη μέτρηση του αλγορίθμου.",
       idle: "Σχεδίασε terrain και εμπόδια, επίλεξε αλγόριθμο και πάτησε Οπτικοποίηση.",
       searchNote: "Dijkstra/A* ελαχιστοποιούν το συνολικό κόστος. BFS/DFS αγνοούν τα weights στην αναζήτηση: ο BFS ελαχιστοποιεί βήματα (και κόστος μόνο σε uniform-cost grid), ενώ ο DFS δεν εγγυάται βέλτιστη διαδρομή.",
@@ -88,6 +89,7 @@ export const translations = {
     },
 
     pathfinding: {
+      guidance: "Guidance and interpretation",
       title: "Pathfinding — BFS / DFS / Dijkstra / A*", description: "Blue: exploration · Yellow: path. Speed affects animation only, not algorithm measurement.",
       idle: "Paint terrain and walls, choose an algorithm and press Visualize.",
       searchNote: "Dijkstra/A* minimize total cost. BFS/DFS ignore weights during search: BFS minimizes steps (and cost only on uniform-cost grids), while DFS does not guarantee an optimal path.",

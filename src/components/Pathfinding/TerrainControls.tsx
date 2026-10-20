@@ -17,6 +17,6 @@ export function TerrainControls({ texts, tool, disabled, onChange, onClear }: {
       <option value="water">{texts.water} (5)</option>
     </select>{" "}
     <button type="button" onClick={onClear}>{texts.clear}</button>
-    <p>{texts.note}</p>
+    <small>{texts.note}</small>
   </fieldset>;
 }

@@ -47,7 +47,7 @@ Benchmark / Σύγκριση / Οπτικοποίηση / Custom Python.
 Refresh μηδενίζει το προσωρινό state· τα αποθηκευμένα πειράματα παραμένουν στο ιστορικό.
 Εκτελέσεις και animations που έχουν ήδη ξεκινήσει συνεχίζονται στο παρασκήνιο.
 
-Πραγματικά screenshots του τοπικού build στις 2026-10-20:
+Πραγματικά screenshots του τοπικού build στις 2026-10-20 (πριν από την αφαίρεση του εικονιδίου λ στο #170):
 
 ![Research Console — desktop](docs/images/research-console.jpg)
 

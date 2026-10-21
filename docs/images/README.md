@@ -20,3 +20,6 @@ screenshot. Έλεγξε οπτικά το αρχείο πριν αντικατ�
 `research-console-mobile.jpg`: ίδια σελίδα σε viewport 320px, full-page capture.
 Πηγή: τοπικό production preview, ελληνική γλώσσα, πραγματικό local backend health.
 Δεν περιέχουν πραγματικά secrets ή επινοημένα benchmark δεδομένα.
+
+
+Σημείωση #170 (2026-10-21): τα screenshots του #168 εμφανίζουν ακόμη το παλιό λ. Το εικονίδιο αφαιρέθηκε από τον κώδικα· νέα captures εκκρεμούν λόγω browser access policy.

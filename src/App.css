@@ -22,7 +22,6 @@ summary { cursor: pointer; padding: var(--space-2) 0; }
 .console-sidebar { position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; padding: var(--space-6) var(--space-3); background: var(--color-surface); border-right: 1px solid var(--color-border-muted); }
 .console-brand { display: flex; align-items: center; gap: var(--space-3); padding: 0 var(--space-2) var(--space-8); font-weight: 700; line-height: 1.4; }
 .console-brand small { display: block; margin-top: var(--space-2); color: var(--color-text-subtle); font: 10px var(--font-mono); letter-spacing: .12em; }
-.console-mark { background: var(--color-accent); border-radius: var(--radius); color: var(--color-on-accent); font: 26px var(--font-mono); padding: var(--space-2) var(--space-3); }
 .console-sidebar nav { display: grid; gap: var(--space-1); }
 .console-sidebar nav a { display: flex; gap: var(--space-3); align-items: center; min-height: 46px; padding: var(--space-3); text-decoration: none; color: var(--color-text-muted); border-radius: 6px; border: 1px solid transparent; }
 .console-sidebar nav a:hover { background: var(--color-surface-subtle); color: var(--color-text); }

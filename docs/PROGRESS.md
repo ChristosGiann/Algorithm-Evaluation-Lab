@@ -468,3 +468,8 @@ tools αντικαθιστούν το ενιαίο κάθετο UI. Dark navy/ch
 Διατηρούνται el/en, visible focus, skip link, active navigation semantics, reduced-motion
 CSS και visited workspace state. Νέα navigation/SSR regression coverage και screenshots
 στο README. Hosted Render/Neon verification παραμένει ανεξάρτητη εκκρεμότητα #146–#147.
+
+
+## Sidebar identity — #170
+
+Αφαιρέθηκε το μωβ εικονίδιο λ κατόπιν προτίμησης του χρήστη. Παραμένει το όνομα της εφαρμογής με το Research Console subtitle. Η ανανέωση των screenshots εκκρεμεί λόγω αποκλεισμού πρόσβασης από την πολιτική του browser.

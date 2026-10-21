@@ -31,7 +31,7 @@ export function AppShell({ language, onLanguageChange, children }: {
   return <div className="console-shell">
     <a className="skip-link" href="#workspace-content" onClick={event => { event.preventDefault(); document.getElementById("workspace-content")?.focus(); }}>{t.skip}</a>
     <aside className="console-sidebar">
-      <div className="console-brand"><span className="console-mark" aria-hidden="true">λ</span><span>{t.brand}<small>{t.console}</small></span></div>
+      <div className="console-brand"><span>{t.brand}<small>{t.console}</small></span></div>
       <nav aria-label={t.navigation}>
         {WORKSPACES.map((key, index) => <a key={key} href={`#${key}`} aria-current={state.active === key ? "page" : undefined}>
           <span className="nav-index" aria-hidden="true">{String(index).padStart(2, "0")}</span>{t.sections[key].title}

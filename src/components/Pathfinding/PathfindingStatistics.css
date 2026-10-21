@@ -1,10 +1,10 @@
 .pathfinding-statistics {
   margin: 16px 0;
   padding: 16px;
-  border: 1px solid #334155;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
-  background: #111827;
-  color: #e5e7eb;
+  background: var(--color-surface-raised);
+  color: var(--color-text);
 }
 .pathfinding-statistics h3 { margin-top: 0; }
 .pathfinding-statistics dl {
@@ -12,11 +12,11 @@
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 16px;
 }
-.pathfinding-statistics dt, .pathfinding-statistics p { color: #cbd5e1; }
+.pathfinding-statistics dt, .pathfinding-statistics p { color: var(--color-text-muted); }
 .pathfinding-statistics dd { margin: 6px 0 0; font-size: 1.2rem; font-weight: 600; }
 .pathfinding-comparison-scroll { overflow-x: auto; }
 .pathfinding-comparison { width: 100%; border-collapse: collapse; }
-.pathfinding-comparison caption { text-align: left; margin-bottom: 12px; color: #cbd5e1; }
+.pathfinding-comparison caption { text-align: left; margin-bottom: 12px; color: var(--color-text-muted); }
 .pathfinding-comparison th, .pathfinding-comparison td {
-  padding: 12px; text-align: left; border-bottom: 1px solid #334155;
+  padding: 12px; text-align: left; border-bottom: 1px solid var(--color-border);
 }

@@ -1,15 +1,15 @@
-.implementation-review { width: 100%; margin-top: 12px; color: #e2e8f0; }
+.implementation-review { width: 100%; margin-top: 12px; color: var(--color-text); }
 .algorithm-card:has(.implementation-review[open]) { grid-column: 1 / -1; }
-.implementation-review summary { cursor: pointer; padding: 10px 0; color: #7dd3fc; font-weight: 600; }
+.implementation-review summary { cursor: pointer; padding: 10px 0; color: var(--color-accent-text); font-weight: 600; }
 .implementation-review p { font-size: .88rem; line-height: 1.6; }
-.implementation-review fieldset { border: 1px solid #64748b; border-radius: 8px; padding: 12px; min-width: 0; }
+.implementation-review fieldset { border: 1px solid var(--color-text-subtle); border-radius: 8px; padding: 12px; min-width: 0; }
 .implementation-review legend { padding: 0 6px; }
 .implementation-review label { display: grid; gap: 6px; margin-bottom: 12px; font-size: .85rem; }
 .implementation-review__ratings { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
-.implementation-review select, .implementation-review textarea { box-sizing: border-box; width: 100%; min-width: 0; background: #0f172a; color: #f8fafc; border: 1px solid #94a3b8; border-radius: 6px; padding: 8px; font: inherit; }
+.implementation-review select, .implementation-review textarea { box-sizing: border-box; width: 100%; min-width: 0; background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-text-subtle); border-radius: 6px; padding: 8px; font: inherit; }
 .implementation-review textarea { resize: vertical; }
-.implementation-review small { color: #94a3b8; }
-.implementation-review button { border: 0; border-radius: 6px; padding: 10px; color: white; background: #2563eb; cursor: pointer; font: inherit; }
-.implementation-review [role="alert"] { color: #fecaca; }
+.implementation-review small { color: var(--color-text-subtle); }
+.implementation-review button { border: 0; border-radius: 6px; padding: 10px; color: var(--color-on-accent); background: var(--color-accent); cursor: pointer; font: inherit; }
+.implementation-review [role="alert"] { color: var(--color-danger); }
 .implementation-review :disabled { opacity: .65; cursor: default; }
-.implementation-review :focus-visible { outline: 3px solid #38bdf8; outline-offset: 3px; }
+.implementation-review :focus-visible { outline: 3px solid var(--color-accent-text); outline-offset: 3px; }

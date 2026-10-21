@@ -2,13 +2,8 @@
   width: min(1180px, calc(100% - 32px));
   margin: 40px auto;
   padding: 32px;
-  color: #e2e8f0;
-  background:
-    linear-gradient(
-      145deg,
-      rgba(15, 23, 42, 0.98),
-      rgba(30, 41, 59, 0.96)
-    );
+  color: var(--color-text);
+  background: var(--color-surface);
   border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 20px;
   box-shadow:
@@ -22,7 +17,7 @@
 
 .algorithm-library__eyebrow {
   margin: 0 0 8px;
-  color: #38bdf8;
+  color: var(--color-accent-text);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -31,14 +26,14 @@
 
 .algorithm-library__header h2 {
   margin: 0;
-  color: #f8fafc;
+  color: var(--color-text);
   font-size: clamp(1.8rem, 4vw, 2.7rem);
   line-height: 1.1;
 }
 
 .algorithm-library__description {
   margin: 14px 0 0;
-  color: #94a3b8;
+  color: var(--color-text-subtle);
   font-size: 1rem;
   line-height: 1.7;
 }
@@ -46,7 +41,7 @@
 .algorithm-library__grid {
   display: grid;
   grid-template-columns:
-    repeat(auto-fit, minmax(300px, 1fr));
+    repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: 20px;
 }
 
@@ -58,7 +53,7 @@
   min-height: 160px;
   margin: 0;
   padding: 24px;
-  color: #cbd5e1;
+  color: var(--color-text-muted);
   text-align: center;
   background: rgba(15, 23, 42, 0.55);
   border: 1px dashed rgba(148, 163, 184, 0.3);
@@ -67,7 +62,7 @@
 
 .algorithm-library__message--error {
   flex-direction: column;
-  color: #fecaca;
+  color: var(--color-danger);
   border-color: rgba(248, 113, 113, 0.4);
 }
 
@@ -79,24 +74,24 @@
   width: 22px;
   height: 22px;
   border: 3px solid rgba(56, 189, 248, 0.25);
-  border-top-color: #38bdf8;
+  border-top-color: var(--color-accent-text);
   border-radius: 50%;
   animation: algorithm-library-spin 0.8s linear infinite;
 }
 
 .algorithm-library__retry-button {
   padding: 9px 16px;
-  color: #f8fafc;
+  color: var(--color-text);
   font: inherit;
   font-weight: 600;
-  background: #2563eb;
+  background: var(--color-accent);
   border: 0;
   border-radius: 9px;
   cursor: pointer;
 }
 
 .algorithm-library__retry-button:hover {
-  background: #1d4ed8;
+  background: var(--color-accent-hover);
 }
 
 .algorithm-library__retry-button:focus-visible {
@@ -134,13 +129,13 @@
 
 .algorithm-card__header h3 {
   margin: 4px 0 0;
-  color: #f8fafc;
+  color: var(--color-text);
   font-size: 1.25rem;
 }
 
 .algorithm-card__problem {
   margin: 0;
-  color: #38bdf8;
+  color: var(--color-accent-text);
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -148,7 +143,7 @@
 
 .algorithm-card__slug {
   padding: 5px 8px;
-  color: #94a3b8;
+  color: var(--color-text-subtle);
   font-size: 0.72rem;
   background: rgba(148, 163, 184, 0.08);
   border-radius: 6px;
@@ -157,7 +152,7 @@
 .algorithm-card__description {
   flex-grow: 1;
   margin: 18px 0;
-  color: #cbd5e1;
+  color: var(--color-text-muted);
   line-height: 1.6;
 }
 
@@ -177,14 +172,14 @@
 
 .algorithm-card__complexities dt {
   margin-bottom: 5px;
-  color: #94a3b8;
+  color: var(--color-text-subtle);
   font-size: 0.72rem;
 }
 
 .algorithm-card__complexities dd {
   margin: 0;
   overflow-wrap: anywhere;
-  color: #f8fafc;
+  color: var(--color-text);
   font-family:
     "SFMono-Regular",
     Consolas,
@@ -202,7 +197,7 @@
 
 .algorithm-card__footer-title {
   margin: 0 0 9px;
-  color: #94a3b8;
+  color: var(--color-text-subtle);
   font-size: 0.76rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -227,7 +222,7 @@
 }
 
 .algorithm-card__implementation small {
-  color: #7dd3fc;
+  color: var(--color-accent-text);
   font-size: 0.68rem;
   text-transform: capitalize;
 }

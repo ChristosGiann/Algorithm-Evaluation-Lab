@@ -8,8 +8,9 @@ import { SortingVisualization } from "./components/SortingVisualization/SortingV
 import { Comparison } from "./components/Comparison/Comparison";
 
 import { AlgorithmLibrary } from "./components/AlgorithmLibrary/AlgorithmLibrary";
-import { AppHeader } from "./components/AppHeader/AppHeader";
-import { BackendStatus } from "./components/BackendStatus/BackendStatus";
+import { AppShell, Overview } from "./components/AppShell/AppShell";
+import { SortingWorkspace } from "./components/AppShell/SortingWorkspace";
+
 import { Experiments } from "./components/Experiments/Experiments";
 import { Benchmark } from "./components/Benchmark/Benchmark";
 import { CustomPython } from "./components/CustomPython/CustomPython";
@@ -31,27 +32,20 @@ function App() {
   }, [language]);
 
   return (
-    <main>
-      <AppHeader texts={texts.app} language={language} onLanguageChange={setLanguage} />
-
-      <BackendStatus texts={texts.backendStatus} />
-      <Benchmark language={language} />
-      <Comparison language={language} />
-      <Experiments language={language} />
-      <CustomPython language={language} />
-      <SortingVisualization language={language} />
-
-      <Pathfinding language={language} />
-      <SearchingVisualization language={language} />
-      <SearchingComparison language={language} />
-      <StringSearchVisualization language={language} />
-      <StringSearchComparison language={language} />
-
-      <AlgorithmLibrary
-        texts={texts.algorithmLibrary}
-        language={language}
-      />
-    </main>
+    <AppShell language={language} onLanguageChange={setLanguage}>{ {
+      overview: <Overview language={language} />,
+      sorting: <SortingWorkspace language={language} panels={{
+        benchmark: <Benchmark language={language} />,
+        comparison: <Comparison language={language} />,
+        visualization: <SortingVisualization language={language} />,
+        custom: <CustomPython language={language} />,
+      }} />,
+      pathfinding: <Pathfinding language={language} />,
+      searching: <><SearchingVisualization language={language} /><SearchingComparison language={language} /></>,
+      strings: <><StringSearchVisualization language={language} /><StringSearchComparison language={language} /></>,
+      experiments: <Experiments language={language} />,
+      library: <AlgorithmLibrary texts={texts.algorithmLibrary} language={language} />,
+    } }</AppShell>
   );
 }
 

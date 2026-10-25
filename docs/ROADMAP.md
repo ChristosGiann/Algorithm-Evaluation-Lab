@@ -500,11 +500,11 @@ Single runs/comparisons αποθηκεύονται στο κοινό ιστορ�
 
 ## Public deployment preparation (2026-10-18)
 
-#143 PostgreSQL, #144 production settings και #145 local-only custom execution ολοκληρώθηκαν. Τα #146 Render και #147 Neon bootstrap διαθέτουν repository configuration/CI, αλλά απαιτούν ακόμη provider setup και hosted επαλήθευση. Το προηγούμενο deployment-preparation snapshot προωθήθηκε στη main μέσω PR #167 (2026-10-18). Frontend deployment #148 και public smoke/docs #149–#150 ακολουθούν.
+#143 PostgreSQL, #144 production settings και #145 local-only custom execution ολοκληρώθηκαν. Τα #146 Render και #147 Neon bootstrap διαθέτουν repository configuration/CI και από 2026-10-25 ενεργό hosted deployment. Το προηγούμενο deployment-preparation snapshot προωθήθηκε στη main μέσω PR #167 (2026-10-18). Το frontend #148 είναι live και τα hosted smoke checks καταγράφονται στο [Deployment](DEPLOYMENT.md). Το #150 ενημερώνει τα docs και η main promotion επαληθεύει auto-deploy/repeated bootstrap πριν το κλείσιμο των #146–#150.
 
 
 ## Research Console — #168
 
 Υλοποιήθηκε presentation/navigation refactor με persistent shell, design tokens,
 responsive workspaces και regression checks. Αλγόριθμοι, evaluation και persistence
-contracts παραμένουν ίδια. Το deployment setup #146–#150 ακολουθεί ανεξάρτητα.
+contracts παραμένουν ίδια. Το deployment #146–#150 έχει ενεργά Render/Neon services· απομένουν τα τελικά release acceptance checks που περιγράφονται παραπάνω.

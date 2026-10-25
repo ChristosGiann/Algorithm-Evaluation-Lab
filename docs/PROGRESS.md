@@ -1,6 +1,20 @@
 # Project Progress
 
-Last verified: **2026-10-17**
+Last verified: **2026-10-25**
+
+## Public deployment — #146–#150
+
+Το [public frontend](https://algorithm-evaluation-lab.onrender.com) και το
+[backend API](https://algorithm-evaluation-lab-api.onrender.com/api/health/) είναι live:
+Render Static Site → Render Django Web Service → Neon PostgreSQL, free plans, Frankfurt.
+Fresh bootstrap, sorting benchmark και sorting experiment persistence επιβεβαιώθηκαν στο hosted setup.
+Pathfinding/Searching/String Search ελέγχθηκαν για εκτέλεση, όχι hosted persistence.
+Το direct custom endpoint απορρίπτει production execution με `execution_disabled`.
+
+Το #150 ενημερώνει docs και URLs. Η promotion στη main δίνει το επόμενο commit για
+έλεγχο auto-deploy (#146/#148) και repeated bootstrap με διατήρηση δεδομένων (#147).
+Τα τελικά provider evidence καταγράφονται στα issues πριν κλείσουν· δεν εξάγονται από το CI.
+Βλ. [Deployment](DEPLOYMENT.md) για configuration, cold start και release checklist.
 
 ## Current phase
 
@@ -439,7 +453,7 @@ Environment-based PostgreSQL/SQLite selection, pinned driver και πραγμα
 
 ## Production configuration — #144
 
-Strict production env validation, explicit hosts/HTTPS origins, secure cookies/HSTS/redirect και automated deploy-check coverage. Το production δεν φορτώνει local .env. Δεν έχει δημιουργηθεί hosted service.
+Strict production env validation, explicit hosts/HTTPS origins, secure cookies/HSTS/redirect και automated deploy-check coverage. Το production δεν φορτώνει local .env. Κατά το αρχικό στάδιο δεν υπήρχε hosted service· το live status καταγράφεται στην αρχή του αρχείου.
 
 
 ## Local-only execution — #145
@@ -451,12 +465,12 @@ Production/Render mode αναγκάζει `ENABLE_TRUSTED_CUSTOM_EXECUTION=False
 
 ## Render preparation — #146
 
-Blueprint, Gunicorn/WhiteNoise, fail-fast build/start και Linux CI HTTP smoke. Hosted Render health/auto-deploy pending· το issue δεν θεωρείται πλήρως κλειστό πριν από provider verification.
+Blueprint, Gunicorn/WhiteNoise, fail-fast build/start και Linux CI HTTP smoke. Το hosted health έχει πλέον επιβεβαιωθεί. Παραμένει ο έλεγχος automatic redeploy στο επόμενο main commit.
 
 
 ## Database bootstrap preparation — #147 (2026-10-18)
 
-Direct migration URL, serialized migrations/atomic idempotent seed, startup failure propagation και PostgreSQL CI bootstrap/smoke. Το repository scope υλοποιήθηκε· actual Neon/Render provisioning και hosted verification εκκρεμούν. Τα #143–#145 ολοκληρώθηκαν, #146–#147 παραμένουν ανοιχτά μέχρι hosted validation.
+Direct migration URL, serialized migrations/atomic idempotent seed, startup failure propagation και PostgreSQL CI bootstrap/smoke. Το provisioning και fresh hosted bootstrap επιβεβαιώθηκαν στις 2026-10-25. Η επόμενη main promotion ελέγχει repeated bootstrap/history preservation πριν κλείσουν τα #146–#147.
 
 
 ## Research Console UI — #168 (2026-10-20)
@@ -467,7 +481,7 @@ tools αντικαθιστούν το ενιαίο κάθετο UI. Dark navy/ch
 Το Pathfinding grid προηγείται των αποτελεσμάτων σε contained scroll region.
 Διατηρούνται el/en, visible focus, skip link, active navigation semantics, reduced-motion
 CSS και visited workspace state. Νέα navigation/SSR regression coverage και screenshots
-στο README. Hosted Render/Neon verification παραμένει ανεξάρτητη εκκρεμότητα #146–#147.
+στο README. Για το νεότερο hosted status και τα εναπομείναντα release checks, βλ. την αρχή του αρχείου.
 
 
 ## Sidebar identity — #170

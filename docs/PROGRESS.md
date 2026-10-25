@@ -486,4 +486,4 @@ CSS και visited workspace state. Νέα navigation/SSR regression coverage κ
 
 ## Sidebar identity — #170
 
-Αφαιρέθηκε το μωβ εικονίδιο λ κατόπιν προτίμησης του χρήστη. Παραμένει το όνομα της εφαρμογής με το Research Console subtitle. Η ανανέωση των screenshots εκκρεμεί λόγω αποκλεισμού πρόσβασης από την πολιτική του browser.
+Αφαιρέθηκε το μωβ εικονίδιο λ κατόπιν προτίμησης του χρήστη. Παραμένει το όνομα της εφαρμογής με το Research Console subtitle. Τα desktop/mobile screenshots ανανεώθηκαν στις 2026-10-25 από το public demo, σε viewports 1440px/320px, χωρίς το εικονίδιο λ και με πραγματικό επιτυχημένο Quick Sort benchmark.

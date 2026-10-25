@@ -47,7 +47,7 @@ Benchmark / Σύγκριση / Οπτικοποίηση / Custom Python.
 Refresh μηδενίζει το προσωρινό state· τα αποθηκευμένα πειράματα παραμένουν στο ιστορικό.
 Εκτελέσεις και animations που έχουν ήδη ξεκινήσει συνεχίζονται στο παρασκήνιο.
 
-Πραγματικά screenshots του τοπικού build στις 2026-10-20 (πριν από την αφαίρεση του εικονιδίου λ στο #170):
+Πραγματικά screenshots του public demo στις 2026-10-25, μετά την αφαίρεση του εικονιδίου λ (#170): desktop viewport 1440px και mobile viewport 320px, με επιτυχημένο Quick Sort benchmark.
 
 ![Research Console — desktop](docs/images/research-console.jpg)
 

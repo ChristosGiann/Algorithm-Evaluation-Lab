@@ -1,4 +1,53 @@
-# Public deployment preparation
+# Public deployment
+
+
+## Ενεργό public demo — 2026-10-25
+
+- Frontend: [Algorithm Evaluation Lab](https://algorithm-evaluation-lab.onrender.com).
+- Backend: [Django API](https://algorithm-evaluation-lab-api.onrender.com/api/health/).
+- Repository: `ChristosGiann/Algorithm-Evaluation-Lab`, deployment branch `main`.
+
+```text
+React / Vite — Render Static Site
+    ↓ VITE_API_BASE_URL
+Django / DRF / Gunicorn — Render Web Service (Frankfurt)
+    ↓ DATABASE_URL (pooled)
+Neon PostgreSQL (AWS eu-central-1 / Frankfurt)
+```
+
+Χρησιμοποιούνται free plans. Το Render backend κάνει spin down όταν δεν χρησιμοποιείται·
+η πρώτη κλήση μπορεί να καθυστερήσει 50 δευτερόλεπτα ή περισσότερο. Αν το UI δείξει προσωρινά
+μη διαθέσιμο backend, περίμενε να ολοκληρωθεί το cold start και επανάλαβε τη δοκιμή.
+Δεν πρόκειται για εγγύηση χρόνων απόκρισης ή benchmark performance.
+
+Το Neon project είναι `Algorithm Evaluation Lab`, branch `production`, database `neondb`.
+Το runtime χρησιμοποιεί pooled `DATABASE_URL` (hostname με `-pooler`) και το bootstrap
+χρησιμοποιεί direct `MIGRATION_DATABASE_URL` για την ίδια βάση.
+Τα πραγματικά connection strings και το `DJANGO_SECRET_KEY` υπάρχουν μόνο στο provider environment,
+ποτέ σε Git, docs, issues ή logs.
+
+### Καταγεγραμμένη hosted επαλήθευση
+
+Στις 2026-10-25, το αρχικό deployment του `af0e8db` ολοκληρώθηκε στα δύο Render services.
+Το handoff της χειροκίνητης δοκιμής καταγράφει:
+
+- `Database bootstrap completed.`, πέντε seeded implementations και Gunicorn startup.
+- Frontend → backend επικοινωνία και Greek UI/hash navigation.
+- Quick Sort, Random / size 100 / seed 42 / 10 runs: correct σε όλες τις εκτελέσεις.
+- Sorting experiment `#1 Test` (Merge Sort, ίδια δεδομένα): αποθήκευση και reopen μετά από refresh.
+- Επιτυχείς αντιπροσωπευτικές εκτελέσεις Pathfinding, Searching και String Search.
+
+Στην επαλήθευση του #150 επιβεβαιώθηκαν επιπλέον με απευθείας public requests:
+`GET /api/health/` → 200, catalogue → 200, `GET /api/experiments/1/` → completed με saved results,
+και `POST /api/benchmarks/sorting/custom/` → HTTP 200 με
+`{"algorithm":"custom-python","source_type":"custom","status":"error","error":"execution_disabled"}`.
+Το HTTP 200 εδώ είναι το υπάρχον structured error contract, όχι επιτυχής εκτέλεση κώδικα.
+
+Δεν έχει επαληθευτεί χειροκίνητα hosted persistence για τις άλλες τρεις families.
+Το πρώτο deployment μόνο του δεν αποδεικνύει auto-deploy ή repeated bootstrap.
+Η promotion αυτού του documentation PR στη main χρησιμοποιείται για τους τελικούς ελέγχους
+#146–#148. Τα αποτελέσματα, deployment IDs και merge commits καταγράφονται στα αντίστοιχα
+GitHub issues πριν από το κλείσιμο. Το #150 κλείνει αφού επιβεβαιωθεί και το deployment.
 
 ## Database configuration — #143
 
@@ -16,7 +65,7 @@ python backend/manage.py check
 
 Πηγές: [dj-database-url](https://pypi.org/project/dj-database-url/), [PostgreSQL JSON Unicode restrictions](https://www.postgresql.org/docs/current/datatype-json.html).
 
-Δεν έχει επιβεβαιωθεί hosted Render/Neon deployment. Αυτή η ενότητα περιγράφει την υποστήριξη του repository, όχι ενεργή online υπηρεσία.
+Το hosted Render/Neon deployment είναι ενεργό· η παραπάνω καταγραφή διαχωρίζει τα επιβεβαιωμένα checks από τα release checks που απαιτούν νέο main commit.
 
 
 ## Production settings — #144
@@ -37,13 +86,13 @@ Production/Render mode αναγκάζει `ENABLE_TRUSTED_CUSTOM_EXECUTION=False
 
 ## Render backend configuration — #146
 
-Το `render.yaml` ορίζει free Python Web Service στο Frankfurt, branch **main**, auto-deploy μόνο μετά από επιτυχημένα checks, health path `/api/health/`. Η main ενημερώνεται μόνο με ρητή εντολή. Μέχρι να προωθηθούν οι αλλαγές και να δημιουργηθεί service, αυτό είναι configuration, όχι ενεργό deployment.
+Το `render.yaml` ορίζει free Python Web Service στο Frankfurt, branch **main**, auto-deploy μόνο μετά από επιτυχημένα checks, health path `/api/health/`. Η main ενημερώνεται μόνο με ρητή εντολή. Το service `algorithm-evaluation-lab-api` είναι πλέον ενεργό. Η πραγματική συμπεριφορά auto-deploy ελέγχεται από τα Render deploy events μετά από main promotion, όχι μόνο από το Blueprint.
 
 Build: `bash scripts/build-backend.sh` (dependencies, deploy checks, collectstatic). Start: `bash scripts/start-backend.sh` (production preflight, migration consistency, Gunicorn WSGI). Provider `PORT` ελέγχεται και γίνεται bind στο `0.0.0.0`. Το local development συνεχίζει με Django runserver· Gunicorn εκτελείται σε Linux. WhiteNoise σερβίρει Django admin/static assets.
 
 Στο Render dashboard εισάγονται τα sync:false env values: Neon DATABASE_URL, explicit backend hostname, HTTPS frontend origins και generated DJANGO_SECRET_KEY τουλάχιστον 50 χαρακτήρων (π.χ. `secrets.token_urlsafe(64)` τοπικά). Δεν μπαίνουν secrets σε Git ή chat. CSRF origins μπορούν να μείνουν κενά αν δεν χρησιμοποιείται cross-origin cookie authentication. Δεν απαιτείται αγορά paid plan.
 
-Μετά τη δημιουργία ελέγχουμε public `/api/health/`, static assets, startup logs και auto-deploy από main. Το frontend build παίρνει `VITE_API_BASE_URL=https://<backend-host>` χωρίς trailing slash. Frontend hosting ανήκει στο #148.
+Μετά τη δημιουργία ελέγχουμε public `/api/health/`, static assets, startup logs και auto-deploy από main. Το frontend build παίρνει `VITE_API_BASE_URL=https://<backend-host>` χωρίς trailing slash. Το ενεργό frontend hosting περιγράφεται στο #148 παρακάτω.
 
 Το CI εκκινεί το ίδιο start script με Gunicorn και production configuration σε disposable PostgreSQL και ελέγχει πραγματικό HTTP health/static response. Αυτό **δεν αποδεικνύει** Render provisioning, routing ή auto-deploy. Το #146 μένει ανοιχτό μέχρι τη hosted επαλήθευση.
 
@@ -73,6 +122,51 @@ Build: `bash scripts/build-backend.sh` (dependencies, deploy checks, collectstat
 
 Κάθε migration γίνεται commit μαζί με την αλλαγή και ελέγχεται σε disposable PostgreSQL CI πριν τη main. Αν migration ή seed αποτύχει, δεν ξεκινά νέος server. Δεν παρακάμπτουμε με `--fake`, manual SQL ή διαγραφή migration records. Ελέγχουμε την αιτία, διορθώνουμε σε νέο issue/PR και ξανατρέχουμε. Ήδη ολοκληρωμένες migrations παραμένουν εφαρμοσμένες· δεν γίνεται αυτόματο rollback ολόκληρου deployment. Οι PostgreSQL atomic migrations και το atomic seed προστατεύουν τα επιμέρους βήματα. Για μελλοντικές destructive migrations χρειάζεται προηγούμενο backup και συμβατότητα με την προηγούμενη έκδοση.
 
-CI: fresh database bootstrap, repeated bootstrap, seed idempotence/history preservation, failure ordering/lock tests και πραγματικό Gunicorn health/static/catalogue smoke. Τα existing experiment suites τρέχουν σε PostgreSQL. **Hosted Neon credentials/connectivity και Render auto-deploy δεν έχουν ελεγχθεί ακόμη**· τα #146/#147 μένουν ανοιχτά για provider validation.
+CI: fresh database bootstrap, repeated bootstrap, seed idempotence/history preservation, failure ordering/lock tests και πραγματικό Gunicorn health/static/catalogue smoke. Τα existing experiment suites τρέχουν σε PostgreSQL. Το fresh hosted bootstrap και το sorting history έχουν επιβεβαιωθεί. Τα #146/#147 κλείνουν μόνο μετά την καταγραφή επιτυχούς automatic redeploy και repeated bootstrap με διατήρηση του experiment #1 και χωρίς duplicate implementations.
 
 Πηγή: [Neon connection strings](https://neon.com/docs/connect/connect-from-any-app).
+
+
+## Render Static Site — #148
+
+Το ενεργό service `algorithm-evaluation-lab` χρησιμοποιεί:
+
+| Ρύθμιση | Τιμή |
+| --- | --- |
+| Branch | `main` |
+| Root Directory | κενό (repository root) |
+| Build Command | `npm install && npm run build` |
+| Publish Directory | `dist` |
+| Environment | `VITE_API_BASE_URL=https://algorithm-evaluation-lab-api.onrender.com` |
+
+Αυτές είναι οι τρέχουσες dashboard ρυθμίσεις· το `render.yaml` ορίζει μόνο το backend.
+Το Vite ενσωματώνει το API URL στο build, άρα αλλαγή του απαιτεί νέο frontend build.
+Δεν βάζουμε backend secrets σε `VITE_*` variables. Το backend επιτρέπει ως CORS origin
+το `https://algorithm-evaluation-lab.onrender.com` και ως host το
+`algorithm-evaluation-lab-api.onrender.com`.
+Η εφαρμογή χρησιμοποιεί hash navigation (`#overview`, `#sorting`, `#experiments`),
+οπότε δεν απαιτείται SPA rewrite για αυτές τις διαδρομές.
+
+## Release και production smoke checklist — #146–#150
+
+1. Branch από ενημερωμένο `dev`, σχετική τεκμηρίωση, PR προς `dev`, επιτυχημένα CI checks και merge.
+2. Με ρητή εντολή, PR `dev → main`· ποτέ direct feature push στη main.
+3. Στα Render deploy events και των δύο services επιβεβαίωσε **νέο main commit** και automatic trigger.
+   Μην πατήσεις Manual Deploy για να αποδείξεις auto-deploy.
+4. Στα backend logs: bootstrap complete, χωρίς duplicate seeds, έπειτα Gunicorn startup/live.
+5. Health/catalogue, αμετάβλητα IDs/count των πέντε implementations και το υπάρχον experiment `#1 Test`
+   με τα ίδια persisted results. Η απλή εμφάνιση πέντε cards δεν αρκεί ως έλεγχος ιστορικού.
+6. Public UI: backend διαθέσιμο, Quick Sort Random/100/42/10 σωστό, navigation και refresh λειτουργούν.
+7. Direct Custom Python request απορρίπτεται με `execution_disabled`, χωρίς ενεργοποίηση του feature.
+8. Καταχώρισε evidence με PR/merge/deployment references στα issues και κλείσε μόνο τα επαληθευμένα.
+   Συγχρόνισε τη main πίσω στο μόνιμο dev και διέγραψε μόνο το temporary branch.
+
+### Trusted Custom Python τοπικά
+
+Ακολούθησε το [README quick start](../README.md#quick-start) και το [Custom Python guide](CUSTOM_PYTHON.md).
+Στο ignored `backend/.env` βάλε `DJANGO_ENV=development`, `DJANGO_DEBUG=true`,
+`ENABLE_TRUSTED_CUSTOM_EXECUTION=true` και localhost CORS origin.
+Τρέξε τον backend μόνο σε `127.0.0.1` και το frontend με το τοπικό `VITE_API_BASE_URL`.
+Απαιτείται restart μετά από αλλαγή environment. Εκτέλεσε μόνο δικό σου trusted code:
+subprocess/timeout/static validation δεν αποτελούν sandbox. Μην ενεργοποιείς αυτό το workflow
+στο public Render service. Built-in benchmarks και static validation παραμένουν ανεξάρτητα διαθέσιμα.

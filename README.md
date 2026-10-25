@@ -2,7 +2,7 @@
 
 **Εργαστήριο Αξιολόγησης Αλγορίθμων** — εκπαιδευτική full-stack εφαρμογή για να συνδέουμε τη θεωρητική πολυπλοκότητα των αλγορίθμων με πραγματικές μετρήσεις.
 
-Το project εξελίχθηκε από ένα pathfinding visualizer σε εργαστήριο για testing, benchmarking, visualization, comparison και προσωπική αξιολόγηση algorithm implementations. Το GitHub repository διατηρεί το όνομα `Pathfinding-Algorithm-Lab`.
+Το project εξελίχθηκε από ένα pathfinding visualizer σε εργαστήριο για testing, benchmarking, visualization, comparison και προσωπική αξιολόγηση algorithm implementations. Το GitHub repository είναι το `ChristosGiann/Algorithm-Evaluation-Lab`.
 
 Σήμερα μπορείς να εξερευνήσεις εκπαιδευτικό el/en sorting catalogue και pathfinding Library (BFS/DFS/Dijkstra/A*), να δεις step visualization, να συγκρίνεις 2–5 algorithms στα ίδια δεδομένα, να αποθηκεύσεις και να ξανανοίξεις comparisons, να τρέξεις Bubble Sort, Insertion Sort, Selection Sort, Merge Sort ή Quick Sort σε ελεγχόμενα datasets και να εξετάσεις ορθότητα και χρόνους εκτέλεσης. Το UI είναι προεπιλεγμένα στα Ελληνικά· το header χρησιμοποιεί τη συντομότερη ονομασία «Εργαστήριο Αλγορίθμων».
 
@@ -53,7 +53,15 @@ Refresh μηδενίζει το προσωρινό state· τα αποθηκευ
 
 [Προβολή mobile layout στα 320px](docs/images/research-console-mobile.jpg)
 
-**Live demo:** δεν υπάρχει ακόμη δημοσιευμένο demo URL. Για δοκιμή ακολούθησε το local setup. Ο σύνδεσμος θα προστεθεί όταν γίνει deploy.
+**Live demo:** [Algorithm Evaluation Lab](https://algorithm-evaluation-lab.onrender.com).
+**Backend API:** [Health endpoint](https://algorithm-evaluation-lab-api.onrender.com/api/health/).
+
+Το public deployment χρησιμοποιεί Render Static Site → Render Django Web Service → Neon PostgreSQL,
+με free plans και backend/database στο Frankfurt. Το backend μπορεί να κάνει spin down όταν
+μένει ανενεργό, οπότε η πρώτη κλήση μπορεί να καθυστερήσει λόγω cold start.
+Το Custom Python execution είναι απενεργοποιημένο στο production· για δικό σου trusted code
+χρειάζεται local clone και explicit opt-in. Βλ. [Deployment](docs/DEPLOYMENT.md) και
+[Custom Python](docs/CUSTOM_PYTHON.md).
 
 ## Tech stack
 
@@ -62,6 +70,7 @@ Refresh μηδενίζει το προσωρινό state· τα αποθηκευ
 | Frontend | React 19, TypeScript 6, Vite 8, CSS, Fetch API |
 | Backend | Python, Django 5.2, Django REST Framework 3.17 |
 | Development database | SQLite |
+| Public hosting/database | Render Static Site + Python Web Service, Neon PostgreSQL |
 | Quality | Django tests, Node test runner, ESLint, TypeScript build |
 | Workflow | GitHub Issues, issue branches, Pull Requests προς dev |
 
@@ -73,8 +82,8 @@ Refresh μηδενίζει το προσωρινό state· τα αποθηκευ
 Απαιτούνται Git, Python 3.10+ και Node.js 22.15+ με npm. Το παράδειγμα χρησιμοποιεί Windows PowerShell και δύο terminals. Οι παρακάτω εντολές εκτελούνται από το repository root.
 
 ```powershell
-git clone https://github.com/ChristosGiann/Pathfinding-Algorithm-Lab.git
-cd Pathfinding-Algorithm-Lab
+git clone https://github.com/ChristosGiann/Algorithm-Evaluation-Lab.git
+cd Algorithm-Evaluation-Lab
 git switch dev
 ```
 
@@ -199,7 +208,8 @@ git diff --check
 | Υλοποιημένο στο dev | Sorting comparison/history/statistics, educational Library, visualization, trusted local custom comparison και CI (#58–#64/#66–#68). |
 | Foundation στο dev | Pathfinding input/result/evaluation contract (#65), [αναλυτικά](docs/PATHFINDING.md). |
 | Searching | Τέσσερις algorithms, education, visualization, comparison και persistence. |
-| String Search | Foundation και Naive· επόμενα KMP/Rabin-Karp/Boyer-Moore, visualization/comparison/education (#129–#134). |
+| String Search | Naive/KMP/Rabin-Karp/Boyer-Moore, visualization/comparison/education/persistence και comprehensive tests (#128–#136). |
+| Public deployment | Live Render frontend/API και Neon persistence. Hosted evidence και release verification: [Deployment](docs/DEPLOYMENT.md). |
 
 Το [Roadmap](docs/ROADMAP.md) καταγράφει τις φάσεις και το [Progress](docs/PROGRESS.md) το τρέχον snapshot. Οι μελλοντικοί στόχοι δεν παρουσιάζονται ως έτοιμες λειτουργίες.
 
